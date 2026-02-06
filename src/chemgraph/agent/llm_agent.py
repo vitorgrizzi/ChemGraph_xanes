@@ -352,12 +352,15 @@ class ChemGraph:
             serialized_state = serialize_state(state)
 
             try:
+                import subprocess
                 git_commit = (
-                    subprocess.check_output(["git", "rev-parse", "HEAD"])
+                    subprocess.check_output(
+                        ["git", "rev-parse", "HEAD"], stderr=subprocess.DEVNULL
+                    )
                     .decode("utf-8")
                     .strip()
                 )
-            except subprocess.CalledProcessError:
+            except (subprocess.CalledProcessError, FileNotFoundError, ImportError):
                 git_commit = "unknown"
 
             # Base log info
