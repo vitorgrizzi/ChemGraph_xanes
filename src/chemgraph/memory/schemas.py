@@ -5,7 +5,7 @@ Pydantic schemas for ChemGraph session memory.
 from datetime import datetime
 from typing import Optional
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
 
 class SessionMessage(BaseModel):
@@ -17,6 +17,14 @@ class SessionMessage(BaseModel):
         default=None, description="Tool name if role is 'tool'"
     )
     timestamp: datetime = Field(default_factory=datetime.now)
+
+    @field_validator("content", mode="before")
+    @classmethod
+    def stringify_content(cls, v):
+        if isinstance(v, (list, dict)):
+            import json
+            return json.dumps(v)
+        return str(v)
 
 
 class Session(BaseModel):

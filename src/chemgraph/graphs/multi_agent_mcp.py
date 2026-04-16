@@ -296,7 +296,7 @@ def AggregatorAgent(
     system_prompt: str,
 ):
     if "worker_result" in state:
-        outputs = [m.content for m in state["worker_result"]]
+        outputs = [str(m.content) if not isinstance(m.content, str) else m.content for m in state["worker_result"]]
         worker_summary_msg = {
             "role": "assistant",
             "content": "Worker Outputs:\n" + "\n".join(outputs),

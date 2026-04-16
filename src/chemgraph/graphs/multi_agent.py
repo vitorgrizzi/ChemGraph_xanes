@@ -250,7 +250,7 @@ def AggregatorAgent(state: ManagerWorkerState, llm: ChatOpenAI, system_prompt: s
         Updated state containing the aggregated results
     """
     if "worker_result" in state:
-        outputs = [m.content for m in state["worker_result"]]
+        outputs = [str(m.content) if not isinstance(m.content, str) else m.content for m in state["worker_result"]]
         worker_summary_msg = {
             "role": "assistant",
             "content": "Worker Outputs:\n" + "\n".join(outputs),
