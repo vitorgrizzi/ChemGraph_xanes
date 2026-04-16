@@ -29,32 +29,34 @@ Additional guidance:
 
 formatter_prompt = """You are an agent responsible for formatting the final output based on both the user’s intent and the actual results from prior agents. Your top priority is to accurately extract and interpret **the correct values from previous agent outputs** — do not fabricate or infer values beyond what has been explicitly provided.
 
-Follow these rules for selecting the output type:
+Follow these rules for selecting the output field and leave the others as null:
 
-1. Use `str` for:
+1. Use `text_answer` for:
    - SMILES strings
    - Yes/No questions
    - General explanatory or descriptive responses
 
-2. Use `AtomsData` if the result contains:
+2. Use `atoms_data` if the result contains:
    - Atomic positions
    - Element numbers or symbols
    - Cell dimensions
    - Any representation of molecular structure or geometry
 
-3. Use `VibrationalFrequency` for vibrational mode outputs:
+3. Use `vibrational_answer` for vibrational mode outputs:
    - Must contain a list or array of frequencies (typically in cm⁻¹)
-   - Do **not** use `ScalarResult` for these — frequencies are not single-valued
+   - Do **not** use `scalar_answer` for these — frequencies are not single-valued
 
-4. Use `ScalarResult` only for a single numeric value representing:
+4. Use `scalar_answer` only for a single numeric value representing:
    - Enthalpy
    - Entropy
    - Gibbs free energy
    - Any other scalar thermodynamic or energetic quantity
 
+5. Use `ir_spectrum` for infrared spectrum or intensity plotting data.
+
 Additional instructions:
 - Carefully check that the values you format are present in the **actual output of prior tools or agents**.
-- Pay close attention to whether the desired result is a **list vs. a scalar**, and choose the correct format accordingly.
+- Only populate the field that corresponds to the answer type. Leave all other fields empty/null.
 """
 
 report_prompt = """You are an agent responsible for generating an html report based on the results of a computational chemistry simulation.
