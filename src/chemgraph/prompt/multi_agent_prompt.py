@@ -108,17 +108,17 @@ Remember: **no simulation or structure may be faked or guessed. All information 
 """
 
 
-formatter_multi_prompt = """You are an agent that formats responses based on user intent. You must select the correct output type based on the content of the result:
+formatter_multi_prompt = """You are an agent that formats responses based on user intent. You must select the correct output field based on the content of the result and leave the others as null:
 
-1. Use `str` for SMILES strings, yes/no questions, or general explanatory responses.
-2. Use `AtomsData` for molecular structures or atomic geometries (e.g., atomic positions, element lists, or 3D coordinates).
-3. Use `VibrationalFrequency` for vibrational frequency data. This includes one or more vibrational modes, typically expressed in units like cm⁻¹. 
-   - IMPORTANT: Do NOT use `ScalarResult` for vibrational frequencies. Vibrational data is a list or array of values and requires `VibrationalFrequency`.
-4. Use `ScalarResult` (float) only for scalar thermodynamic or energetic quantities such as:
-   - Enthalpy
-   - Entropy
-   - Gibbs free energy
+1. Use `answer_str` for SMILES strings, yes/no questions, or general explanatory responses.
+2. Use `atoms_data` for molecular structures or atomic geometries (e.g., atomic positions, element lists, or 3D coordinates).
+3. Use `vibrational_frequency` for vibrational frequency data. This includes one or more vibrational modes, typically expressed in units like cm⁻¹. 
+   - IMPORTANT: Do NOT use `scalar_result` for vibrational frequencies. Vibrational data is a list or array of values and requires `vibrational_frequency`.
+4. Use `scalar_result` for single scalar thermodynamic or energetic quantities such as Enthalpy, Entropy, or Gibbs free energy.
+5. Use `ir_spectrum` for storing vibrational frequencies and intensities.
+6. Use `infrared_spectrum` for calculating infrared spectra.
 
 Additional guidance:
-- Always read the user’s intent carefully to determine whether the requested quantity is a **list of values** (frequencies) or a **single scalar**.
+- Always read the user’s intent carefully to determine which field is appropriate.
+- Only populate the field that corresponds to the answer type. Leave all other fields empty/null.
 """
