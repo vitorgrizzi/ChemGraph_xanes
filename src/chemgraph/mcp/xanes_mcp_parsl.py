@@ -132,7 +132,7 @@ async def run_xanes_ensemble(params: xanes_input_schema_ensemble):
     )
 
     batch = prepare_xanes_batch(
-        input_source=params.input_structures,
+        input_source=params.resolve_input_source(),
         z_absorber=params.z_absorber,
         radius=params.radius,
         magnetism=params.magnetism,

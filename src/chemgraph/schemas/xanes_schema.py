@@ -1,7 +1,7 @@
 import os
-from typing import Optional, Union
+from typing import Optional
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator
 
 
 class xanes_input_schema(BaseModel):
@@ -37,10 +37,17 @@ class xanes_input_schema(BaseModel):
 class xanes_input_schema_ensemble(BaseModel):
     """Input schema for ensemble XANES/FDMNES calculations via Parsl."""
 
-    input_structures: Union[str, list[str]] = Field(
+    input_source: Optional[str] = Field(
+        default=None,
         description=(
             "Path to a directory of structure files, a single structure file, "
-            "an ASE database (.db), or a list of individual structure file paths."
+            "or an ASE database (.db)."
+        ),
+    )
+    input_structure_files: list[str] = Field(
+        default_factory=list,
+        description=(
+            "Explicit list of individual structure file paths to run as an ensemble."
         ),
     )
     output_dir: Optional[str] = Field(
@@ -70,7 +77,7 @@ class xanes_input_schema_ensemble(BaseModel):
         default="",
         description=(
             "Optional ASE database selection string used when "
-            "input_structures points to an ASE database."
+            "input_source points to an ASE database."
         ),
     )
     skip_completed: bool = Field(
@@ -87,6 +94,25 @@ class xanes_input_schema_ensemble(BaseModel):
             "Defaults to the FDMNES_EXE environment variable, or 'fdmnes'."
         ),
     )
+
+    @model_validator(mode="after")
+    def validate_input_choice(self):
+        """Ensure exactly one ensemble input mode is selected."""
+        has_source = bool(self.input_source)
+        has_file_list = bool(self.input_structure_files)
+
+        if has_source == has_file_list:
+            raise ValueError(
+                "Provide exactly one of `input_source` or `input_structure_files`."
+            )
+
+        return self
+
+    def resolve_input_source(self) -> str | list[str]:
+        """Return the effective input source expected by the batch helper."""
+        if self.input_source:
+            return self.input_source
+        return self.input_structure_files
 
 
 class mp_query_schema(BaseModel):
