@@ -12,6 +12,7 @@ WORKFLOWS = [
     "multi_agent_mcp",
     "graspa_mcp",
     "single_agent_xanes",
+    "multi_agent_xanes",
 ]
 
 
@@ -34,6 +35,7 @@ def test_constructor_is_called(monkeypatch, workflow_type):
         "multi_agent_mcp": "construct_multi_agent_mcp_graph",
         "graspa_mcp": "construct_graspa_mcp_graph",
         "single_agent_xanes": "construct_single_agent_xanes_graph",
+        "multi_agent_xanes": "construct_multi_agent_xanes_graph",
     }[workflow_type]
 
     monkeypatch.setattr(
@@ -49,7 +51,12 @@ def test_constructor_is_called(monkeypatch, workflow_type):
 
     # For MCP workflows some constructors expect tools; pass a non-empty list
     kwargs = {}
-    if workflow_type in {"single_agent_mcp", "multi_agent_mcp", "graspa_mcp"}:
+    if workflow_type in {
+        "single_agent_mcp",
+        "multi_agent_mcp",
+        "graspa_mcp",
+        "multi_agent_xanes",
+    }:
         kwargs["tools"] = ["DUMMY_TOOL"]
         kwargs["data_tools"] = ["DUMMY_TOOL"]
 
@@ -60,3 +67,28 @@ def test_constructor_is_called(monkeypatch, workflow_type):
         assert args_tuple[0] == "FAKE_LLM"
     else:
         assert kwargs_called.get("llm") == "FAKE_LLM"
+
+    if workflow_type in {"multi_agent_mcp", "multi_agent_xanes"}:
+        assert kwargs_called.get("tools") == ["DUMMY_TOOL"]
+
+
+def test_workflow_type_can_come_from_env(monkeypatch):
+    called = {}
+
+    def fake_constructor(*args, **kwargs):
+        called["args"] = (args, kwargs)
+        return "WORKFLOW-SENTINEL-single_agent_xanes"
+
+    monkeypatch.setenv("WORKFLOW_TYPE", "single_agent_xanes")
+    monkeypatch.setattr(
+        "chemgraph.agent.llm_agent.construct_single_agent_xanes_graph",
+        fake_constructor,
+    )
+    monkeypatch.setattr(
+        "chemgraph.agent.llm_agent.load_openai_model",
+        lambda model_name, temperature, base_url=None: "FAKE_LLM",
+    )
+
+    cg = ChemGraph(model_name="gpt-4o-mini", workflow_type="single_agent")
+    assert cg.workflow_type == "single_agent_xanes"
+    assert cg.workflow == "WORKFLOW-SENTINEL-single_agent_xanes"

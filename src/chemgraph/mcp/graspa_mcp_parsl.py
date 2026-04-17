@@ -60,9 +60,15 @@ def load_parsl_config(system_name: str):
 
         return get_aurora_config(run_dir=run_dir)
 
+    elif system_name == "improv":
+        from chemgraph.hpc_configs.improv_parsl import get_improv_config
+
+        return get_improv_config(run_dir=run_dir)
+
     else:
         raise ValueError(
-            f"Unknown system specified: '{system_name}'. Supported: polaris, aurora"
+            "Unknown system specified: "
+            f"'{system_name}'. Supported: polaris, aurora, improv"
         )
 
 

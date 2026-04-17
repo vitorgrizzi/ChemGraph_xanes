@@ -278,10 +278,6 @@ def WorkerAgent(
     messages = [{"role": "system", "content": system_prompt}] + history
     llm_with_tools = llm.bind_tools(tools=tools)
     response = llm_with_tools.invoke(messages)
-    print(messages)
-    print(tools)
-    print(list(tools))
-    print(response)
     state["worker_channel"][worker_id].append(response)
 
     if not getattr(response, "tool_calls", None):
@@ -469,6 +465,14 @@ def construct_multi_agent_mcp_graph(
         logger.info("Constructing multi-agent graph")
         checkpointer = MemorySaver()
 
+        if tools is None:
+            tools = [
+                run_ase,
+                molecule_name_to_smiles,
+                smiles_to_coordinate_file,
+                extract_output_json,
+            ]
+
         graph_builder = StateGraph(ManagerWorkerState)
         if support_structured_output is True:
             graph_builder.add_node(
@@ -496,15 +500,13 @@ def construct_multi_agent_mcp_graph(
 
         graph_builder.add_node(
             "WorkerAgent",
-            lambda state: WorkerAgent(state, llm, system_prompt=executor_prompt),
+            lambda state: WorkerAgent(
+                state,
+                llm,
+                system_prompt=executor_prompt,
+                tools=tools,
+            ),
         )
-        if tools is None:
-            tools = [
-                run_ase,
-                molecule_name_to_smiles,
-                smiles_to_coordinate_file,
-                extract_output_json,
-            ]
 
         graph_builder.add_node(
             "tools",

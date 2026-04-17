@@ -39,6 +39,7 @@ from chemgraph.graphs.graspa_agent import construct_graspa_graph
 from chemgraph.graphs.mock_agent import construct_mock_agent_graph
 from chemgraph.graphs.single_agent_mcp import construct_single_agent_mcp_graph
 from chemgraph.graphs.multi_agent_mcp import construct_multi_agent_mcp_graph
+from chemgraph.graphs.multi_agent_xanes import construct_multi_agent_xanes_graph
 from chemgraph.graphs.graspa_mcp import construct_graspa_mcp_graph
 from chemgraph.graphs.rag_agent import construct_rag_agent_graph
 from chemgraph.graphs.single_agent_xanes import construct_single_agent_xanes_graph
@@ -46,6 +47,9 @@ from chemgraph.prompt.rag_prompt import rag_agent_prompt
 from chemgraph.prompt.xanes_prompt import (
     xanes_single_agent_prompt as default_xanes_single_agent_prompt,
     xanes_formatter_prompt as default_xanes_formatter_prompt,
+    xanes_planner_prompt as default_xanes_planner_prompt,
+    xanes_executor_prompt as default_xanes_executor_prompt,
+    xanes_aggregator_prompt as default_xanes_aggregator_prompt,
 )
 
 import logging
@@ -94,6 +98,8 @@ class ChemGraph:
         - "multi_agent"
         - "python_relp"
         - "graspa_agent"
+        - "single_agent_xanes"
+        - "multi_agent_xanes"
         by default "single_agent"
     base_url : str, optional
         Base URL for API calls, by default None
@@ -258,6 +264,7 @@ class ChemGraph:
             logger.error(f"Exception thrown when loading {model_name}: {str(e)}")
             raise e
 
+        workflow_type = os.getenv("WORKFLOW_TYPE", workflow_type)
         self.workflow_type = workflow_type
         self.model_name = model_name
         self.system_prompt = system_prompt
@@ -290,6 +297,7 @@ class ChemGraph:
             "graspa_mcp": {"constructor": construct_graspa_mcp_graph},
             "rag_agent": {"constructor": construct_rag_agent_graph},
             "single_agent_xanes": {"constructor": construct_single_agent_xanes_graph},
+            "multi_agent_xanes": {"constructor": construct_multi_agent_xanes_graph},
         }
 
         if workflow_type not in self.workflow_map:
@@ -348,6 +356,7 @@ class ChemGraph:
                 executor_prompt=self.executor_prompt,
                 formatter_prompt=self.formatter_multi_prompt,
                 structured_output=self.structured_output,
+                tools=self.tools,
                 support_structured_output=self.support_structured_output,
             )
         elif self.workflow_type == "graspa_mcp":
@@ -375,6 +384,25 @@ class ChemGraph:
                 if self.formatter_prompt != default_formatter_prompt
                 else default_xanes_formatter_prompt,
                 tools=self.tools,
+            )
+        elif self.workflow_type == "multi_agent_xanes":
+            self.workflow = self.workflow_map[workflow_type]["constructor"](
+                llm=llm,
+                planner_prompt=self.planner_prompt
+                if self.planner_prompt != default_planner_prompt
+                else default_xanes_planner_prompt,
+                aggregator_prompt=self.aggregator_prompt
+                if self.aggregator_prompt != default_aggregator_prompt
+                else default_xanes_aggregator_prompt,
+                executor_prompt=self.executor_prompt
+                if self.executor_prompt != default_executor_prompt
+                else default_xanes_executor_prompt,
+                formatter_prompt=self.formatter_multi_prompt
+                if self.formatter_multi_prompt != default_formatter_multi_prompt
+                else default_xanes_formatter_prompt,
+                structured_output=self.structured_output,
+                tools=self.tools,
+                support_structured_output=self.support_structured_output,
             )
 
     def visualize(self, method: str = "ascii"):
@@ -523,7 +551,7 @@ class ChemGraph:
                         "system_prompt": self.system_prompt,
                     }
                 )
-            elif self.workflow_type == "multi_agent":
+            elif self.workflow_type in {"multi_agent", "multi_agent_xanes"}:
                 output_data.update(
                     {
                         "planner_prompt": self.planner_prompt,

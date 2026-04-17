@@ -1,0 +1,78 @@
+#!/bin/bash -l
+# ==============================================================================
+# start_mcp_server_parsl_improv.sub
+#
+# Example PBS job script for launching the ChemGraph XANES Parsl MCP server on
+# Improv. The job acts as the Parsl driver and the worker-node settings are
+# passed to ChemGraph via environment variables.
+# ==============================================================================
+
+#PBS -l walltime=01:00:00
+#PBS -l select=1:ncpus=4
+#PBS -q debug
+#PBS -A your_account
+#PBS -N XANES_PARSL_IMPROV
+#PBS -o chemgraph_xanes_parsl_improv.out
+#PBS -e chemgraph_xanes_parsl_improv.err
+
+set -eo pipefail
+
+log() {
+    echo "[$(date '+%Y-%m-%d %H:%M:%S')] $*"
+}
+
+# --------------- User configuration ---------------
+CONDA_SH="$HOME/miniconda/etc/profile.d/conda.sh"
+CONDA_ENV="qc_env"
+FDMNES_EXE_PATH="/home/your_user/parallel_fdmnes/mpirun_fdmnes"
+MCP_PORT=9007
+LOG_DIR="${PBS_O_WORKDIR}/chemgraph_xanes_logs"
+
+# Parsl worker job settings
+CHEMGRAPH_ACCOUNT="your_account"
+CHEMGRAPH_WALLTIME="01:00:00"
+CHEMGRAPH_QUEUE="debug"
+CHEMGRAPH_MAX_NODES="2"
+CHEMGRAPH_CPUS_NODE="128"   # Worker-node core count, not the small driver job
+# -----------------------------------------------
+
+cd "${PBS_O_WORKDIR:-$(pwd)}"
+
+source "$CONDA_SH"
+conda activate "$CONDA_ENV"
+
+export COMPUTE_SYSTEM=improv
+export FDMNES_EXE="$FDMNES_EXE_PATH"
+
+export CHEMGRAPH_PBS_ACCOUNT="$CHEMGRAPH_ACCOUNT"
+export CHEMGRAPH_PBS_WALLTIME="$CHEMGRAPH_WALLTIME"
+export CHEMGRAPH_PBS_QUEUE="$CHEMGRAPH_QUEUE"
+export CHEMGRAPH_MAX_BLOCKS="$CHEMGRAPH_MAX_NODES"
+export CHEMGRAPH_CPUS_PER_NODE="$CHEMGRAPH_CPUS_NODE"
+export CHEMGRAPH_CONDA_SH="$CONDA_SH"
+export CHEMGRAPH_CONDA_ENV="$CONDA_ENV"
+export CHEMGRAPH_OMP_NUM_THREADS=1
+
+mkdir -p "$LOG_DIR"
+export CHEMGRAPH_LOG_DIR="$LOG_DIR"
+MCP_LOG_FILE="$CHEMGRAPH_LOG_DIR/xanes_mcp_parsl_${PBS_JOBID:-local}.log"
+
+log "Starting ChemGraph XANES Parsl MCP server on Improv"
+log "COMPUTE_SYSTEM:   $COMPUTE_SYSTEM"
+log "FDMNES_EXE:       $FDMNES_EXE"
+log "PBS account:      $CHEMGRAPH_PBS_ACCOUNT"
+log "Worker walltime:  $CHEMGRAPH_PBS_WALLTIME"
+log "Worker max nodes: $CHEMGRAPH_MAX_BLOCKS"
+log "Worker cpus/node: $CHEMGRAPH_CPUS_PER_NODE"
+
+python -u -m chemgraph.mcp.xanes_mcp_parsl \
+    --transport streamable_http \
+    --host 0.0.0.0 \
+    --port "$MCP_PORT" \
+    > "$MCP_LOG_FILE" 2>&1 &
+
+MCP_PID=$!
+log "MCP server PID: $MCP_PID"
+log "Log file:       $MCP_LOG_FILE"
+
+wait "$MCP_PID"

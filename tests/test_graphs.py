@@ -4,6 +4,7 @@ from chemgraph.agent.llm_agent import ChemGraph
 WORKFLOWS = [
     "single_agent", "multi_agent", "python_relp", "graspa",
     "mock_agent", "single_agent_mcp", "multi_agent_mcp", "graspa_mcp",
+    "single_agent_xanes", "multi_agent_xanes",
 ]
 
 @pytest.mark.parametrize("workflow_type", WORKFLOWS)
@@ -24,6 +25,8 @@ def test_constructor_is_called(monkeypatch, workflow_type):
         "single_agent_mcp": "construct_single_agent_mcp_graph",
         "multi_agent_mcp": "construct_multi_agent_mcp_graph",
         "graspa_mcp": "construct_graspa_mcp_graph",
+        "single_agent_xanes": "construct_single_agent_xanes_graph",
+        "multi_agent_xanes": "construct_multi_agent_xanes_graph",
     }
     
     constructor_attr = mapping[workflow_type]
@@ -37,7 +40,11 @@ def test_constructor_is_called(monkeypatch, workflow_type):
 
     # Set up inputs
     test_tools = ["DUMMY_TOOL"]
-    kwargs = {"tools": test_tools, "data_tools": test_tools} if "_mcp" in workflow_type else {}
+    kwargs = (
+        {"tools": test_tools, "data_tools": test_tools}
+        if "_mcp" in workflow_type or workflow_type == "multi_agent_xanes"
+        else {}
+    )
 
     # Initialize
     cg = ChemGraph(model_name="gpt-4o-mini", workflow_type=workflow_type, **kwargs)
@@ -55,3 +62,5 @@ def test_constructor_is_called(monkeypatch, workflow_type):
     # Specific check for MCP tool passing
     if workflow_type == "graspa_mcp":
         assert kwargs_called.get("executor_tools") == test_tools
+    elif workflow_type in {"multi_agent_mcp", "multi_agent_xanes"}:
+        assert kwargs_called.get("tools") == test_tools

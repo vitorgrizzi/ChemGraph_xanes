@@ -142,6 +142,8 @@ class BenchmarkConfig(BaseModel):
         valid = {
             "single_agent",
             "multi_agent",
+            "single_agent_xanes",
+            "multi_agent_xanes",
             "single_agent_mcp",
             "multi_agent_mcp",
         }

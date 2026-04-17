@@ -16,6 +16,7 @@ Run XANES workflows using the ChemGraph LLM agent connected to a running XANES M
 | `run_chemgraph.py` | LLM agent client with example prompts |
 | `start_mcp_server.py` | Start the XANES MCP server (simple Python launcher) |
 | `start_mcp_server.sub` | PBS batch script to launch the server as a job |
+| `start_mcp_server_parsl_improv.sub` | PBS batch script for the Parsl-backed XANES server on Improv |
 | `start_mcp_server_interactive.sh` | Shell script for interactive sessions |
 
 ## Step-by-Step
@@ -52,6 +53,25 @@ Find the compute node:
 
 ```bash
 cat chemgraph_xanes_logs/connection_info.txt
+```
+
+**Option D: Improv + Parsl batch mode**
+
+For batch XANES execution on Improv using `chemgraph.mcp.xanes_mcp_parsl`, edit
+`start_mcp_server_parsl_improv.sub` and set:
+
+- `CONDA_SH`
+- `CONDA_ENV`
+- `FDMNES_EXE_PATH`
+- `CHEMGRAPH_ACCOUNT`
+- `CHEMGRAPH_WALLTIME`
+- `CHEMGRAPH_MAX_NODES`
+- `CHEMGRAPH_CPUS_NODE`
+
+Then submit:
+
+```bash
+qsub start_mcp_server_parsl_improv.sub
 ```
 
 ### 2. Set Up Port Forwarding (if remote)

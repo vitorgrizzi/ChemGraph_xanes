@@ -98,3 +98,24 @@ OpenCode spawns the MCP server as a local child process using stdio transport. T
 ## Notes for Parsl-based servers
 
 `xanes_mcp_parsl.py`, `mace_mcp_parsl.py`, and `graspa_mcp_parsl.py` rely on Parsl and HPC-specific configuration. Ensure your environment is prepared for the target system before running production jobs.
+
+For `COMPUTE_SYSTEM=improv`, ChemGraph expects the worker-job settings to come
+from environment variables exported by the PBS launcher script. The key
+variables are:
+
+- `CHEMGRAPH_PBS_ACCOUNT`
+- `CHEMGRAPH_PBS_WALLTIME`
+- `CHEMGRAPH_MAX_BLOCKS`
+- `CHEMGRAPH_CPUS_PER_NODE`
+- `CHEMGRAPH_CONDA_SH`
+- `CHEMGRAPH_CONDA_ENV`
+- `CHEMGRAPH_OMP_NUM_THREADS`
+- `FDMNES_EXE`
+
+Set `CHEMGRAPH_CPUS_PER_NODE` explicitly for Improv worker jobs. The driver
+job's `PBS_NP` value may be smaller and should not be used as the intended
+worker-node size unless that is truly what you want.
+
+See
+`examples/xanes_mcp/mcp_http/start_mcp_server_parsl_improv.sub`
+for a concrete XANES/Improv launcher example.
