@@ -1351,6 +1351,25 @@
 <p>OpenCode spawns the MCP server as a local child process using stdio transport. The <code>{env:CHEMGRAPH_PYTHON}</code> variable in the config is resolved at startup, so different users (or the same user on different machines) can each point to their own ChemGraph installation without modifying the committed config.</p>
 <h2 id="notes-for-parsl-based-servers">Notes for Parsl-based servers</h2>
 <p><code>xanes_mcp_parsl.py</code>, <code>mace_mcp_parsl.py</code>, and <code>graspa_mcp_parsl.py</code> rely on Parsl and HPC-specific configuration. Ensure your environment is prepared for the target system before running production jobs.</p>
+<p>For <code>COMPUTE_SYSTEM=improv</code>, ChemGraph expects the worker-job settings to come
+from environment variables exported by the PBS launcher script. The key
+variables are:</p>
+<ul>
+<li><code>CHEMGRAPH_PBS_ACCOUNT</code></li>
+<li><code>CHEMGRAPH_PBS_WALLTIME</code></li>
+<li><code>CHEMGRAPH_MAX_BLOCKS</code></li>
+<li><code>CHEMGRAPH_CPUS_PER_NODE</code></li>
+<li><code>CHEMGRAPH_CONDA_SH</code></li>
+<li><code>CHEMGRAPH_CONDA_ENV</code></li>
+<li><code>CHEMGRAPH_OMP_NUM_THREADS</code></li>
+<li><code>FDMNES_EXE</code></li>
+</ul>
+<p>Set <code>CHEMGRAPH_CPUS_PER_NODE</code> explicitly for Improv worker jobs. The driver
+job's <code>PBS_NP</code> value may be smaller and should not be used as the intended
+worker-node size unless that is truly what you want.</p>
+<p>See
+<code>examples/xanes_mcp/mcp_http/start_mcp_server_parsl_improv.sub</code>
+for a concrete XANES/Improv launcher example.</p>
 
 
 
