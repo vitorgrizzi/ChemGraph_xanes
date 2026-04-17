@@ -77,7 +77,7 @@ mcp = FastMCP(
         The available tools are:
         1. run_xanes_single: run a single FDMNES calculation for one structure.
         2. run_xanes_ensemble: run FDMNES calculations over multiple structures
-           using Parsl for parallel execution.
+           from structure files or ASE databases using Parsl for parallel execution.
         3. fetch_mp_structures: fetch optimized structures from Materials Project.
         4. plot_xanes: generate normalized XANES plots for completed calculations.
 
@@ -107,10 +107,10 @@ def run_xanes_single(params: xanes_input_schema):
     description="Run an ensemble of XANES/FDMNES calculations using Parsl.",
 )
 async def run_xanes_ensemble(params: xanes_input_schema_ensemble):
-    """Run ensemble XANES calculations over all structure files using Parsl.
+    """Run ensemble XANES calculations over multiple structures using Parsl.
 
-    For each structure file:
-    1. Reads the structure via ASE.
+    For each structure source entry:
+    1. Reads the structure(s) from files or an ASE database.
     2. Creates FDMNES input files in a per-structure subdirectory.
     3. Submits a Parsl bash_app to run FDMNES.
     4. Gathers results and writes a JSONL summary log.
@@ -120,78 +120,57 @@ async def run_xanes_ensemble(params: xanes_input_schema_ensemble):
     params : xanes_input_schema_ensemble
         Input parameters for the ensemble calculation.
     """
-    from ase.io import read as ase_read
-
     from chemgraph.tools.xanes_tools import (
-        write_fdmnes_input,
         extract_conv,
+        prepare_xanes_batch,
     )
 
-    input_source = params.input_structures
-    structure_files: list[Path] = []
-    output_dir: Path = Path.cwd()
+    batch = prepare_xanes_batch(
+        input_source=params.input_structures,
+        z_absorber=params.z_absorber,
+        radius=params.radius,
+        magnetism=params.magnetism,
+        output_dir=params.output_dir,
+        ase_db_selection=params.ase_db_selection,
+        skip_completed=params.skip_completed,
+    )
 
-    if isinstance(input_source, list):
-        structure_files = [Path(p) for p in input_source]
-        missing = [p for p in structure_files if not p.exists()]
-        if missing:
-            raise ValueError(f"The following input files are missing: {missing}")
-        if structure_files:
-            output_dir = structure_files[0].parent
-    else:
-        input_dir = Path(input_source)
-        if not input_dir.is_dir():
-            raise ValueError(f"'{input_dir}' is not a valid directory.")
-        structure_files = sorted(
-            p for p in input_dir.iterdir() if p.suffix in {".cif", ".xyz", ".poscar"}
-        )
-        output_dir = input_dir
-
-    if not structure_files:
-        raise ValueError("No structure files found to simulate.")
-
-    # Create a batch runs directory
-    runs_dir = output_dir / "fdmnes_batch_runs"
-    runs_dir.mkdir(parents=True, exist_ok=True)
-
+    output_dir = Path(batch["root_dir"])
     fdmnes_exe = params.fdmnes_exe
-
     pending_tasks = []
+    results = []
 
-    for i, struct_path in enumerate(structure_files):
-        run_dir = runs_dir / f"run_{i}"
-        run_dir.mkdir(parents=True, exist_ok=True)
+    for job in batch["jobs"]:
+        run_dir = Path(job["run_dir"])
+        if job["status"] == "skipped_existing":
+            try:
+                conv_data = extract_conv(run_dir)
+                results.append(
+                    {
+                        **job,
+                        "status": "success",
+                        "n_conv_files": len(conv_data),
+                        "message": "Skipped execution because outputs already exist.",
+                    }
+                )
+            except Exception as e:
+                results.append(
+                    {
+                        **job,
+                        "status": "failure",
+                        "error_type": type(e).__name__,
+                        "message": str(e),
+                    }
+                )
+            continue
 
-        # Read structure and write FDMNES inputs
-        atoms = ase_read(str(struct_path))
-        z_abs = (
-            params.z_absorber
-            if params.z_absorber is not None
-            else int(max(atoms.get_atomic_numbers()))
-        )
-
-        write_fdmnes_input(
-            ase_atoms=atoms,
-            z_absorber=z_abs,
-            input_file_dir=run_dir,
-            radius=params.radius,
-            magnetism=params.magnetism,
-        )
-
-        # Submit Parsl task
         fut = run_fdmnes_parsl_app(
             run_dir=str(run_dir),
             fdmnes_exe=fdmnes_exe,
             stdout=str(run_dir / "fdmnes_stdout.txt"),
             stderr=str(run_dir / "fdmnes_stderr.txt"),
         )
-
-        task_meta = {
-            "structure": struct_path.name,
-            "run_dir": str(run_dir),
-            "z_absorber": z_abs,
-        }
-        pending_tasks.append((task_meta, fut))
+        pending_tasks.append((job, fut))
 
     async def wait_for_task(meta, parsl_future):
         try:
@@ -210,9 +189,12 @@ async def run_xanes_ensemble(params: xanes_input_schema_ensemble):
                 "message": str(e),
             }
 
-    results = await asyncio.gather(
-        *(wait_for_task(meta, fut) for meta, fut in pending_tasks)
-    )
+    if pending_tasks:
+        results.extend(
+            await asyncio.gather(
+                *(wait_for_task(meta, fut) for meta, fut in pending_tasks)
+            )
+        )
 
     summary_log_path = output_dir / "xanes_results.jsonl"
     success_count = 0
@@ -225,7 +207,7 @@ async def run_xanes_ensemble(params: xanes_input_schema_ensemble):
 
     return (
         f"Ensemble execution completed. Ran {len(results)} tasks "
-        f"({success_count} successful). "
+        f"({success_count} successful, {batch['n_skipped']} reused existing outputs). "
         f"Detailed results appended to '{summary_log_path}'."
     )
 

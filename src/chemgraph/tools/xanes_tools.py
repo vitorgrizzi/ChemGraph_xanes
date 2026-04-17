@@ -1,8 +1,8 @@
+import json
 import logging
 import os
 import pickle
 import subprocess
-import shutil
 from pathlib import Path
 from typing import List, Optional
 
@@ -14,6 +14,8 @@ from langchain_core.tools import tool
 from chemgraph.schemas.xanes_schema import xanes_input_schema, mp_query_schema
 
 logger = logging.getLogger(__name__)
+
+SUPPORTED_XANES_STRUCTURE_SUFFIXES = {".cif", ".xyz", ".poscar", ".vasp"}
 
 # -----------------------------------------------------------------------------
 # Helper Functions
@@ -177,6 +179,226 @@ def extract_conv(fdmnes_output_dir: Path | str) -> dict:
         energy_xas[i] = np.loadtxt(conv_file, skiprows=1)
 
     return energy_xas
+
+
+def is_calc_done(run_dir: Path | str, min_size_bytes: int = 1024) -> bool:
+    """Return True if a successful FDMNES convolution output already exists."""
+    run_path = Path(run_dir)
+    conv = next(run_path.glob("*_conv.txt"), None)
+    return conv is not None and conv.stat().st_size > min_size_bytes
+
+
+def _is_supported_xanes_structure_file(path: Path) -> bool:
+    """Return True for structure files supported by the XANES batch loader."""
+    name = path.name.lower()
+    suffix = path.suffix.lower()
+    return path.is_file() and (
+        suffix in SUPPORTED_XANES_STRUCTURE_SUFFIXES or name in {"poscar", "contcar"}
+    )
+
+
+def _collect_xanes_batch_structures(
+    input_source: str | list[str],
+    ase_db_selection: str = "",
+) -> tuple[list[dict], Path]:
+    """Collect XANES batch structures from files, directories, or ASE databases."""
+    structures: list[dict] = []
+
+    if isinstance(input_source, list):
+        structure_files = [Path(p).resolve() for p in input_source]
+        missing = [str(p) for p in structure_files if not p.exists()]
+        if missing:
+            raise FileNotFoundError(
+                f"The following input structures are missing: {missing}"
+            )
+        invalid = [
+            str(p)
+            for p in structure_files
+            if not _is_supported_xanes_structure_file(p)
+        ]
+        if invalid:
+            raise ValueError(
+                "Only structure files are allowed in an explicit input list. "
+                f"Unsupported entries: {invalid}"
+            )
+        output_root = structure_files[0].parent if structure_files else Path.cwd()
+        for struct_path in structure_files:
+            atoms = ase_read(str(struct_path))
+            structures.append(
+                {
+                    "label": struct_path.stem,
+                    "source": str(struct_path),
+                    "atoms": atoms,
+                }
+            )
+        return structures, output_root
+
+    input_path = Path(input_source).resolve()
+
+    if input_path.is_dir():
+        structure_files = sorted(
+            [
+                p.resolve()
+                for p in input_path.iterdir()
+                if _is_supported_xanes_structure_file(p)
+            ],
+            key=lambda p: p.name.lower(),
+        )
+        if not structure_files:
+            raise ValueError(f"No supported structure files found in '{input_path}'.")
+        for struct_path in structure_files:
+            atoms = ase_read(str(struct_path))
+            structures.append(
+                {
+                    "label": struct_path.stem,
+                    "source": str(struct_path),
+                    "atoms": atoms,
+                }
+            )
+        return structures, input_path
+
+    if input_path.is_file() and input_path.suffix.lower() == ".db":
+        from ase.db import connect as ase_db_connect
+
+        db = ase_db_connect(str(input_path))
+        selection = ase_db_selection or None
+        rows = list(db.select(selection=selection)) if selection else list(db.select())
+        if not rows:
+            selector_text = (
+                f" using selection '{ase_db_selection}'" if ase_db_selection else ""
+            )
+            raise ValueError(
+                f"No structures found in ASE database '{input_path}'{selector_text}."
+            )
+
+        for row in rows:
+            atoms = row.toatoms()
+            atoms.info.setdefault("ase_db_id", row.id)
+            atoms.info.setdefault("ase_db_source", str(input_path))
+            formula = getattr(row, "formula", None) or atoms.get_chemical_formula()
+            structures.append(
+                {
+                    "label": f"db_{row.id}_{formula}",
+                    "source": f"{input_path}::id={row.id}",
+                    "atoms": atoms,
+                }
+            )
+        return structures, input_path.parent
+
+    if input_path.is_file():
+        if not _is_supported_xanes_structure_file(input_path):
+            raise ValueError(
+                f"Unsupported XANES input file '{input_path}'. "
+                "Expected a structure file or an ASE database (.db)."
+            )
+        atoms = ase_read(str(input_path))
+        structures.append(
+            {
+                "label": input_path.stem,
+                "source": str(input_path),
+                "atoms": atoms,
+            }
+        )
+        return structures, input_path.parent
+
+    raise ValueError(f"'{input_source}' is not a valid XANES input source.")
+
+
+def _write_prepared_xanes_batch(
+    structures: list[dict],
+    root_dir: Path,
+    z_absorber: Optional[int] = None,
+    radius: float = 6.0,
+    magnetism: bool = False,
+    skip_completed: bool = True,
+) -> dict:
+    """Prepare per-structure FDMNES input directories for a XANES batch."""
+    root_dir = Path(root_dir).resolve()
+    runs_dir = root_dir / "fdmnes_batch_runs"
+    runs_dir.mkdir(parents=True, exist_ok=True)
+
+    jobs = []
+    n_prepared = 0
+    n_skipped = 0
+
+    for i, structure in enumerate(structures):
+        atoms = structure["atoms"]
+        run_dir = runs_dir / f"run_{i}"
+        run_dir.mkdir(parents=True, exist_ok=True)
+
+        current_z = (
+            z_absorber
+            if z_absorber is not None
+            else int(max(atoms.get_atomic_numbers()))
+        )
+
+        job_meta = {
+            "structure": structure["label"],
+            "source": structure["source"],
+            "run_dir": str(run_dir),
+            "z_absorber": current_z,
+        }
+
+        if skip_completed and is_calc_done(run_dir):
+            job_meta["status"] = "skipped_existing"
+            jobs.append(job_meta)
+            n_skipped += 1
+            continue
+
+        write_fdmnes_input(
+            ase_atoms=atoms,
+            z_absorber=current_z,
+            input_file_dir=run_dir,
+            radius=radius,
+            magnetism=magnetism,
+        )
+
+        formula = atoms.get_chemical_formula()
+        mp_id = atoms.info.get("MP-id", atoms.info.get("ase_db_id", "local"))
+        pkl_filename = f"Z{current_z}_{mp_id}_{formula}.pkl"
+        with open(run_dir / pkl_filename, "wb") as f:
+            pickle.dump(atoms, f)
+
+        with open(run_dir / "run_metadata.json", "w", encoding="utf-8") as f:
+            json.dump(job_meta, f, indent=2)
+
+        job_meta["status"] = "prepared"
+        jobs.append(job_meta)
+        n_prepared += 1
+
+    return {
+        "root_dir": str(root_dir),
+        "runs_dir": str(runs_dir),
+        "jobs": jobs,
+        "n_total": len(jobs),
+        "n_prepared": n_prepared,
+        "n_skipped": n_skipped,
+    }
+
+
+def prepare_xanes_batch(
+    input_source: str | list[str],
+    z_absorber: Optional[int] = None,
+    radius: float = 6.0,
+    magnetism: bool = False,
+    output_dir: Optional[str] = None,
+    ase_db_selection: str = "",
+    skip_completed: bool = True,
+) -> dict:
+    """Prepare batch XANES/FDMNES run directories from a file, folder, or ASE DB."""
+    structures, default_root = _collect_xanes_batch_structures(
+        input_source=input_source,
+        ase_db_selection=ase_db_selection,
+    )
+    root_dir = Path(output_dir).resolve() if output_dir is not None else default_root
+    return _write_prepared_xanes_batch(
+        structures=structures,
+        root_dir=root_dir,
+        z_absorber=z_absorber,
+        radius=radius,
+        magnetism=magnetism,
+        skip_completed=skip_completed,
+    )
 
 
 # -----------------------------------------------------------------------------
@@ -391,20 +613,7 @@ def create_fdmnes_inputs(
         Path to the ``fdmnes_batch_runs`` directory.
     """
     logger.info("Creating FDMNES inputs in %s", root_dir)
-    runs_dir = root_dir / "fdmnes_batch_runs"
-
-    start_idx = 0
-    if runs_dir.exists():
-        for subdir in runs_dir.iterdir():
-            try:
-                start_idx = max(start_idx, int(subdir.name.split("_")[-1]))
-            except ValueError:
-                continue
-        last_run = runs_dir / f"run_{start_idx}"
-        if last_run.exists():
-            shutil.rmtree(last_run)
-    else:
-        runs_dir.mkdir(parents=True)
+    root_dir = Path(root_dir).resolve()
 
     if atoms_list is None:
         db_path = root_dir / "atoms_db.pkl"
@@ -413,30 +622,26 @@ def create_fdmnes_inputs(
         with open(db_path, "rb") as f:
             atoms_list = pickle.load(f)
 
-    for i, atoms in enumerate(atoms_list, start=start_idx):
-        curr_run_dir = runs_dir / f"run_{i}"
-        curr_run_dir.mkdir(parents=True, exist_ok=True)
-
-        current_z = (
-            z_absorber
-            if z_absorber is not None
-            else int(max(atoms.get_atomic_numbers()))
-        )
-        write_fdmnes_input(
-            ase_atoms=atoms,
-            input_file_dir=curr_run_dir,
-            z_absorber=current_z,
-            radius=radius,
-            magnetism=magnetism,
+    structures = []
+    for i, atoms in enumerate(atoms_list):
+        label = atoms.info.get("MP-id", atoms.get_chemical_formula())
+        structures.append(
+            {
+                "label": f"atoms_{i}_{label}",
+                "source": f"atoms_list[{i}]",
+                "atoms": atoms,
+            }
         )
 
-        mp_id = atoms.info.get("MP-id", "local")
-        formula = atoms.get_chemical_formula()
-        pkl_filename = f"Z{current_z}_{mp_id}_{formula}.pkl"
-        with open(curr_run_dir / pkl_filename, "wb") as f:
-            pickle.dump(atoms, f)
-
-    return runs_dir
+    batch = _write_prepared_xanes_batch(
+        structures=structures,
+        root_dir=root_dir,
+        z_absorber=z_absorber,
+        radius=radius,
+        magnetism=magnetism,
+        skip_completed=False,
+    )
+    return Path(batch["runs_dir"])
 
 
 def expand_database_results(root_dir: Path, runs_dir: Path) -> None:

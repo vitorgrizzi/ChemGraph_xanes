@@ -39,7 +39,16 @@ class xanes_input_schema_ensemble(BaseModel):
 
     input_structures: Union[str, list[str]] = Field(
         description=(
-            "Path to a directory of structure files OR a list of individual file paths."
+            "Path to a directory of structure files, a single structure file, "
+            "an ASE database (.db), or a list of individual structure file paths."
+        ),
+    )
+    output_dir: Optional[str] = Field(
+        default=None,
+        description=(
+            "Directory to write batch run directories and summary logs. "
+            "Defaults to the input directory, structure parent directory, "
+            "or ASE database parent directory."
         ),
     )
     z_absorber: Optional[int] = Field(
@@ -56,6 +65,20 @@ class xanes_input_schema_ensemble(BaseModel):
     magnetism: bool = Field(
         default=False,
         description="Enable magnetic contributions in the FDMNES calculation.",
+    )
+    ase_db_selection: str = Field(
+        default="",
+        description=(
+            "Optional ASE database selection string used when "
+            "input_structures points to an ASE database."
+        ),
+    )
+    skip_completed: bool = Field(
+        default=True,
+        description=(
+            "Skip run directories that already contain a non-empty "
+            "FDMNES convolution output."
+        ),
     )
     fdmnes_exe: str = Field(
         default_factory=lambda: os.environ.get("FDMNES_EXE", "fdmnes"),

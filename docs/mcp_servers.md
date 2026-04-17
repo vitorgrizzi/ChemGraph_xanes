@@ -4,6 +4,8 @@
 ## Available servers
 
 - `mcp_tools.py`: general ASE-powered chemistry tools
+- `xanes_mcp.py`: single-structure XANES/FDMNES workflows
+- `xanes_mcp_parsl.py`: batch XANES/FDMNES workflows via Parsl (HPC)
 - `mace_mcp_parsl.py`: MACE + Parsl workflows
 - `graspa_mcp_parsl.py`: gRASPA + Parsl workflows
 - `data_analysis_mcp.py`: analysis utilities for generated results
@@ -83,6 +85,8 @@ The example config (`.opencode/opencode.example.jsonc`) includes all servers. En
 | Server name | Module | Tools | Status
 |---|---|---|
 | `chemgraph` | `chemgraph.mcp.mcp_tools` | molecule_name_to_smiles, smiles_to_coordinate_file, run_ase, extract_output_json | Stable
+| `chemgraph-xanes` | `chemgraph.mcp.xanes_mcp` | Single-structure XANES/FDMNES tools | Experimental
+| `chemgraph-xanes-parsl` | `chemgraph.mcp.xanes_mcp_parsl` | Batch XANES/FDMNES calculations via Parsl (files or ASE DB) | Experimental
 | `chemgraph-mace-parsl` | `chemgraph.mcp.mace_mcp_parsl` | MACE ensemble calculations via Parsl (HPC) | Experimental
 | `chemgraph-graspa-parsl` | `chemgraph.mcp.graspa_mcp_parsl` | gRASPA gas adsorption via Parsl (HPC) | Experimental
 | `chemgraph-data-analysis` | `chemgraph.mcp.data_analysis_mcp` | CIF splitting, JSONL aggregation, isotherm plotting | Experimental
@@ -93,4 +97,4 @@ OpenCode spawns the MCP server as a local child process using stdio transport. T
 
 ## Notes for Parsl-based servers
 
-`mace_mcp_parsl.py` and `graspa_mcp_parsl.py` rely on Parsl and HPC-specific configuration. Ensure your environment is prepared for the target system before running production jobs.
+`xanes_mcp_parsl.py`, `mace_mcp_parsl.py`, and `graspa_mcp_parsl.py` rely on Parsl and HPC-specific configuration. Ensure your environment is prepared for the target system before running production jobs.
