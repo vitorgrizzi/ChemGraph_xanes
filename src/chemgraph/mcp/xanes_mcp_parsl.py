@@ -1,8 +1,10 @@
 import asyncio
+import atexit
 import json
 import logging
 import os
 from pathlib import Path
+import uuid
 
 from mcp.server.fastmcp import FastMCP
 
@@ -15,6 +17,9 @@ from chemgraph.schemas.xanes_schema import (
     xanes_input_schema_ensemble,
     mp_query_schema,
 )
+
+
+_PARSL_LOADED = False
 
 
 @bash_app
@@ -45,24 +50,29 @@ def load_parsl_config(system_name: str):
         Target system name. Supported: ``polaris``, ``aurora``, ``improv``.
     """
     system_name = system_name.lower()
-    run_dir = os.getcwd()
+    run_root = Path(os.environ.get("CHEMGRAPH_PARSL_RUN_DIR", os.getcwd())).resolve()
+    run_dir = (
+        run_root
+        / "parsl_runs"
+        / f"xanes_mcp_{os.getpid()}_{uuid.uuid4().hex[:8]}"
+    )
 
-    logging.info("Initializing Parsl for system: %s", system_name)
+    logging.info("Initializing Parsl for system: %s in %s", system_name, run_dir)
 
     if system_name == "polaris":
         from chemgraph.hpc_configs.polaris_parsl import get_polaris_config
 
-        return get_polaris_config(run_dir=run_dir)
+        return get_polaris_config(run_dir=str(run_dir))
 
     elif system_name == "aurora":
         from chemgraph.hpc_configs.aurora_parsl import get_aurora_config
 
-        return get_aurora_config(run_dir=run_dir)
+        return get_aurora_config(run_dir=str(run_dir))
 
     elif system_name == "improv":
         from chemgraph.hpc_configs.improv_parsl import get_improv_config
 
-        return get_improv_config(run_dir=run_dir)
+        return get_improv_config(run_dir=str(run_dir))
 
     else:
         raise ValueError(
@@ -71,9 +81,30 @@ def load_parsl_config(system_name: str):
         )
 
 
-# Load Parsl config at module level (same pattern as graspa_mcp_parsl.py)
-target_system = os.getenv("COMPUTE_SYSTEM", "polaris")
-parsl.load(load_parsl_config(target_system))
+def _cleanup_parsl() -> None:
+    """Release the Parsl DFK if this MCP process initialized one."""
+    global _PARSL_LOADED
+    if not _PARSL_LOADED:
+        return
+    try:
+        parsl.dfk().cleanup()
+    except Exception as exc:
+        logging.warning("Failed to cleanup Parsl DFK: %s", exc)
+    finally:
+        _PARSL_LOADED = False
+
+
+def ensure_parsl_loaded() -> None:
+    """Initialize Parsl lazily, only for Parsl-backed tool calls."""
+    global _PARSL_LOADED
+    if _PARSL_LOADED:
+        return
+    target_system = os.getenv("COMPUTE_SYSTEM", "polaris")
+    parsl.load(load_parsl_config(target_system))
+    _PARSL_LOADED = True
+
+
+atexit.register(_cleanup_parsl)
 
 # Start MCP server
 mcp = FastMCP(
@@ -130,6 +161,8 @@ async def run_xanes_ensemble(params: xanes_input_schema_ensemble):
         extract_conv,
         prepare_xanes_batch,
     )
+
+    ensure_parsl_loaded()
 
     batch = prepare_xanes_batch(
         input_source=params.resolve_input_source(),

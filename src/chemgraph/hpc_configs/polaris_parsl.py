@@ -1,3 +1,4 @@
+import logging
 import os
 from parsl.config import Config
 from parsl.providers import LocalProvider
@@ -23,7 +24,7 @@ def get_polaris_config(
             num_nodes = len(node_list)
     else:
         # Fallback for testing/local runs without PBS
-        print("Warning: PBS_NODEFILE not found. Defaulting to 1 node.")
+        logging.warning("PBS_NODEFILE not found. Defaulting to 1 node.")
         num_nodes = 1
 
     config = Config(
