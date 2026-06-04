@@ -44,6 +44,27 @@ def test_prepare_xanes_batch_from_ase_db(tmp_path):
         assert "::id=" in metadata["source"]
 
 
+def test_prepare_xanes_batch_writes_energy_range(tmp_path):
+    db_path = tmp_path / "structures.db"
+    output_dir = tmp_path / "xanes_output"
+    _build_test_db(db_path)
+
+    batch = prepare_xanes_batch(
+        input_source=str(db_path),
+        output_dir=str(output_dir),
+        z_absorber=29,
+        energy_range=[-5.0, 0.5, 60.0],
+    )
+
+    run_dir = Path(batch["runs_dir"]) / "run_0"
+    fdmnes_input = (run_dir / "fdmnes_in.txt").read_text(encoding="utf-8")
+    assert "Range\n-5 0.5 60\n\n" in fdmnes_input
+
+    with open(run_dir / "run_metadata.json", "r", encoding="utf-8") as f:
+        metadata = json.load(f)
+    assert metadata["energy_range"] == [-5.0, 0.5, 60.0]
+
+
 def test_prepare_xanes_batch_skips_completed_runs(tmp_path):
     db_path = tmp_path / "structures.db"
     output_dir = tmp_path / "xanes_output"

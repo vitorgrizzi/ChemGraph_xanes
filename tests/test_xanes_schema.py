@@ -1,6 +1,28 @@
 import pytest
 
-from chemgraph.schemas.xanes_schema import xanes_input_schema_ensemble
+from chemgraph.schemas.xanes_schema import xanes_input_schema, xanes_input_schema_ensemble
+
+
+def test_xanes_schema_accepts_energy_range():
+    params = xanes_input_schema(
+        input_structure_file="/tmp/structure.cif",
+        energy_range=[-5.0, 0.5, 60.0],
+    )
+    assert params.energy_range == [-5.0, 0.5, 60.0]
+
+
+def test_xanes_schema_rejects_invalid_energy_range():
+    with pytest.raises(ValueError):
+        xanes_input_schema(
+            input_structure_file="/tmp/structure.cif",
+            energy_range=[-5.0, 60.0],
+        )
+
+    with pytest.raises(ValueError):
+        xanes_input_schema(
+            input_structure_file="/tmp/structure.cif",
+            energy_range=[-5.0, -0.5, 60.0],
+        )
 
 
 def test_xanes_ensemble_schema_accepts_input_source():

@@ -135,6 +135,7 @@ async def run_xanes_ensemble(params: xanes_input_schema_ensemble):
         input_source=params.resolve_input_source(),
         z_absorber=params.z_absorber,
         radius=params.radius,
+        energy_range=params.energy_range,
         magnetism=params.magnetism,
         output_dir=params.output_dir,
         ase_db_selection=params.ase_db_selection,

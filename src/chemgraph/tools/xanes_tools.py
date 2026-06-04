@@ -16,6 +16,7 @@ from chemgraph.schemas.xanes_schema import xanes_input_schema, mp_query_schema
 logger = logging.getLogger(__name__)
 
 SUPPORTED_XANES_STRUCTURE_SUFFIXES = {".cif", ".xyz", ".poscar", ".vasp"}
+CHEMGRAPH_DEFAULT_ENERGY_RANGE = [-55.0, 1.0, -10.0, 0.01, 5.0, 0.1, 150.0]
 
 # -----------------------------------------------------------------------------
 # Helper Functions
@@ -27,6 +28,7 @@ def write_fdmnes_input(
     z_absorber: int = None,
     input_file_dir: Path = None,
     radius: float = 6.0,
+    energy_range: Optional[List[float]] = None,
     magnetism: bool = False,
 ):
     """Write FDMNES input files (fdmfile.txt and fdmnes_in.txt) for a structure.
@@ -42,6 +44,9 @@ def write_fdmnes_input(
         Directory to write input files into. Defaults to cwd.
     radius : float
         Cluster radius in Angstrom. Default 6.0.
+    energy_range : list of float, optional
+        Values written under the FDMNES Range keyword. If omitted, uses the
+        built-in ChemGraph XANES mesh.
     magnetism : bool
         Enable magnetic contributions. Default False.
     """
@@ -65,7 +70,8 @@ def write_fdmnes_input(
 
         # Energy mesh
         f.write("Range\n")
-        f.write("-55. 1.0 -10. 0.01 5. 0.1 150.\n\n")
+        range_values = energy_range or CHEMGRAPH_DEFAULT_ENERGY_RANGE
+        f.write(" ".join(f"{value:g}" for value in range_values) + "\n\n")
 
         # Cluster radius
         f.write("Radius\n")
@@ -309,6 +315,7 @@ def _write_prepared_xanes_batch(
     root_dir: Path,
     z_absorber: Optional[int] = None,
     radius: float = 6.0,
+    energy_range: Optional[List[float]] = None,
     magnetism: bool = False,
     skip_completed: bool = True,
 ) -> dict:
@@ -337,6 +344,7 @@ def _write_prepared_xanes_batch(
             "source": structure["source"],
             "run_dir": str(run_dir),
             "z_absorber": current_z,
+            "energy_range": energy_range or CHEMGRAPH_DEFAULT_ENERGY_RANGE,
         }
 
         if skip_completed and is_calc_done(run_dir):
@@ -350,6 +358,7 @@ def _write_prepared_xanes_batch(
             z_absorber=current_z,
             input_file_dir=run_dir,
             radius=radius,
+            energy_range=energy_range,
             magnetism=magnetism,
         )
 
@@ -380,6 +389,7 @@ def prepare_xanes_batch(
     input_source: str | list[str],
     z_absorber: Optional[int] = None,
     radius: float = 6.0,
+    energy_range: Optional[List[float]] = None,
     magnetism: bool = False,
     output_dir: Optional[str] = None,
     ase_db_selection: str = "",
@@ -396,6 +406,7 @@ def prepare_xanes_batch(
         root_dir=root_dir,
         z_absorber=z_absorber,
         radius=radius,
+        energy_range=energy_range,
         magnetism=magnetism,
         skip_completed=skip_completed,
     )
@@ -452,6 +463,7 @@ def run_xanes_core(params: xanes_input_schema) -> dict:
         z_absorber=params.z_absorber,
         input_file_dir=run_dir,
         radius=params.radius,
+        energy_range=params.energy_range,
         magnetism=params.magnetism,
     )
 
@@ -589,6 +601,7 @@ def create_fdmnes_inputs(
     atoms_list: Optional[List[Atoms]] = None,
     z_absorber: Optional[int] = None,
     radius: float = 6.0,
+    energy_range: Optional[List[float]] = None,
     magnetism: bool = False,
 ) -> Path:
     """Create FDMNES input files for a batch of structures.
@@ -604,6 +617,8 @@ def create_fdmnes_inputs(
         Atomic number of the absorbing atom. Defaults to heaviest per structure.
     radius : float
         Cluster radius in Angstrom.
+    energy_range : list of float, optional
+        Values written under the FDMNES Range keyword.
     magnetism : bool
         Enable magnetic contributions.
 
@@ -638,6 +653,7 @@ def create_fdmnes_inputs(
         root_dir=root_dir,
         z_absorber=z_absorber,
         radius=radius,
+        energy_range=energy_range,
         magnetism=magnetism,
         skip_completed=False,
     )

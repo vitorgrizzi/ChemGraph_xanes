@@ -1,7 +1,22 @@
 import os
 from typing import Optional
 
-from pydantic import BaseModel, Field, model_validator
+from pydantic import BaseModel, Field, field_validator, model_validator
+
+
+def _validate_energy_range(value: Optional[list[float]]) -> Optional[list[float]]:
+    """Validate values for an FDMNES Range line."""
+    if value is None:
+        return value
+    if len(value) < 3 or len(value) % 2 == 0:
+        raise ValueError(
+            "energy_range must follow FDMNES Range syntax: "
+            "[E_min, step, E_max] or [E_min, step1, E_mid, step2, E_max, ...]."
+        )
+    for step in value[1::2]:
+        if step <= 0:
+            raise ValueError("All step values in energy_range must be positive.")
+    return value
 
 
 class xanes_input_schema(BaseModel):
@@ -28,10 +43,24 @@ class xanes_input_schema(BaseModel):
         default=6.0,
         description="Cluster radius in Angstrom for the FDMNES calculation.",
     )
+    energy_range: Optional[list[float]] = Field(
+        default=None,
+        description=(
+            "Optional values for the FDMNES Range keyword. Use "
+            "[E_min, step, E_max] for a constant step or "
+            "[E_min, step1, E_mid, step2, E_max, ...] for a variable step. "
+            "If omitted, ChemGraph writes its built-in XANES mesh."
+        ),
+    )
     magnetism: bool = Field(
         default=False,
         description="Enable magnetic contributions in the FDMNES calculation.",
     )
+
+    @field_validator("energy_range")
+    @classmethod
+    def validate_energy_range(cls, value: Optional[list[float]]) -> Optional[list[float]]:
+        return _validate_energy_range(value)
 
 
 class xanes_input_schema_ensemble(BaseModel):
@@ -68,6 +97,16 @@ class xanes_input_schema_ensemble(BaseModel):
     radius: float = Field(
         default=6.0,
         description="Cluster radius in Angstrom for the FDMNES calculation.",
+    )
+    energy_range: Optional[list[float]] = Field(
+        default=None,
+        description=(
+            "Optional values for the FDMNES Range keyword, shared across all "
+            "structures in the ensemble. Use [E_min, step, E_max] for a "
+            "constant step or [E_min, step1, E_mid, step2, E_max, ...] for a "
+            "variable step. If omitted, ChemGraph writes its built-in XANES "
+            "mesh."
+        ),
     )
     magnetism: bool = Field(
         default=False,
@@ -107,6 +146,11 @@ class xanes_input_schema_ensemble(BaseModel):
             )
 
         return self
+
+    @field_validator("energy_range")
+    @classmethod
+    def validate_energy_range(cls, value: Optional[list[float]]) -> Optional[list[float]]:
+        return _validate_energy_range(value)
 
     def resolve_input_source(self) -> str | list[str]:
         """Return the effective input source expected by the batch helper."""
