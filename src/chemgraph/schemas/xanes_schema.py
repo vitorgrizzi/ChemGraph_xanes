@@ -141,12 +141,19 @@ class xanes_input_schema_ensemble(BaseModel):
         ),
     )
 
+    @model_validator(mode="before")
+    @classmethod
+    def normalize_input_aliases(cls, data):
+        """Map single-file aliases onto the canonical ensemble input field."""
+        if isinstance(data, dict):
+            if data.get("input_structure_file") and not data.get("input_source"):
+                data = dict(data)
+                data["input_source"] = data["input_structure_file"]
+        return data
+
     @model_validator(mode="after")
     def validate_input_choice(self):
         """Ensure exactly one ensemble input mode is selected."""
-        if self.input_structure_file and not self.input_source:
-            self.input_source = self.input_structure_file
-
         has_source = bool(self.input_source)
         has_file_list = bool(self.input_structure_files)
 
