@@ -73,6 +73,13 @@ class xanes_input_schema_ensemble(BaseModel):
             "or an ASE database (.db)."
         ),
     )
+    input_structure_file: Optional[str] = Field(
+        default=None,
+        description=(
+            "Alias for input_source when running a single structure file through "
+            "the Parsl-backed ensemble tool."
+        ),
+    )
     input_structure_files: list[str] = Field(
         default_factory=list,
         description=(
@@ -137,12 +144,16 @@ class xanes_input_schema_ensemble(BaseModel):
     @model_validator(mode="after")
     def validate_input_choice(self):
         """Ensure exactly one ensemble input mode is selected."""
+        if self.input_structure_file and not self.input_source:
+            self.input_source = self.input_structure_file
+
         has_source = bool(self.input_source)
         has_file_list = bool(self.input_structure_files)
 
         if has_source == has_file_list:
             raise ValueError(
-                "Provide exactly one of `input_source` or `input_structure_files`."
+                "Provide exactly one of `input_source`, `input_structure_file`, "
+                "or `input_structure_files`."
             )
 
         return self

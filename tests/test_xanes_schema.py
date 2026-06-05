@@ -30,6 +30,12 @@ def test_xanes_ensemble_schema_accepts_input_source():
     assert params.resolve_input_source() == "/tmp/structures.db"
 
 
+def test_xanes_ensemble_schema_accepts_single_file_alias():
+    params = xanes_input_schema_ensemble(input_structure_file="/tmp/POSCAR")
+    assert params.input_source == "/tmp/POSCAR"
+    assert params.resolve_input_source() == "/tmp/POSCAR"
+
+
 def test_xanes_ensemble_schema_accepts_file_list():
     params = xanes_input_schema_ensemble(
         input_structure_files=["/tmp/a.cif", "/tmp/b.cif"]
