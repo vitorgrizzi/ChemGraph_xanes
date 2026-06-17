@@ -147,7 +147,7 @@ def _add_run_args(parser: argparse.ArgumentParser) -> None:
         "-w",
         "--workflow",
         type=str,
-        choices=["single_agent", "multi_agent", "python_repl", "graspa"],
+        choices=["single_agent", "multi_agent", "python_repl", "graspa", "literature_kg"],
         default="single_agent",
         help="Workflow type (default: single_agent)",
     )
@@ -782,7 +782,7 @@ def interactive_mode():
     )
     workflow = Prompt.ask(
         "Select workflow",
-        choices=["single_agent", "multi_agent", "python_repl", "graspa"],
+        choices=["single_agent", "multi_agent", "python_repl", "graspa", "literature_kg"],
         default="single_agent",
     )
 
@@ -882,6 +882,7 @@ Example queries:
                     "multi_agent",
                     "python_repl",
                     "graspa",
+                    "literature_kg",
                 ]:
                     workflow = new_workflow
                     agent = initialize_agent(model, workflow, False, "state", True, 20)

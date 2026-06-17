@@ -58,6 +58,7 @@ WORKFLOW_OPTIONS = [
     "multi_agent",
     "python_relp",
     "graspa",
+    "literature_kg",
     "mock_agent",
 ]
 
@@ -995,6 +996,119 @@ def changed_recently(path="ir_spectrum.png", window_seconds=300) -> bool:
     mtime = datetime.fromtimestamp(p.stat().st_mtime, tz=timezone.utc)
     now = datetime.now(timezone.utc)
     return (now - mtime) <= timedelta(seconds=window_seconds)
+
+
+def render_literature_kg_panel():
+    """Render the literature KG workflow controls."""
+    from chemgraph.kg.extract import read_records_jsonl
+    from chemgraph.kg.hypotheses import suggest_hypotheses
+    from chemgraph.kg.query import export_training_table, get_evidence, hybrid_query
+    from chemgraph.workflows.literature_kg import run_literature_kg_workflow
+
+    st.subheader("Literature KG")
+    default_work_dir = resolve_output_path("literature_kg")
+    work_dir = st.text_input(
+        "Work directory",
+        value=default_work_dir,
+        key="kg_work_dir",
+    )
+    kg_dir = str(Path(work_dir) / "graph")
+
+    tab_build, tab_query, tab_evidence, tab_hypotheses, tab_export = st.tabs(
+        ["Papers", "Query", "Evidence", "Hypotheses", "Export"]
+    )
+
+    with tab_build:
+        uploaded = st.file_uploader(
+            "Paper files",
+            type=["txt", "md", "json", "jsonl", "pdf"],
+            accept_multiple_files=True,
+            key="kg_uploaded_papers",
+        )
+        input_path = st.text_input(
+            "Input path",
+            value=str(Path(work_dir) / "uploads"),
+            key="kg_input_path",
+        )
+        if st.button("Build KG", key="kg_build_button"):
+            try:
+                input_dir = Path(input_path)
+                input_dir.mkdir(parents=True, exist_ok=True)
+                for item in uploaded or []:
+                    safe_name = Path(item.name).name
+                    (input_dir / safe_name).write_bytes(item.getvalue())
+                result = run_literature_kg_workflow(
+                    input_path=str(input_dir),
+                    work_dir=work_dir,
+                )
+                st.session_state["kg_last_result"] = result
+                st.success("KG updated.")
+                st.json(result)
+            except Exception as exc:
+                st.error(f"KG build failed: {exc}")
+
+        chunks_path = Path(work_dir) / "chunks.jsonl"
+        records_path = Path(work_dir) / "extractions.jsonl"
+        if chunks_path.exists() or records_path.exists():
+            col_chunks, col_records = st.columns(2)
+            n_chunks = (
+                sum(1 for _ in chunks_path.open("r", encoding="utf-8"))
+                if chunks_path.exists()
+                else 0
+            )
+            n_records = (
+                len(read_records_jsonl(records_path)) if records_path.exists() else 0
+            )
+            col_chunks.metric("Chunks", n_chunks)
+            col_records.metric("Records", n_records)
+
+    with tab_query:
+        query_text = st.text_input(
+            "Graph question",
+            value="Which catalysts report methanol selectivity above 70% for CO2 hydrogenation?",
+            key="kg_query_text",
+        )
+        if st.button("Run Query", key="kg_query_button"):
+            try:
+                st.json(hybrid_query(kg_dir, query_text))
+            except Exception as exc:
+                st.error(f"KG query failed: {exc}")
+
+    with tab_evidence:
+        evidence_id = st.text_input("Evidence ID", key="kg_evidence_id")
+        if st.button("Get Evidence", key="kg_evidence_button"):
+            try:
+                st.json(get_evidence(kg_dir, evidence_id))
+            except Exception as exc:
+                st.error(f"Evidence lookup failed: {exc}")
+
+    with tab_hypotheses:
+        goal = st.text_input(
+            "Goal",
+            value="low-temperature CO2 hydrogenation to methanol with high selectivity and stability",
+            key="kg_goal",
+        )
+        if st.button("Suggest", key="kg_hypothesis_button"):
+            try:
+                st.json(suggest_hypotheses(kg_dir, goal=goal))
+            except Exception as exc:
+                st.error(f"Hypothesis generation failed: {exc}")
+
+    with tab_export:
+        export_path = st.text_input(
+            "CSV path",
+            value=str(Path(work_dir) / "training_table.csv"),
+            key="kg_export_path",
+        )
+        if st.button("Export Table", key="kg_export_button"):
+            try:
+                st.json(export_training_table(kg_dir, export_path))
+            except Exception as exc:
+                st.error(f"Export failed: {exc}")
+
+
+if selected_workflow == "literature_kg":
+    render_literature_kg_panel()
 
 
 # -----------------------------------------------------------------------------

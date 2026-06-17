@@ -42,6 +42,10 @@ from chemgraph.graphs.multi_agent_mcp import construct_multi_agent_mcp_graph
 from chemgraph.graphs.multi_agent_xanes import construct_multi_agent_xanes_graph
 from chemgraph.graphs.graspa_mcp import construct_graspa_mcp_graph
 from chemgraph.graphs.rag_agent import construct_rag_agent_graph
+from chemgraph.graphs.literature_kg import (
+    construct_literature_kg_graph,
+    literature_kg_prompt,
+)
 from chemgraph.graphs.single_agent_xanes import construct_single_agent_xanes_graph
 from chemgraph.prompt.rag_prompt import rag_agent_prompt
 from chemgraph.prompt.xanes_prompt import (
@@ -296,6 +300,7 @@ class ChemGraph:
             "multi_agent_mcp": {"constructor": construct_multi_agent_mcp_graph},
             "graspa_mcp": {"constructor": construct_graspa_mcp_graph},
             "rag_agent": {"constructor": construct_rag_agent_graph},
+            "literature_kg": {"constructor": construct_literature_kg_graph},
             "single_agent_xanes": {"constructor": construct_single_agent_xanes_graph},
             "multi_agent_xanes": {"constructor": construct_multi_agent_xanes_graph},
         }
@@ -371,6 +376,14 @@ class ChemGraph:
                 system_prompt=self.system_prompt
                 if self.system_prompt != single_agent_prompt
                 else rag_agent_prompt,
+                tools=self.tools,
+            )
+        elif self.workflow_type == "literature_kg":
+            self.workflow = self.workflow_map[workflow_type]["constructor"](
+                llm=llm,
+                system_prompt=self.system_prompt
+                if self.system_prompt != single_agent_prompt
+                else literature_kg_prompt,
                 tools=self.tools,
             )
         elif self.workflow_type == "single_agent_xanes":
@@ -530,6 +543,7 @@ class ChemGraph:
                 "graspa",
                 "python_relp",
                 "rag_agent",
+                "literature_kg",
             }:
                 output_data.update(
                     {

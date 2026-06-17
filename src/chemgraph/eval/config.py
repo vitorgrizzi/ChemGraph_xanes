@@ -146,6 +146,7 @@ class BenchmarkConfig(BaseModel):
             "multi_agent_xanes",
             "single_agent_mcp",
             "multi_agent_mcp",
+            "literature_kg",
         }
         for wf in v:
             if wf not in valid:
