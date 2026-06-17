@@ -19,6 +19,8 @@ def _validate_energy_range(value: Optional[list[float]]) -> Optional[list[float]
     return value
 
 
+
+
 class xanes_input_schema(BaseModel):
     """Input schema for a single XANES/FDMNES calculation."""
 
@@ -39,23 +41,55 @@ class xanes_input_schema(BaseModel):
             "Defaults to the heaviest element in the structure."
         ),
     )
+    absorber_idx: Optional[int] = Field(
+        default=None,
+        description=(
+            "1-based index of the absorbing atom in the structure. "
+            "If provided, the Absorber keyword is used instead of Z_absorber."
+        ),
+    )
     radius: float = Field(
         default=6.0,
         description="Cluster radius in Angstrom for the FDMNES calculation.",
     )
-    energy_range: Optional[list[float]] = Field(
-        default=None,
+    energy_range: list[float] = Field(
+        default_factory=lambda: [-55.0, 1.0, -10.0, 0.01, 5.0, 0.1, 150.0],
         description=(
-            "Optional values for the FDMNES Range keyword. Use "
+            "Values for the FDMNES Range keyword. Use "
             "[E_min, step, E_max] for a constant step or "
             "[E_min, step1, E_mid, step2, E_max, ...] for a variable step. "
-            "If omitted, ChemGraph writes its built-in XANES mesh."
+            "Defaults to [-55.0, 1.0, -10.0, 0.01, 5.0, 0.1, 150.0]."
         ),
     )
     magnetism: bool = Field(
         default=False,
         description="Enable magnetic contributions in the FDMNES calculation.",
     )
+    edge: str = Field(
+        default="K",
+        description="Absorption edge (e.g., K, L1, L2, L3, M1). Defaults to 'K'.",
+    )
+    green: bool = Field(
+        default=True,
+        description="Use Green function method for calculation.",
+    )
+    density_all: bool = Field(
+        default=True,
+        description="Compute full electron densities.",
+    )
+    quadrupole: bool = Field(
+        default=True,
+        description="Include quadrupole transition transitions.",
+    )
+    spherical: bool = Field(
+        default=True,
+        description="Assume spherical atoms.",
+    )
+    scf: bool = Field(
+        default=True,
+        description="Perform self-consistent field calculation.",
+    )
+
 
     @field_validator("energy_range")
     @classmethod
@@ -101,23 +135,53 @@ class xanes_input_schema_ensemble(BaseModel):
             "Defaults to the heaviest element in each structure."
         ),
     )
+    absorber_idx: Optional[int] = Field(
+        default=None,
+        description=(
+            "1-based index of the absorbing atom in the structure. "
+            "If provided, the Absorber keyword is used instead of Z_absorber."
+        ),
+    )
     radius: float = Field(
         default=6.0,
         description="Cluster radius in Angstrom for the FDMNES calculation.",
     )
-    energy_range: Optional[list[float]] = Field(
-        default=None,
+    energy_range: list[float] = Field(
+        default_factory=lambda: [-55.0, 1.0, -10.0, 0.01, 5.0, 0.1, 150.0],
         description=(
             "Optional values for the FDMNES Range keyword, shared across all "
             "structures in the ensemble. Use [E_min, step, E_max] for a "
             "constant step or [E_min, step1, E_mid, step2, E_max, ...] for a "
-            "variable step. If omitted, ChemGraph writes its built-in XANES "
-            "mesh."
+            "variable step. Defaults to [-55.0, 1.0, -10.0, 0.01, 5.0, 0.1, 150.0]."
         ),
     )
     magnetism: bool = Field(
         default=False,
         description="Enable magnetic contributions in the FDMNES calculation.",
+    )
+    edge: str = Field(
+        default="K",
+        description="Absorption edge (e.g., K, L1, L2, L3, M1). Defaults to 'K'.",
+    )
+    green: bool = Field(
+        default=True,
+        description="Use Green function method for calculation.",
+    )
+    density_all: bool = Field(
+        default=True,
+        description="Compute full electron densities.",
+    )
+    quadrupole: bool = Field(
+        default=True,
+        description="Include quadrupole transition transitions.",
+    )
+    spherical: bool = Field(
+        default=True,
+        description="Assume spherical atoms.",
+    )
+    scf: bool = Field(
+        default=True,
+        description="Perform self-consistent field calculation.",
     )
     ase_db_selection: str = Field(
         default="",

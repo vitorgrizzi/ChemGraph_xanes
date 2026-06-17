@@ -167,12 +167,19 @@ async def run_xanes_ensemble(params: xanes_input_schema_ensemble):
     batch = prepare_xanes_batch(
         input_source=params.resolve_input_source(),
         z_absorber=params.z_absorber,
+        absorber_idx=params.absorber_idx,
         radius=params.radius,
         energy_range=params.energy_range,
         magnetism=params.magnetism,
         output_dir=params.output_dir,
         ase_db_selection=params.ase_db_selection,
         skip_completed=params.skip_completed,
+        edge=params.edge,
+        green=params.green,
+        density_all=params.density_all,
+        quadrupole=params.quadrupole,
+        spherical=params.spherical,
+        scf=params.scf,
     )
 
     output_dir = Path(batch["root_dir"])

@@ -93,3 +93,224 @@ def test_prepare_xanes_batch_skips_completed_runs(tmp_path):
     assert second_batch["n_skipped"] == 1
     assert second_batch["jobs"][0]["status"] == "skipped_existing"
     assert second_batch["jobs"][1]["status"] == "prepared"
+
+
+def test_get_normalized_xanes_normal(tmp_path):
+    import numpy as np
+    from chemgraph.tools.xanes_tools import get_normalized_xanes
+
+    conv_file = tmp_path / "test_conv.txt"
+    lines = [
+        "Energy Mu",
+        "-30.0 0.1",
+        "-25.0 0.1",
+        "-20.0 0.1",
+        "0.0 0.5",
+        "10.0 0.8",
+        "20.0 0.9",
+        "50.0 1.1",
+        "60.0 1.2",
+        "70.0 1.3"
+    ]
+    conv_file.write_text("\n".join(lines), encoding="utf-8")
+
+    norm, raw = get_normalized_xanes(
+        conv_file,
+        pre_edge_width=20.0,
+        post_edge_width=50.0,
+    )
+    assert norm.shape == (9, 2)
+    assert np.allclose(raw[:, 0], norm[:, 0])
+
+
+def test_get_normalized_xanes_fallback_pre_edge(tmp_path):
+    import numpy as np
+    from chemgraph.tools.xanes_tools import get_normalized_xanes
+
+    conv_file = tmp_path / "test_conv.txt"
+    lines = [
+        "Energy Mu",
+        "-30.0 0.1",
+        "-25.0 0.1",
+        "-20.0 0.1",
+        "0.0 0.5",
+        "10.0 0.8",
+        "20.0 0.9",
+        "50.0 1.1",
+        "60.0 1.2",
+        "70.0 1.3"
+    ]
+    conv_file.write_text("\n".join(lines), encoding="utf-8")
+
+    norm, raw = get_normalized_xanes(
+        conv_file,
+        pre_edge_width=40.0,
+        post_edge_width=50.0,
+    )
+    expected_norm_mu = raw[:, 1] / 1.3
+    assert np.allclose(norm[:, 1], expected_norm_mu)
+
+
+def test_get_normalized_xanes_fallback_post_edge(tmp_path):
+    import numpy as np
+    from chemgraph.tools.xanes_tools import get_normalized_xanes
+
+    conv_file = tmp_path / "test_conv.txt"
+    lines = [
+        "Energy Mu",
+        "-30.0 0.1",
+        "-25.0 0.1",
+        "-20.0 0.1",
+        "0.0 0.5",
+        "10.0 0.8",
+        "20.0 0.9",
+        "50.0 1.1",
+        "60.0 1.2",
+        "70.0 1.3"
+    ]
+    conv_file.write_text("\n".join(lines), encoding="utf-8")
+
+    norm, raw = get_normalized_xanes(
+        conv_file,
+        pre_edge_width=20.0,
+        post_edge_width=65.0,
+    )
+    expected_norm_mu = raw[:, 1] / 1.3
+    assert np.allclose(norm[:, 1], expected_norm_mu)
+
+
+def test_prepare_xanes_batch_writes_absorber_idx(tmp_path):
+    db_path = tmp_path / "structures.db"
+    output_dir = tmp_path / "xanes_output"
+    _build_test_db(db_path)
+
+    batch = prepare_xanes_batch(
+        input_source=str(db_path),
+        output_dir=str(output_dir),
+        z_absorber=29,
+        absorber_idx=2,
+    )
+
+    run_dir = Path(batch["runs_dir"]) / "run_0"
+    fdmnes_input = (run_dir / "fdmnes_in.txt").read_text(encoding="utf-8")
+    assert "Absorber\n2\n\n" in fdmnes_input
+    assert "Z_absorber" not in fdmnes_input
+
+    with open(run_dir / "run_metadata.json", "r", encoding="utf-8") as f:
+        metadata = json.load(f)
+    assert metadata["absorber_idx"] == 2
+
+
+def test_prepare_xanes_batch_writes_edge(tmp_path):
+    db_path = tmp_path / "structures.db"
+    output_dir = tmp_path / "xanes_output"
+    _build_test_db(db_path)
+
+    batch = prepare_xanes_batch(
+        input_source=str(db_path),
+        output_dir=str(output_dir),
+        z_absorber=29,
+        edge="L3",
+    )
+
+    run_dir = Path(batch["runs_dir"]) / "run_0"
+    fdmnes_input = (run_dir / "fdmnes_in.txt").read_text(encoding="utf-8")
+    assert "Edge\nL3\n\n" in fdmnes_input
+
+    with open(run_dir / "run_metadata.json", "r", encoding="utf-8") as f:
+        metadata = json.load(f)
+    assert metadata["edge"] == "L3"
+
+
+def test_prepare_xanes_batch_writes_custom_boolean_flags(tmp_path):
+    db_path = tmp_path / "structures.db"
+    output_dir = tmp_path / "xanes_output"
+    _build_test_db(db_path)
+
+    # test custom flags set to False
+    batch = prepare_xanes_batch(
+        input_source=str(db_path),
+        output_dir=str(output_dir),
+        z_absorber=29,
+        green=False,
+        density_all=False,
+        quadrupole=False,
+        spherical=False,
+        scf=False,
+    )
+
+    run_dir = Path(batch["runs_dir"]) / "run_0"
+    fdmnes_input = (run_dir / "fdmnes_in.txt").read_text(encoding="utf-8")
+    assert "Green\n" not in fdmnes_input
+    assert "Density_all\n" not in fdmnes_input
+    assert "Quadrupole\n" not in fdmnes_input
+    assert "Spherical\n" not in fdmnes_input
+    assert "SCF\n" not in fdmnes_input
+
+    with open(run_dir / "run_metadata.json", "r", encoding="utf-8") as f:
+        metadata = json.load(f)
+    assert metadata["green"] is False
+    assert metadata["density_all"] is False
+    assert metadata["quadrupole"] is False
+    assert metadata["spherical"] is False
+    assert metadata["scf"] is False
+
+
+def test_get_normalized_xanes_E0_in_domain(tmp_path):
+    import numpy as np
+    from chemgraph.tools.xanes_tools import get_normalized_xanes
+
+    conv_file = tmp_path / "test_conv.txt"
+    lines = [
+        "Energy Mu",
+        "-30.0 0.1",
+        "-20.0 0.1",
+        "-10.0 0.1",
+        "0.0 0.5",
+        "10.0 0.8",
+        "20.0 0.9",
+        "30.0 1.1",
+        "40.0 1.2",
+        "50.0 1.3"
+    ]
+    conv_file.write_text("\n".join(lines), encoding="utf-8")
+
+    norm, raw = get_normalized_xanes(
+        conv_file,
+        pre_edge_width=20.0,
+        post_edge_width=30.0,
+    )
+    assert norm.shape == (9, 2)
+
+
+def test_get_normalized_xanes_E0_not_in_domain(tmp_path):
+    import numpy as np
+    from chemgraph.tools.xanes_tools import get_normalized_xanes
+
+    conv_file = tmp_path / "test_conv.txt"
+    lines = [
+        "Energy Mu",
+        "8000.0 0.1",
+        "8005.0 0.1",
+        "8010.0 0.5",
+        "8015.0 0.8",
+        "8020.0 0.9",
+        "8025.0 1.1",
+        "8030.0 1.2",
+        "8040.0 1.2",
+        "8050.0 1.3"
+    ]
+    conv_file.write_text("\n".join(lines), encoding="utf-8")
+
+    norm, raw = get_normalized_xanes(
+        conv_file,
+        pre_edge_width=5.0,
+        post_edge_width=15.0,
+    )
+    assert norm.shape == (9, 2)
+    assert np.isclose(norm[0, 1], 0.0, atol=1e-2)
+
+
+
+
+

@@ -26,10 +26,17 @@ CHEMGRAPH_DEFAULT_ENERGY_RANGE = [-55.0, 1.0, -10.0, 0.01, 5.0, 0.1, 150.0]
 def write_fdmnes_input(
     ase_atoms: Atoms,
     z_absorber: int = None,
+    absorber_idx: Optional[int] = None,
     input_file_dir: Path = None,
     radius: float = 6.0,
     energy_range: Optional[List[float]] = None,
     magnetism: bool = False,
+    edge: str = "K",
+    green: bool = True,
+    density_all: bool = True,
+    quadrupole: bool = True,
+    spherical: bool = True,
+    scf: bool = True,
 ):
     """Write FDMNES input files (fdmfile.txt and fdmnes_in.txt) for a structure.
 
@@ -40,6 +47,9 @@ def write_fdmnes_input(
     z_absorber : int, optional
         Atomic number of the X-ray absorbing atom.
         Defaults to the heaviest element in the structure.
+    absorber_idx : int, optional
+        1-based index of the absorbing atom in the structure.
+        If provided, the Absorber keyword is used instead of Z_absorber.
     input_file_dir : Path, optional
         Directory to write input files into. Defaults to cwd.
     radius : float
@@ -49,6 +59,18 @@ def write_fdmnes_input(
         built-in ChemGraph XANES mesh.
     magnetism : bool
         Enable magnetic contributions. Default False.
+    edge : str
+        Absorption edge (e.g., K, L1, L2, L3, M1). Default 'K'.
+    green : bool
+        Use Green function method for calculation. Default True.
+    density_all : bool
+        Compute full electron densities. Default True.
+    quadrupole : bool
+        Include quadrupole transition transitions. Default True.
+    spherical : bool
+        Assume spherical atoms. Default True.
+    scf : bool
+        Perform self-consistent field calculation. Default True.
     """
     if not isinstance(ase_atoms, Atoms):
         raise TypeError("ase_atoms must be an ase.Atoms object")
@@ -77,19 +99,33 @@ def write_fdmnes_input(
         f.write("Radius\n")
         f.write(f"{radius}\n\n")
 
+        # Absorption edge
+        f.write("Edge\n")
+        f.write(f"{edge}\n\n")
+
         # Absorbing atom
-        f.write("Z_absorber\n")
-        f.write(f"{z_absorber}\n\n")
+        if absorber_idx is None:
+            f.write('Z_absorber' + '\n')
+            f.write(f'{z_absorber}' + 2*'\n')
+        else:
+            f.write('Absorber' + '\n') # 1-index
+            f.write(f'{absorber_idx}' + 2*'\n')
 
         # Magnetic contributions
         if magnetism:
             f.write("Magnetism\n\n")
 
-        f.write("Green\n")
-        f.write("Density_all\n")
-        f.write("Quadrupole\n")
-        f.write("Spherical\n")
-        f.write("SCF\n\n")
+        if green:
+            f.write("Green\n")
+        if density_all:
+            f.write("Density_all\n")
+        if quadrupole:
+            f.write("Quadrupole\n")
+        if spherical:
+            f.write("Spherical\n")
+        if scf:
+            f.write("SCF\n")
+        f.write("\n")
 
         if all(ase_atoms.pbc):
             f.write("Crystal\n")
@@ -115,7 +151,6 @@ def get_normalized_xanes(
     conv_file: Path | str,
     pre_edge_width: float = 20.0,
     post_edge_width: float = 50.0,
-    calc_E0: bool = False,
 ) -> tuple[np.ndarray, np.ndarray]:
     """Normalize a XANES spectrum from an FDMNES convolution output file.
 
@@ -127,9 +162,6 @@ def get_normalized_xanes(
         Width of the pre-edge region in eV for baseline fitting.
     post_edge_width : float
         Width of the post-edge region in eV for step normalization.
-    calc_E0 : bool
-        If True, determine the edge energy E0 from the maximum of dmu/dE.
-        Otherwise E0 is assumed to be 0 (the FDMNES convention).
 
     Returns
     -------
@@ -143,23 +175,43 @@ def get_normalized_xanes(
     E = energy_xas[:, 0].astype(float)
     mu = energy_xas[:, 1].astype(float)
 
-    if calc_E0:
+    if E.min() <= 0.0 <= E.max():
+        E0 = 0.0
+    else:
         dmu_dE = np.gradient(mu, E)
         E0 = E[np.argmax(dmu_dE)]
-    else:
-        E0 = 0
 
     pre_mask = E <= (E0 - pre_edge_width)
     post_mask = E >= (E0 + post_edge_width)
 
-    m_pre, b_pre = np.polyfit(E[pre_mask], mu[pre_mask], 1)
-    m_post, b_post = np.polyfit(E[post_mask], mu[post_mask], 1)
+    if np.sum(pre_mask) < 2 or np.sum(post_mask) < 2:
+        logger.warning(
+            "Too few points in pre-edge or post-edge regions (pre-edge points: %d, post-edge points: %d). "
+            "Normalizing by maximum mu value as fallback.",
+            np.sum(pre_mask),
+            np.sum(post_mask),
+        )
+        max_mu = np.max(mu)
+        mu_norm = mu / max_mu if max_mu > 0 else mu
+    else:
+        try:
+            m_pre, b_pre = np.polyfit(E[pre_mask], mu[pre_mask], 1)
+            m_post, b_post = np.polyfit(E[post_mask], mu[post_mask], 1)
 
-    pre_line = m_pre * E + b_pre
-    mu_corr = mu - pre_line
+            pre_line = m_pre * E + b_pre
+            mu_corr = mu - pre_line
 
-    step = (m_post * E0 + b_post) - (m_pre * E0 + b_pre)
-    mu_norm = mu_corr / step
+            step = (m_post * E0 + b_post) - (m_pre * E0 + b_pre)
+            if np.isclose(step, 0):
+                raise ValueError("Step height is close to zero.")
+            mu_norm = mu_corr / step
+        except Exception as e:
+            logger.warning(
+                "XANES normalization fit failed: %s. Normalizing by maximum mu value as fallback.",
+                e,
+            )
+            max_mu = np.max(mu)
+            mu_norm = mu / max_mu if max_mu > 0 else mu
 
     return np.column_stack([E, mu_norm]), energy_xas
 
@@ -314,10 +366,17 @@ def _write_prepared_xanes_batch(
     structures: list[dict],
     root_dir: Path,
     z_absorber: Optional[int] = None,
+    absorber_idx: Optional[int] = None,
     radius: float = 6.0,
     energy_range: Optional[List[float]] = None,
     magnetism: bool = False,
     skip_completed: bool = True,
+    edge: str = "K",
+    green: bool = True,
+    density_all: bool = True,
+    quadrupole: bool = True,
+    spherical: bool = True,
+    scf: bool = True,
 ) -> dict:
     """Prepare per-structure FDMNES input directories for a XANES batch."""
     root_dir = Path(root_dir).resolve()
@@ -344,6 +403,13 @@ def _write_prepared_xanes_batch(
             "source": structure["source"],
             "run_dir": str(run_dir),
             "z_absorber": current_z,
+            "absorber_idx": absorber_idx,
+            "edge": edge,
+            "green": green,
+            "density_all": density_all,
+            "quadrupole": quadrupole,
+            "spherical": spherical,
+            "scf": scf,
             "energy_range": energy_range or CHEMGRAPH_DEFAULT_ENERGY_RANGE,
         }
 
@@ -356,10 +422,17 @@ def _write_prepared_xanes_batch(
         write_fdmnes_input(
             ase_atoms=atoms,
             z_absorber=current_z,
+            absorber_idx=absorber_idx,
             input_file_dir=run_dir,
             radius=radius,
             energy_range=energy_range,
             magnetism=magnetism,
+            edge=edge,
+            green=green,
+            density_all=density_all,
+            quadrupole=quadrupole,
+            spherical=spherical,
+            scf=scf,
         )
 
         formula = atoms.get_chemical_formula()
@@ -388,12 +461,19 @@ def _write_prepared_xanes_batch(
 def prepare_xanes_batch(
     input_source: str | list[str],
     z_absorber: Optional[int] = None,
+    absorber_idx: Optional[int] = None,
     radius: float = 6.0,
     energy_range: Optional[List[float]] = None,
     magnetism: bool = False,
     output_dir: Optional[str] = None,
     ase_db_selection: str = "",
     skip_completed: bool = True,
+    edge: str = "K",
+    green: bool = True,
+    density_all: bool = True,
+    quadrupole: bool = True,
+    spherical: bool = True,
+    scf: bool = True,
 ) -> dict:
     """Prepare batch XANES/FDMNES run directories from a file, folder, or ASE DB."""
     structures, default_root = _collect_xanes_batch_structures(
@@ -405,10 +485,17 @@ def prepare_xanes_batch(
         structures=structures,
         root_dir=root_dir,
         z_absorber=z_absorber,
+        absorber_idx=absorber_idx,
         radius=radius,
         energy_range=energy_range,
         magnetism=magnetism,
         skip_completed=skip_completed,
+        edge=edge,
+        green=green,
+        density_all=density_all,
+        quadrupole=quadrupole,
+        spherical=spherical,
+        scf=scf,
     )
 
 
@@ -461,10 +548,17 @@ def run_xanes_core(params: xanes_input_schema) -> dict:
     write_fdmnes_input(
         ase_atoms=atoms,
         z_absorber=params.z_absorber,
+        absorber_idx=params.absorber_idx,
         input_file_dir=run_dir,
         radius=params.radius,
         energy_range=params.energy_range,
         magnetism=params.magnetism,
+        edge=params.edge,
+        green=params.green,
+        density_all=params.density_all,
+        quadrupole=params.quadrupole,
+        spherical=params.spherical,
+        scf=params.scf,
     )
 
     # Save the atoms object alongside the inputs for provenance
@@ -600,9 +694,16 @@ def create_fdmnes_inputs(
     root_dir: Path,
     atoms_list: Optional[List[Atoms]] = None,
     z_absorber: Optional[int] = None,
+    absorber_idx: Optional[int] = None,
     radius: float = 6.0,
     energy_range: Optional[List[float]] = None,
     magnetism: bool = False,
+    edge: str = "K",
+    green: bool = True,
+    density_all: bool = True,
+    quadrupole: bool = True,
+    spherical: bool = True,
+    scf: bool = True,
 ) -> Path:
     """Create FDMNES input files for a batch of structures.
 
@@ -615,12 +716,27 @@ def create_fdmnes_inputs(
         Structures to process. If None, loads from ``root_dir/atoms_db.pkl``.
     z_absorber : int, optional
         Atomic number of the absorbing atom. Defaults to heaviest per structure.
+    absorber_idx : int, optional
+        1-based index of the absorbing atom in the structure.
+        If provided, the Absorber keyword is used instead of Z_absorber.
     radius : float
         Cluster radius in Angstrom.
     energy_range : list of float, optional
         Values written under the FDMNES Range keyword.
     magnetism : bool
         Enable magnetic contributions.
+    edge : str
+        Absorption edge (e.g. K, L1, L2, L3, M1). Defaults to 'K'.
+    green : bool
+        Use Green function method for calculation. Default True.
+    density_all : bool
+        Compute full electron densities. Default True.
+    quadrupole : bool
+        Include quadrupole transition transitions. Default True.
+    spherical : bool
+        Assume spherical atoms. Default True.
+    scf : bool
+        Perform self-consistent field calculation. Default True.
 
     Returns
     -------
@@ -652,10 +768,17 @@ def create_fdmnes_inputs(
         structures=structures,
         root_dir=root_dir,
         z_absorber=z_absorber,
+        absorber_idx=absorber_idx,
         radius=radius,
         energy_range=energy_range,
         magnetism=magnetism,
         skip_completed=False,
+        edge=edge,
+        green=green,
+        density_all=density_all,
+        quadrupole=quadrupole,
+        spherical=spherical,
+        scf=scf,
     )
     return Path(batch["runs_dir"])
 
