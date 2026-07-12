@@ -4,23 +4,229 @@ import os
 import pickle
 import subprocess
 from pathlib import Path
-from typing import List, Optional
+from typing import Any, List, Optional
 
 import numpy as np
 from ase import Atoms
 from ase.io import read as ase_read, write as ase_write
 from langchain_core.tools import tool
 
-from chemgraph.schemas.xanes_schema import xanes_input_schema, mp_query_schema
+from chemgraph.schemas.xanes_schema import (
+    xanes_input_schema,
+    xanes_param_resolution_schema,
+    mp_query_schema,
+)
 
 logger = logging.getLogger(__name__)
 
 SUPPORTED_XANES_STRUCTURE_SUFFIXES = {".cif", ".xyz", ".poscar", ".vasp"}
 CHEMGRAPH_DEFAULT_ENERGY_RANGE = [-55.0, 1.0, -10.0, 0.01, 5.0, 0.1, 150.0]
+XANES_RESOLVABLE_PARAM_DEFAULTS = {
+    "z_absorber": None,
+    "absorber_idx": None,
+    "radius": 6.0,
+    "energy_range": CHEMGRAPH_DEFAULT_ENERGY_RANGE,
+    "magnetism": False,
+    "edge": "K",
+    "green": True,
+    "density_all": True,
+    "quadrupole": True,
+    "spherical": True,
+    "scf": True,
+}
+XANES_PARAM_ALIASES = {
+    "range": "energy_range",
+    "fdmnes_range": "energy_range",
+    "z": "z_absorber",
+    "z_abs": "z_absorber",
+    "z_absorber": "z_absorber",
+    "absorber": "absorber_idx",
+    "absorber_index": "absorber_idx",
+    "absorber_idx": "absorber_idx",
+    "radius": "radius",
+    "edge": "edge",
+    "magnetism": "magnetism",
+    "green": "green",
+    "density_all": "density_all",
+    "densityall": "density_all",
+    "quadrupole": "quadrupole",
+    "spherical": "spherical",
+    "scf": "scf",
+}
+XANES_PASSTHROUGH_PARAM_KEYS = {
+    "input_structure_file",
+    "input_source",
+    "input_structure_files",
+    "output_dir",
+    "ase_db_selection",
+    "skip_completed",
+    "fdmnes_exe",
+}
 
 # -----------------------------------------------------------------------------
 # Helper Functions
 # -----------------------------------------------------------------------------
+
+
+def _canonical_xanes_param_key(key: str) -> str:
+    """Return the canonical parameter name for common FDMNES aliases."""
+    normalized = key.strip().lower().replace("-", "_").replace(" ", "_")
+    return XANES_PARAM_ALIASES.get(normalized, normalized)
+
+
+def _normalize_xanes_param_map(params: dict[str, Any]) -> dict[str, Any]:
+    """Normalize incoming parameter keys while dropping empty values."""
+    normalized = {}
+    for key, value in (params or {}).items():
+        if value is None:
+            continue
+        if isinstance(value, str) and value.strip() == "":
+            continue
+        normalized[_canonical_xanes_param_key(str(key))] = value
+    return normalized
+
+
+def _coerce_bool(value: Any) -> bool:
+    """Coerce common LLM/tool representations to a boolean."""
+    if isinstance(value, bool):
+        return value
+    if isinstance(value, (int, float)):
+        return bool(value)
+    if isinstance(value, str):
+        value_lower = value.strip().lower()
+        if value_lower in {"true", "yes", "y", "1", "on", "enable", "enabled"}:
+            return True
+        if value_lower in {"false", "no", "n", "0", "off", "disable", "disabled"}:
+            return False
+    raise ValueError(f"Cannot interpret {value!r} as a boolean.")
+
+
+def _coerce_xanes_param_value(key: str, value: Any) -> Any:
+    """Coerce and validate a resolved XANES parameter value."""
+    if key in {"z_absorber", "absorber_idx"}:
+        return None if value is None else int(value)
+    if key == "radius":
+        return float(value)
+    if key == "energy_range":
+        if value is None:
+            return None
+        if not isinstance(value, list):
+            raise ValueError("energy_range must be a list of numbers.")
+        coerced = [float(v) for v in value]
+        from chemgraph.schemas.xanes_schema import _validate_energy_range
+
+        return _validate_energy_range(coerced)
+    if key in {"magnetism", "green", "density_all", "quadrupole", "spherical", "scf"}:
+        return _coerce_bool(value)
+    if key == "edge":
+        return str(value).strip().upper()
+    if key in XANES_PASSTHROUGH_PARAM_KEYS:
+        return value
+    return value
+
+
+@tool(args_schema=xanes_param_resolution_schema)
+def resolve_xanes_params(
+    explicit_params: dict[str, Any] | None = None,
+    retrieved_params: dict[str, Any] | None = None,
+    chemgraph_defaults: dict[str, Any] | None = None,
+    parameters_to_resolve: list[str] | None = None,
+    require_retrieval_for: list[str] | None = None,
+    documentation_mode: bool = True,
+    allow_default_fallback: bool = True,
+) -> dict:
+    """Resolve XANES/FDMNES parameters with explicit > retrieved > default priority.
+
+    This tool is intended for documentation-grounded XANES workflows. The agent
+    should first retrieve relevant FDMNES manual passages for missing parameters,
+    then call this resolver with explicit user values and retrieved values. The
+    returned ``final_params`` can be passed to ``run_xanes`` or to MCP wrappers
+    such as ``run_xanes_single`` / ``run_xanes_ensemble``.
+    """
+    explicit = _normalize_xanes_param_map(explicit_params or {})
+    retrieved = _normalize_xanes_param_map(retrieved_params or {})
+    overrides = _normalize_xanes_param_map(chemgraph_defaults or {})
+
+    default_values = dict(XANES_RESOLVABLE_PARAM_DEFAULTS)
+    for key, value in overrides.items():
+        canonical = _canonical_xanes_param_key(key)
+        if canonical in default_values:
+            default_values[canonical] = value
+
+    requested = [
+        _canonical_xanes_param_key(key) for key in (parameters_to_resolve or [])
+    ]
+    if not requested:
+        requested = list(default_values.keys())
+
+    require_retrieval_for = {
+        _canonical_xanes_param_key(key) for key in (require_retrieval_for or [])
+    }
+
+    final_params = {}
+    provenance = {}
+    warnings = []
+    missing_retrieval = []
+    ready_for_xanes = True
+
+    passthrough_keys = [
+        key for key in XANES_PASSTHROUGH_PARAM_KEYS if key in explicit
+    ]
+
+    for key in requested + passthrough_keys:
+        if key in explicit:
+            raw_value = explicit[key]
+            source = "explicit"
+            reason = "User/task-specified value has highest priority."
+        elif key in retrieved:
+            raw_value = retrieved[key]
+            source = "retrieved"
+            reason = "Documentation-grounded retrieved value."
+        elif key in default_values:
+            raw_value = default_values[key]
+            source = "chemgraph_default"
+            reason = "Fallback to ChemGraph implementation default."
+            if key in require_retrieval_for and documentation_mode:
+                missing_retrieval.append(key)
+                warnings.append(
+                    f"{key} was requested for documentation retrieval but no "
+                    "retrieved value was provided; using ChemGraph default."
+                )
+            if not allow_default_fallback:
+                ready_for_xanes = False
+        else:
+            warnings.append(f"No value or default is available for {key}.")
+            ready_for_xanes = False
+            continue
+
+        try:
+            value = _coerce_xanes_param_value(key, raw_value)
+        except Exception as exc:
+            warnings.append(f"Invalid value for {key}: {exc}")
+            ready_for_xanes = False
+            continue
+
+        if value is not None:
+            final_params[key] = value
+        provenance[key] = {
+            "value": value,
+            "source": source,
+            "reason": reason,
+        }
+
+    return {
+        "status": "success" if ready_for_xanes else "needs_review",
+        "ready_for_xanes": ready_for_xanes,
+        "policy": [
+            "explicit user/task values",
+            "documentation-grounded retrieved values",
+            "ChemGraph implementation defaults",
+        ],
+        "final_params": final_params,
+        "provenance": provenance,
+        "missing_retrieval": sorted(missing_retrieval),
+        "warnings": warnings,
+    }
 
 
 def write_fdmnes_input(

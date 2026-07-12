@@ -40,6 +40,12 @@ from chemgraph.tools.cheminformatics_tools import (
     smiles_to_coordinate_file,
 )
 from chemgraph.tools.generic_tools import calculator
+from chemgraph.tools.xanes_tools import (
+    resolve_xanes_params,
+    run_xanes,
+    fetch_xanes_data,
+    plot_xanes_data,
+)
 from chemgraph.prompt.rag_prompt import rag_agent_prompt
 from chemgraph.state.state import State
 from chemgraph.utils.logging_config import setup_logger
@@ -158,6 +164,11 @@ def _default_tools():
         molecule_name_to_smiles,
         save_atomsdata_to_file,
         calculator,
+        # XANES/FDMNES tools
+        resolve_xanes_params,
+        run_xanes,
+        fetch_xanes_data,
+        plot_xanes_data,
     ]
 
 

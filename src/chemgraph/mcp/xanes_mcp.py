@@ -3,7 +3,11 @@ from pathlib import Path
 from mcp.server.fastmcp import FastMCP
 
 from chemgraph.mcp.server_utils import run_mcp_server
-from chemgraph.schemas.xanes_schema import xanes_input_schema, mp_query_schema
+from chemgraph.schemas.xanes_schema import (
+    xanes_input_schema,
+    xanes_param_resolution_schema,
+    mp_query_schema,
+)
 
 # Start MCP server
 mcp = FastMCP(
@@ -11,9 +15,10 @@ mcp = FastMCP(
     instructions="""
         You expose tools for running XANES/FDMNES simulations.
         The available tools are:
-        1. run_xanes_single: run a single FDMNES calculation for one structure.
-        2. fetch_mp_structures: fetch optimized structures from Materials Project.
-        3. plot_xanes: generate normalized XANES plots for completed calculations.
+        1. resolve_xanes_params: resolve FDMNES parameters with provenance.
+        2. run_xanes_single: run a single FDMNES calculation for one structure.
+        3. fetch_mp_structures: fetch optimized structures from Materials Project.
+        4. plot_xanes: generate normalized XANES plots for completed calculations.
 
         Guidelines:
         - Use each tool only when its input schema matches the user request.
@@ -24,6 +29,20 @@ mcp = FastMCP(
         - The FDMNES executable path is read from the FDMNES_EXE environment variable.
     """,
 )
+
+
+@mcp.tool(
+    name="resolve_xanes_params",
+    description=(
+        "Resolve XANES/FDMNES parameters using explicit > retrieved > "
+        "ChemGraph default priority."
+    ),
+)
+def resolve_xanes_params_tool(params: xanes_param_resolution_schema):
+    """Resolve XANES parameters with provenance before execution."""
+    from chemgraph.tools.xanes_tools import resolve_xanes_params
+
+    return resolve_xanes_params.invoke(params.model_dump())
 
 
 @mcp.tool(

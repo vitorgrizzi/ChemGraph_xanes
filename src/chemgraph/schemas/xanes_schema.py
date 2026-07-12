@@ -1,5 +1,5 @@
 import os
-from typing import Optional
+from typing import Any, Optional
 
 from pydantic import BaseModel, Field, field_validator, model_validator
 
@@ -239,6 +239,60 @@ class xanes_input_schema_ensemble(BaseModel):
         if self.input_source:
             return self.input_source
         return self.input_structure_files
+
+
+class xanes_param_resolution_schema(BaseModel):
+    """Inputs for resolving FDMNES/XANES parameters with provenance."""
+
+    explicit_params: dict[str, Any] = Field(
+        default_factory=dict,
+        description=(
+            "Parameters explicitly supplied by the user or task. These have "
+            "highest priority and should not be overridden by retrieval."
+        ),
+    )
+    retrieved_params: dict[str, Any] = Field(
+        default_factory=dict,
+        description=(
+            "Parameters extracted from documentation-grounded retrieval. These "
+            "are used for values not explicitly supplied by the user."
+        ),
+    )
+    chemgraph_defaults: dict[str, Any] = Field(
+        default_factory=dict,
+        description=(
+            "Optional implementation defaults to use after explicit and "
+            "retrieved values. Omitted keys use ChemGraph's built-in defaults."
+        ),
+    )
+    parameters_to_resolve: list[str] = Field(
+        default_factory=list,
+        description=(
+            "Optional subset of FDMNES parameters to resolve. If empty, resolves "
+            "the standard ChemGraph XANES parameter set."
+        ),
+    )
+    require_retrieval_for: list[str] = Field(
+        default_factory=list,
+        description=(
+            "Parameters that should have retrieved evidence when not supplied "
+            "explicitly. Missing retrieval is reported in warnings."
+        ),
+    )
+    documentation_mode: bool = Field(
+        default=True,
+        description=(
+            "Whether this resolution is part of a documentation-grounded/RAG "
+            "workflow. Used for provenance reporting and warnings."
+        ),
+    )
+    allow_default_fallback: bool = Field(
+        default=True,
+        description=(
+            "If False, the resolver marks output as not ready when a requested "
+            "parameter can only be filled from ChemGraph defaults."
+        ),
+    )
 
 
 class mp_query_schema(BaseModel):

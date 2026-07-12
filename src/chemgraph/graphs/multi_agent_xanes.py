@@ -10,6 +10,7 @@ from chemgraph.tools.cheminformatics_tools import (
 from chemgraph.tools.xanes_tools import (
     fetch_xanes_data,
     plot_xanes_data,
+    resolve_xanes_params,
     run_xanes,
 )
 from chemgraph.prompt.xanes_prompt import (
@@ -38,6 +39,7 @@ def construct_multi_agent_xanes_graph(
     """
     if tools is None:
         tools = [
+            resolve_xanes_params,
             run_xanes,
             fetch_xanes_data,
             plot_xanes_data,
