@@ -5,22 +5,12 @@ from __future__ import annotations
 
 import argparse
 import json
-import os
-
-from chemgraph.kg.extract import extract_records_from_chunks, write_records_jsonl
+from chemgraph.kg.extract import (
+    extract_records_from_chunks,
+    load_extraction_llm,
+    write_records_jsonl,
+)
 from chemgraph.kg.ingest import read_chunks_jsonl
-
-
-def _load_llm(model: str):
-    if model in {"deterministic", "regex", "offline", "none"}:
-        return None
-    from chemgraph.models.openai import load_openai_model
-
-    return load_openai_model(
-        model_name=model,
-        temperature=0.0,
-        base_url=os.environ.get("OPENAI_BASE_URL"),
-    )
 
 
 def main() -> None:
@@ -35,7 +25,7 @@ def main() -> None:
     parser.add_argument("--retries", type=int, default=1)
     args = parser.parse_args()
 
-    llm = _load_llm(args.model)
+    llm = load_extraction_llm(args.model)
     chunks = read_chunks_jsonl(args.chunks)
     records = extract_records_from_chunks(chunks, llm=llm, retries=args.retries)
     write_records_jsonl(records, args.out)

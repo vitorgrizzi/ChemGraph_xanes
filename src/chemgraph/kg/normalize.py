@@ -63,13 +63,17 @@ def normalize_unit(unit: str | None, synonyms: dict[str, Any] | None = None) -> 
     return syn.get("units", {}).get(key, unit.strip())
 
 
-def normalize_catalyst_name(name: str) -> str:
+def normalize_catalyst_name(
+    name: str,
+    synonyms: dict[str, Any] | None = None,
+) -> str:
     """Normalize common catalyst separators without changing chemistry."""
     clean = re.sub(r"\s+", "", name.strip())
     clean = clean.replace("\\", "/")
     clean = re.sub(r"-supported-on-", "/", clean, flags=re.IGNORECASE)
     clean = re.sub(r"supportedon", "/", clean, flags=re.IGNORECASE)
-    return clean
+    syn = synonyms or DEFAULT_SYNONYMS
+    return syn.get("catalysts", {}).get(clean.lower(), clean)
 
 
 def normalize_reaction_name(
@@ -104,14 +108,15 @@ def normalize_record(
     syn = synonyms or DEFAULT_SYNONYMS
     data = record.model_dump()
     data["canonical_catalyst_name"] = normalize_catalyst_name(
-        record.canonical_catalyst_name or record.catalyst_name
+        record.canonical_catalyst_name or record.catalyst_name,
+        syn,
     )
     data["reaction"] = normalize_reaction_name(record.reaction, syn)
     data["active_metals"] = sorted({item.strip() for item in record.active_metals if item})
     data["promoters"] = sorted({item.strip() for item in record.promoters if item})
     data["dopants"] = sorted({item.strip() for item in record.dopants if item})
     if record.support:
-        data["support"] = normalize_catalyst_name(record.support)
+        data["support"] = normalize_catalyst_name(record.support, syn)
     data["performance_metrics"] = [
         normalize_measurement(metric, syn).model_dump()
         for metric in record.performance_metrics

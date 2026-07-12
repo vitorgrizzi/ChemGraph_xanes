@@ -1,23 +1,22 @@
-from chemgraph.kg.hypotheses import suggest_hypotheses
+from chemgraph.kg.benchmark import evaluate_extractions
 from chemgraph.kg.schema import CatalystRecord, EvidenceSpan, Measurement
-from chemgraph.kg.store import build_kg
 
 
-def test_suggest_hypotheses_returns_cards(tmp_path):
+def _record(value):
     span = EvidenceSpan(
         paper_id="paper1",
         chunk_id="chunk1",
-        text="Cu/ZnO/Al2O3 methanol selectivity was 83%.",
+        text=f"Cu/ZnO methanol selectivity was {value}%.",
     )
-    record = CatalystRecord(
+    return CatalystRecord(
         paper_id="paper1",
-        catalyst_name="Cu/ZnO/Al2O3",
+        catalyst_name="Cu/ZnO",
         active_metals=["Cu"],
-        support="Al2O3",
+        support="ZnO",
         performance_metrics=[
             Measurement(
                 quantity="methanol_selectivity",
-                value=83,
+                value=value,
                 unit="percent",
                 evidence_span_id=span.evidence_id,
             )
@@ -29,14 +28,11 @@ def test_suggest_hypotheses_returns_cards(tmp_path):
             "support": [span.evidence_id],
         },
     )
-    build_kg([record], tmp_path)
 
-    result = suggest_hypotheses(
-        tmp_path,
-        goal="low-temperature CO2 hydrogenation to methanol",
-    )
 
-    assert result["num_hypotheses"] == 1
-    card = result["hypotheses"][0]
-    assert card["supporting_edge_ids"]
-    assert card["structured_tasks"]
+def test_gold_benchmark_reports_fact_precision_and_recall():
+    result = evaluate_extractions([_record(83)], [_record(83)])
+
+    assert result["micro_precision"] == 1.0
+    assert result["micro_recall"] == 1.0
+    assert result["grounding_acceptance_rate"] == 1.0

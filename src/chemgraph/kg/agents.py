@@ -10,6 +10,7 @@ from pydantic import BaseModel, Field
 
 from chemgraph.kg.extract import (
     extract_records_from_chunks,
+    load_extraction_llm,
     read_records_jsonl,
     write_records_jsonl,
 )
@@ -25,6 +26,7 @@ from chemgraph.kg.query import (
 from chemgraph.kg.schema import HypothesisCard
 from chemgraph.kg.store import build_kg
 from chemgraph.kg.verify import verify_records
+from chemgraph.kg.validation import validate_kg
 
 
 class IngestionAgent:
@@ -34,9 +36,15 @@ class IngestionAgent:
 
 
 class ExtractionAgent:
-    def run(self, chunks_path: str, records_out: str, llm=None) -> dict[str, Any]:
+    def run(
+        self,
+        chunks_path: str,
+        records_out: str,
+        llm=None,
+        retries: int = 1,
+    ) -> dict[str, Any]:
         chunks = read_chunks_jsonl(chunks_path)
-        records = extract_records_from_chunks(chunks, llm=llm)
+        records = extract_records_from_chunks(chunks, llm=llm, retries=retries)
         write_records_jsonl(records, records_out)
         return {"ok": True, "records_path": records_out, "n_records": len(records)}
 
@@ -90,16 +98,27 @@ class InsightAgent:
 class CriticAgent:
     def run(self, hypothesis: dict[str, Any]) -> dict[str, Any]:
         card = HypothesisCard.model_validate(hypothesis)
-        approved = bool(card.supporting_edge_ids and card.suggested_validation)
+        independent_papers = {
+            path.get("paper_id")
+            for path in card.supporting_paths
+            if path.get("paper_id")
+        }
+        approved = bool(
+            card.supporting_edge_ids
+            and card.suggested_validation
+            and len(independent_papers) >= 2
+        )
         concerns = []
         if not card.supporting_edge_ids:
             concerns.append("No supporting KG edge IDs are attached.")
         if not card.counter_evidence_ids:
             concerns.append("No counter-evidence was found; treat this as an evidence gap, not proof of safety.")
+        if len(independent_papers) < 2:
+            concerns.append("Fewer than two independent papers support the candidate.")
         return {
             "approved": approved,
             "major_concerns": concerns,
-            "missing_evidence": [] if approved else ["supporting_edge_ids"],
+            "missing_evidence": [] if approved else ["independent_paper_support"],
             "suggested_validation": card.suggested_validation,
             "revised_claim": card.claim,
         }
@@ -125,6 +144,8 @@ class OrchestratorAgent:
         *,
         query: str | None = None,
         goal: str | None = None,
+        extraction_model: str = "deterministic",
+        extraction_retries: int = 1,
     ) -> dict[str, Any]:
         work = Path(work_dir)
         chunks_path = work / "chunks.jsonl"
@@ -133,7 +154,14 @@ class OrchestratorAgent:
         kg_dir = work / "graph"
 
         ingestion = IngestionAgent().run(input_path, str(chunks_path))
-        extraction = ExtractionAgent().run(str(chunks_path), str(records_path))
+        extraction_llm = load_extraction_llm(extraction_model)
+        extraction = ExtractionAgent().run(
+            str(chunks_path),
+            str(records_path),
+            llm=extraction_llm,
+            retries=extraction_retries,
+        )
+        extraction["model"] = extraction_model
         verification = VerifierAgent().run(str(records_path), str(verified_path))
         graph = GraphBuilderAgent().run(str(verified_path), str(kg_dir))
         output: dict[str, Any] = {
@@ -160,6 +188,8 @@ class KGIngestInput(BaseModel):
 class KGExtractInput(BaseModel):
     chunks_path: str = Field(description="Path to chunk JSONL produced by kg_ingest_papers.")
     out_path: str = Field(description="JSONL path for extracted CatalystRecord objects.")
+    model: str = Field(default="deterministic")
+    retries: int = Field(default=1, ge=0, le=5)
 
 
 class KGBuildInput(BaseModel):
@@ -167,10 +197,19 @@ class KGBuildInput(BaseModel):
     kg_dir: str = Field(description="Output directory for nodes/edges/evidence store.")
 
 
+class KGVerifyInput(BaseModel):
+    records_path: str = Field(description="Path to extracted CatalystRecord JSONL.")
+    verified_out: str = Field(description="Output path for accepted records.")
+
+
 class KGQueryInput(BaseModel):
     kg_dir: str = Field(description="Directory containing a built literature KG.")
     query: str = Field(description="Natural-language graph/RAG question.")
     top_k: int = Field(default=10)
+    embedding_model: str | None = Field(
+        default=None,
+        description="Optional sentence-transformers model for vector evidence retrieval.",
+    )
 
 
 class KGEvidenceInput(BaseModel):
@@ -188,6 +227,11 @@ class KGExportInput(BaseModel):
     kg_dir: str
     out_path: str
     target_quantity: str = Field(default="methanol_selectivity")
+
+
+class KGValidateInput(BaseModel):
+    kg_dir: str
+    verify_hashes: bool = True
 
 
 @tool(args_schema=KGIngestInput)
@@ -208,12 +252,23 @@ def kg_ingest_papers(
 
 
 @tool(args_schema=KGExtractInput)
-def kg_extract_records(chunks_path: str, out_path: str) -> dict:
-    """Extract CatalystRecord JSONL from chunk JSONL using the offline extractor."""
+def kg_extract_records(
+    chunks_path: str,
+    out_path: str,
+    model: str = "deterministic",
+    retries: int = 1,
+) -> dict:
+    """Extract CatalystRecord JSONL with a selected model or offline fallback."""
     chunks = read_chunks_jsonl(chunks_path)
-    records = extract_records_from_chunks(chunks)
+    llm = load_extraction_llm(model)
+    records = extract_records_from_chunks(chunks, llm=llm, retries=retries)
     write_records_jsonl(records, out_path)
-    return {"ok": True, "out_path": out_path, "n_records": len(records)}
+    return {
+        "ok": True,
+        "out_path": out_path,
+        "n_records": len(records),
+        "model": model,
+    }
 
 
 @tool(args_schema=KGBuildInput)
@@ -223,10 +278,26 @@ def kg_build_graph(records_path: str, kg_dir: str) -> dict:
     return build_kg(records, kg_dir)
 
 
+@tool(args_schema=KGVerifyInput)
+def kg_verify_records(records_path: str, verified_out: str) -> dict:
+    """Verify grounding and write only accepted records."""
+    return VerifierAgent().run(records_path, verified_out)
+
+
 @tool(args_schema=KGQueryInput)
-def kg_hybrid_query(kg_dir: str, query: str, top_k: int = 10) -> dict:
+def kg_hybrid_query(
+    kg_dir: str,
+    query: str,
+    top_k: int = 10,
+    embedding_model: str | None = None,
+) -> dict:
     """Ask a hybrid graph + evidence-retrieval question."""
-    return hybrid_query(kg_dir, query, top_k=top_k)
+    return hybrid_query(
+        kg_dir,
+        query,
+        top_k=top_k,
+        embedding_model=embedding_model,
+    )
 
 
 @tool(args_schema=KGEvidenceInput)
@@ -251,14 +322,22 @@ def kg_export_training_table(
     return export_training_table(kg_dir, out_path, target_quantity=target_quantity)
 
 
+@tool(args_schema=KGValidateInput)
+def kg_validate_graph(kg_dir: str, verify_hashes: bool = True) -> dict:
+    """Validate artifact hashes, graph references, and observation linkage."""
+    return validate_kg(kg_dir, verify_hashes=verify_hashes)
+
+
 def kg_langchain_tools() -> list:
     """Return literature KG tools for LangGraph ReAct workflows."""
     return [
         kg_ingest_papers,
         kg_extract_records,
+        kg_verify_records,
         kg_build_graph,
         kg_hybrid_query,
         kg_get_evidence,
         kg_suggest_hypotheses,
         kg_export_training_table,
+        kg_validate_graph,
     ]

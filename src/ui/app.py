@@ -1003,6 +1003,7 @@ def render_literature_kg_panel():
     from chemgraph.kg.extract import read_records_jsonl
     from chemgraph.kg.hypotheses import suggest_hypotheses
     from chemgraph.kg.query import export_training_table, get_evidence, hybrid_query
+    from chemgraph.kg.validation import validate_kg
     from chemgraph.workflows.literature_kg import run_literature_kg_workflow
 
     st.subheader("Literature KG")
@@ -1014,8 +1015,8 @@ def render_literature_kg_panel():
     )
     kg_dir = str(Path(work_dir) / "graph")
 
-    tab_build, tab_query, tab_evidence, tab_hypotheses, tab_export = st.tabs(
-        ["Papers", "Query", "Evidence", "Hypotheses", "Export"]
+    tab_build, tab_query, tab_evidence, tab_hypotheses, tab_export, tab_validate = st.tabs(
+        ["Papers", "Query", "Evidence", "Hypotheses", "Export", "Validate"]
     )
 
     with tab_build:
@@ -1030,6 +1031,15 @@ def render_literature_kg_panel():
             value=str(Path(work_dir) / "uploads"),
             key="kg_input_path",
         )
+        extraction_model = st.text_input(
+            "Extraction model",
+            value="deterministic",
+            help=(
+                "Use deterministic for offline plumbing checks, or provide an "
+                "OpenAI model name for schema-constrained extraction."
+            ),
+            key="kg_extraction_model",
+        )
         if st.button("Build KG", key="kg_build_button"):
             try:
                 input_dir = Path(input_path)
@@ -1040,6 +1050,7 @@ def render_literature_kg_panel():
                 result = run_literature_kg_workflow(
                     input_path=str(input_dir),
                     work_dir=work_dir,
+                    extraction_model=extraction_model,
                 )
                 st.session_state["kg_last_result"] = result
                 st.success("KG updated.")
@@ -1105,6 +1116,22 @@ def render_literature_kg_panel():
                 st.json(export_training_table(kg_dir, export_path))
             except Exception as exc:
                 st.error(f"Export failed: {exc}")
+
+    with tab_validate:
+        st.caption(
+            "Checks artifact hashes, edge endpoints, evidence references, and "
+            "observation-condition linkage."
+        )
+        if st.button("Validate KG", key="kg_validate_button"):
+            try:
+                result = validate_kg(kg_dir)
+                if result["ok"]:
+                    st.success("KG integrity checks passed.")
+                else:
+                    st.error("KG integrity checks failed.")
+                st.json(result)
+            except Exception as exc:
+                st.error(f"KG validation failed: {exc}")
 
 
 if selected_workflow == "literature_kg":

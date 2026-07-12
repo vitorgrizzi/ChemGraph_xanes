@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import hashlib
 import json
 from pathlib import Path
 from typing import Iterable
@@ -13,7 +14,9 @@ SUPPORTED_INPUT_SUFFIXES = {".txt", ".md", ".jsonl", ".json", ".pdf"}
 
 
 def _paper_id_from_path(path: Path) -> str:
-    return path.stem.lower().replace(" ", "_").replace("-", "_")
+    slug = path.stem.lower().replace(" ", "_").replace("-", "_")
+    digest = hashlib.sha256(path.read_bytes()).hexdigest()[:10]
+    return f"{slug}_{digest}"
 
 
 def _read_pdf_pages(path: Path) -> list[tuple[int, str]]:
@@ -22,13 +25,20 @@ def _read_pdf_pages(path: Path) -> list[tuple[int, str]]:
     except ImportError as exc:
         raise ImportError(
             "PyMuPDF is required for PDF ingestion. Install with "
-            "`pip install -e .[rag]` or `pip install pymupdf`."
+            "`pip install -e .[kg]` or `pip install pymupdf`."
         ) from exc
 
     pages: list[tuple[int, str]] = []
     with fitz.open(path) as doc:
         for idx, page in enumerate(doc, start=1):
-            text = page.get_text().strip()
+            # Sorted layout blocks preserve column/table reading order better
+            # than one undifferentiated page string while remaining deterministic.
+            blocks = page.get_text("blocks", sort=True)
+            text = "\n".join(
+                str(block[4]).strip()
+                for block in blocks
+                if len(block) > 4 and str(block[4]).strip()
+            ).strip()
             if text:
                 pages.append((idx, text))
     return pages

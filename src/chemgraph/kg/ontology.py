@@ -3,6 +3,7 @@
 NODE_TYPES = {
     "Paper",
     "Chunk",
+    "Observation",
     "Reaction",
     "CatalystSystem",
     "CatalystComponent",
@@ -31,6 +32,7 @@ NODE_TYPES = {
 
 RELATION_TYPES = {
     "reports",
+    "uses_catalyst",
     "studies_reaction",
     "contains_chunk",
     "supports_fact",

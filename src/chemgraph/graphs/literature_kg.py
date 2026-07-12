@@ -21,7 +21,10 @@ evidence-backed graph, answer hybrid graph/RAG questions, and generate
 hypothesis cards. Do not invent literature facts. Every scientific claim you
 surface should point to evidence IDs or say that evidence is missing. Expensive
 computational or experimental actions require human approval; propose structured
-tasks instead of launching them.
+tasks instead of launching them. Graph construction performs mandatory
+verification; never request an unsafe bypass. Use kg_validate_graph after a
+build, use kg_verify_records when the user needs an issue report, and treat
+hypothesis cards as trend candidates rather than causal proof.
 """
 
 

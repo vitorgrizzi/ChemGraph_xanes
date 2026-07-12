@@ -14,9 +14,24 @@ def main() -> None:
     parser.add_argument("--kg", required=True, help="Built KG directory.")
     parser.add_argument("--q", required=True, help="Natural-language question.")
     parser.add_argument("--top-k", type=int, default=10)
+    parser.add_argument(
+        "--embedding-model",
+        default=None,
+        help="Optional sentence-transformers model for vector retrieval.",
+    )
     args = parser.parse_args()
 
-    print(json.dumps(hybrid_query(args.kg, args.q, top_k=args.top_k), indent=2))
+    print(
+        json.dumps(
+            hybrid_query(
+                args.kg,
+                args.q,
+                top_k=args.top_k,
+                embedding_model=args.embedding_model,
+            ),
+            indent=2,
+        )
+    )
 
 
 if __name__ == "__main__":

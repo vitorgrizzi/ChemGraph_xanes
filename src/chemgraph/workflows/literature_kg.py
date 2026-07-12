@@ -15,6 +15,8 @@ class LiteratureKGWorkflowConfig(BaseModel):
     work_dir: str = Field(description="Directory where chunks, records, and KG are written.")
     query: str | None = None
     goal: str | None = None
+    extraction_model: str = "deterministic"
+    extraction_retries: int = Field(default=1, ge=0, le=5)
 
 
 def run_literature_kg_workflow(
@@ -23,6 +25,8 @@ def run_literature_kg_workflow(
     *,
     query: str | None = None,
     goal: str | None = None,
+    extraction_model: str = "deterministic",
+    extraction_retries: int = 1,
 ) -> dict[str, Any]:
     """Run ingest -> extract -> verify -> normalize/build -> query/insight."""
     Path(work_dir).mkdir(parents=True, exist_ok=True)
@@ -31,4 +35,6 @@ def run_literature_kg_workflow(
         work_dir=work_dir,
         query=query,
         goal=goal,
+        extraction_model=extraction_model,
+        extraction_retries=extraction_retries,
     )

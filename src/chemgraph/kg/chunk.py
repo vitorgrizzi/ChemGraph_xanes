@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import hashlib
 from collections.abc import Iterable
 
 from chemgraph.kg.schema import PaperChunk
@@ -26,35 +27,41 @@ def chunk_text(
     if chunk_overlap >= chunk_size:
         raise ValueError("chunk_overlap must be smaller than chunk_size.")
 
-    clean = "\n".join(line.rstrip() for line in text.splitlines()).strip()
-    if not clean:
+    if not text or not text.strip():
         return []
 
     chunks: list[PaperChunk] = []
     start = 0
     idx = 0
-    while start < len(clean):
-        stop = min(len(clean), start + chunk_size)
-        if stop < len(clean):
-            split_at = max(clean.rfind("\n\n", start, stop), clean.rfind(". ", start, stop))
+    while start < len(text):
+        stop = min(len(text), start + chunk_size)
+        if stop < len(text):
+            split_at = max(text.rfind("\n\n", start, stop), text.rfind(". ", start, stop))
             if split_at > start + max(200, chunk_size // 3):
                 stop = split_at + 1
-        piece = clean[start:stop].strip()
+        raw_piece = text[start:stop]
+        left_trim = len(raw_piece) - len(raw_piece.lstrip())
+        right_trimmed = raw_piece.rstrip()
+        piece_start = start + left_trim
+        piece_stop = start + len(right_trimmed)
+        piece = text[piece_start:piece_stop]
         if piece:
+            page_part = f"_p{page:04d}" if page is not None else ""
+            digest = hashlib.sha256(piece.encode("utf-8")).hexdigest()[:10]
             chunks.append(
                 PaperChunk(
                     paper_id=paper_id,
-                    chunk_id=f"{paper_id}_chunk_{idx:05d}",
+                    chunk_id=f"{paper_id}{page_part}_chunk_{idx:05d}_{digest}",
                     page=page,
                     section=section,
                     text=piece,
                     source_path=source_path,
                     doi=doi,
-                    metadata={"start_char": start, "end_char": stop},
+                    metadata={"start_char": piece_start, "end_char": piece_stop},
                 )
             )
             idx += 1
-        if stop >= len(clean):
+        if stop >= len(text):
             break
         start = max(0, stop - chunk_overlap)
     return chunks
