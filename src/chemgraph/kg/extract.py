@@ -17,7 +17,7 @@ from chemgraph.kg.schema import (
     ReactionCondition,
 )
 
-EXTRACTOR_VERSION = "literature_kg_regex_v2"
+EXTRACTOR_VERSION = "literature_kg_regex_v3"
 
 
 EXTRACTION_PROMPT = """You are extracting structured catalysis data from scientific text.
@@ -117,9 +117,8 @@ def _find_catalyst_name(text: str) -> str | None:
         if match:
             return match.group(0)
     catalyst_match = re.search(
-        r"(?:catalyst|sample)\s+([A-Z][A-Za-z0-9/._-]{2,})",
+        r"(?i:catalyst|sample)\s+([A-Z][A-Za-z0-9/._-]{2,})",
         text,
-        flags=re.IGNORECASE,
     )
     if catalyst_match:
         return catalyst_match.group(1)
@@ -185,11 +184,11 @@ def _detect_reaction(text: str) -> str | None:
 
 def _extract_conditions(text: str, evidence_id: str) -> list[ReactionCondition]:
     normalized = text.replace("CO₂", "CO2").replace("H₂", "H2")
-    temperature_match = re.search(
+    temperature_matches = list(re.finditer(
         r"(-?\d+(?:\.\d+)?)\s*(?:(?:°|º)\s*|deg(?:ree)?s?\s*)?(C|K)\b",
         normalized,
         flags=re.I,
-    )
+    ))
     pressure_match = re.search(
         r"(\d+(?:\.\d+)?)\s*(bar|MPa|kPa|Pa)\b",
         normalized,
@@ -203,11 +202,8 @@ def _extract_conditions(text: str, evidence_id: str) -> list[ReactionCondition]:
             flags=re.I,
         )
     ]
-    if temperature_match is None and pressure_match is None and not ratios:
+    if not temperature_matches and pressure_match is None and not ratios:
         return []
-    temperature_unit = None
-    if temperature_match:
-        temperature_unit = "K" if temperature_match.group(2).lower() == "k" else "degC"
     pressure_unit = pressure_match.group(2) if pressure_match else None
     if pressure_unit:
         pressure_unit = {
@@ -216,16 +212,196 @@ def _extract_conditions(text: str, evidence_id: str) -> list[ReactionCondition]:
             "kpa": "kPa",
             "pa": "Pa",
         }[pressure_unit.lower()]
-    return [
-        ReactionCondition(
-            temperature=float(temperature_match.group(1)) if temperature_match else None,
+    conditions = []
+    for temperature_match in temperature_matches or [None]:
+        temperature_unit = None
+        if temperature_match:
+            temperature_unit = (
+                "K" if temperature_match.group(2).lower() == "k" else "degC"
+            )
+        conditions.append(ReactionCondition(
+            temperature=(
+                float(temperature_match.group(1)) if temperature_match else None
+            ),
             temperature_unit=temperature_unit,
             pressure=float(pressure_match.group(1)) if pressure_match else None,
             pressure_unit=pressure_unit,
             h2_co2_ratio=ratios[0] if ratios else None,
             evidence_span_id=evidence_id,
+        ))
+    return list({condition.condition_id: condition for condition in conditions}.values())
+
+
+def _condition_from_temperature(
+    text: str,
+    evidence_id: str,
+    temperature: str,
+    temperature_unit: str,
+    temperature_position: int,
+) -> ReactionCondition:
+    """Build a condition around one explicitly paired temperature mention."""
+    pressure_matches = list(
+        re.finditer(r"(\d+(?:\.\d+)?)\s*(bar|MPa|kPa|Pa)\b", text, flags=re.I)
+    )
+    pressure_match = min(
+        pressure_matches,
+        key=lambda match: abs(match.start() - temperature_position),
+        default=None,
+    )
+    pressure_unit = pressure_match.group(2) if pressure_match else None
+    if pressure_unit:
+        pressure_unit = {
+            "bar": "bar",
+            "mpa": "MPa",
+            "kpa": "kPa",
+            "pa": "Pa",
+        }[pressure_unit.lower()]
+    return ReactionCondition(
+        temperature=float(temperature),
+        temperature_unit=(
+            "K" if temperature_unit.lower() == "k" else "degC"
+        ),
+        pressure=float(pressure_match.group(1)) if pressure_match else None,
+        pressure_unit=pressure_unit,
+        evidence_span_id=evidence_id,
+    )
+
+
+def _extract_explicit_condition_metric_pairs(
+    text: str,
+    evidence_id: str,
+) -> tuple[list[ReactionCondition], list[Measurement]]:
+    """Extract metric values explicitly paired with nearby temperatures."""
+    if re.search(
+        r"\d+(?:\.\d+)?\s*(?:-|–|to)\s*\d+(?:\.\d+)?\s*(?:%|percent)",
+        text,
+        flags=re.I,
+    ):
+        # The general measurement parser preserves these as one range; do not
+        # reinterpret the upper bound as an independent point measurement.
+        return [], []
+    temperature_pattern = re.compile(
+        r"(?P<temperature>-?\d+(?:\.\d+)?)\s*"
+        r"(?:(?:°|º)\s*|deg(?:ree)?s?\s*)?"
+        r"(?P<temperature_unit>C|K)\b",
+        flags=re.I,
+    )
+    conditions: dict[str, ReactionCondition] = {}
+    metrics: dict[tuple[str, float, str], Measurement] = {}
+
+    def add_metric(
+        raw_quantity: str,
+        raw_value: str,
+        raw_text: str,
+        temperature: str,
+        temperature_unit: str,
+        temperature_position: int,
+    ) -> None:
+        if re.search(
+            r"\b(?:estimated|predicted|calculated|equilibrium)\b",
+            raw_text,
+            flags=re.I,
+        ):
+            return
+        condition = _condition_from_temperature(
+            text,
+            evidence_id,
+            temperature,
+            temperature_unit,
+            temperature_position,
         )
-    ]
+        quantity = _canonical_quantity(raw_quantity)
+        value = float(raw_value)
+        conditions[condition.condition_id] = condition
+        metrics[(quantity, value, condition.condition_id)] = Measurement(
+            quantity=quantity,
+            value=value,
+            unit="percent",
+            raw_value=raw_text,
+            condition_id=condition.condition_id,
+            evidence_span_id=evidence_id,
+            confidence=0.7,
+            attributes={"comparator": "="},
+        )
+
+    series_pattern = re.compile(
+        r"(?P<quantity>(?:(?:CO2|CO|methanol|methane|higher alcohol|carbon)\s+)?"
+        r"(?:conversion|selectivity|yield)s?)\s+"
+        r"(?:increased|decreased|rose|declined)\s+from\s+"
+        r"(?P<value1>\d+(?:\.\d+)?)\s*(?:%|percent)\s+at\s+"
+        r"(?P<temperature1>-?\d+(?:\.\d+)?)\s*"
+        r"(?:(?:°|º)\s*)?(?P<temperature_unit1>C|K)\b\s*"
+        r"(?:to|and\s+(?:reached|fell\s+to|decreased\s+to|increased\s+to))\s*"
+        r"(?P<value2>\d+(?:\.\d+)?)\s*(?:%|percent)\s+at\s+"
+        r"(?P<temperature2>-?\d+(?:\.\d+)?)\s*"
+        r"(?:(?:°|º)\s*)?(?P<temperature_unit2>C|K)\b",
+        flags=re.I,
+    )
+    for match in series_pattern.finditer(text):
+        for index in (1, 2):
+            add_metric(
+                match.group("quantity"),
+                match.group(f"value{index}"),
+                match.group(0),
+                match.group(f"temperature{index}"),
+                match.group(f"temperature_unit{index}"),
+                match.start(f"temperature{index}"),
+            )
+
+    direct_pattern = re.compile(
+        r"(?P<quantity>(?:(?:CO2|CO|methanol|methane|higher alcohol|carbon)\s+)?"
+        r"(?:conversion|selectivity|yield)s?)"
+        r"(?:(?![.!?]).){0,50}?"
+        r"(?P<value>\d+(?:\.\d+)?)\s*(?:%|percent)\s+at\s+"
+        r"(?P<temperature>-?\d+(?:\.\d+)?)\s*"
+        r"(?:(?:°|º)\s*)?(?P<temperature_unit>C|K)\b",
+        flags=re.I,
+    )
+    for match in direct_pattern.finditer(text):
+        add_metric(
+            match.group("quantity"),
+            match.group("value"),
+            match.group(0),
+            match.group("temperature"),
+            match.group("temperature_unit"),
+            match.start("temperature"),
+        )
+
+    value_first_pattern = re.compile(
+        r"(?P<value>\d+(?:\.\d+)?)\s*(?:%|percent)\s*"
+        r"(?P<quantity>(?:(?:CO2|CO|methanol|methane|higher alcohol|carbon)\s+)?"
+        r"(?:conversion|selectivity|yield)s?)\b",
+        flags=re.I,
+    )
+    temperature_matches = list(temperature_pattern.finditer(text))
+    for match in value_first_pattern.finditer(text):
+        nearby_temperatures = [
+            candidate
+            for candidate in temperature_matches
+            if min(
+                abs(candidate.end() - match.start()),
+                abs(candidate.start() - match.end()),
+            ) <= 120
+        ]
+        if not nearby_temperatures:
+            continue
+        temperature_match = min(
+            nearby_temperatures,
+            key=lambda candidate: min(
+                abs(candidate.end() - match.start()),
+                abs(candidate.start() - match.end()),
+            ),
+        )
+        add_metric(
+            match.group("quantity"),
+            match.group("value"),
+            match.group(0),
+            temperature_match.group("temperature"),
+            temperature_match.group("temperature_unit"),
+            temperature_match.start(),
+        )
+
+    return list(conditions.values()), list(metrics.values())
 
 
 def _extract_measurements(
@@ -322,9 +498,21 @@ def _extract_condition_metric_pairs(
     pending_metrics: list[Measurement] = []
     metrics: list[Measurement] = []
     for segment in segments:
+        explicit_conditions, explicit_metrics = _extract_explicit_condition_metric_pairs(
+            segment,
+            evidence_id,
+        )
+        if explicit_metrics:
+            conditions.extend(explicit_conditions)
+            metrics.extend(explicit_metrics)
+            continue
         segment_conditions = _extract_conditions(segment, evidence_id)
         conditions.extend(segment_conditions)
-        condition_id = segment_conditions[0].condition_id if segment_conditions else None
+        condition_id = (
+            segment_conditions[0].condition_id
+            if len(segment_conditions) == 1
+            else None
+        )
         for metric in _extract_measurements(segment, evidence_id, condition_id):
             if condition_id:
                 metrics.append(metric)
@@ -343,7 +531,15 @@ def regex_extract_record(chunk: PaperChunk) -> CatalystRecord | None:
     """Offline extraction fallback for tests and first-pass demos."""
     text = chunk.text
     catalyst_name = _find_catalyst_name(text)
-    metrics_or_reaction = _extract_measurements(text, "placeholder", None) or _detect_reaction(text)
+    explicit_metrics = _extract_explicit_condition_metric_pairs(
+        text,
+        "placeholder",
+    )[1]
+    metrics_or_reaction = (
+        _extract_measurements(text, "placeholder", None)
+        or explicit_metrics
+        or _detect_reaction(text)
+    )
     if not catalyst_name and not metrics_or_reaction:
         return None
 
@@ -472,6 +668,82 @@ def llm_extract_record(chunk: PaperChunk, llm, retries: int = 1) -> CatalystReco
     raise ValueError(f"LLM extraction failed after retries: {last_error}") from last_error
 
 
+def _propagate_unambiguous_paper_catalyst_context(
+    records: list[CatalystRecord],
+) -> list[CatalystRecord]:
+    """Ground metric-only chunks with a unique catalyst named in that paper."""
+    records_by_paper: dict[str, list[CatalystRecord]] = {}
+    for record in records:
+        records_by_paper.setdefault(record.paper_id, []).append(record)
+
+    updated: list[CatalystRecord] = []
+    for paper_records in records_by_paper.values():
+        named_records = [
+            record
+            for record in paper_records
+            if not record.catalyst_name.startswith("unknown_catalyst_")
+        ]
+        catalyst_names = {record.catalyst_name for record in named_records}
+        exemplar = None
+        if len(catalyst_names) == 1:
+            exemplar = max(
+                named_records,
+                key=lambda record: (
+                    len(record.active_metals),
+                    bool(record.support),
+                    record.confidence,
+                ),
+            )
+
+        for record in paper_records:
+            if (
+                exemplar is None
+                or not record.catalyst_name.startswith("unknown_catalyst_")
+                or not record.performance_metrics
+            ):
+                updated.append(record)
+                continue
+
+            data = record.model_dump()
+            data["record_id"] = ""
+            for field in (
+                "catalyst_name",
+                "canonical_catalyst_name",
+                "active_metals",
+                "promoters",
+                "dopants",
+                "support",
+            ):
+                data[field] = getattr(exemplar, field)
+
+            evidence_by_id = {
+                span.evidence_id: span.model_dump()
+                for span in [*record.evidence_spans, *exemplar.evidence_spans]
+            }
+            data["evidence_spans"] = list(evidence_by_id.values())
+            field_evidence_ids = dict(data.get("field_evidence_ids") or {})
+            for field in (
+                "catalyst_name",
+                "active_metals",
+                "promoters",
+                "dopants",
+                "support",
+            ):
+                if getattr(exemplar, field):
+                    field_evidence_ids[field] = exemplar.field_evidence_ids.get(
+                        field,
+                        [span.evidence_id for span in exemplar.evidence_spans],
+                    )
+            data["field_evidence_ids"] = field_evidence_ids
+            data["attributes"] = {
+                **data.get("attributes", {}),
+                "catalyst_context_propagated": True,
+                "catalyst_context_record_id": exemplar.record_id,
+            }
+            updated.append(CatalystRecord.model_validate(data))
+    return updated
+
+
 def extract_records_from_chunks(
     chunks: Iterable[PaperChunk],
     *,
@@ -484,7 +756,7 @@ def extract_records_from_chunks(
         record = llm_extract_record(chunk, llm, retries=retries) if llm else regex_extract_record(chunk)
         if record is not None:
             records.append(record)
-    return records
+    return _propagate_unambiguous_paper_catalyst_context(records)
 
 
 def write_records_jsonl(records: Iterable[CatalystRecord], out: str | Path) -> Path:

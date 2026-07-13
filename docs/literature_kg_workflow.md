@@ -69,6 +69,14 @@ manifest.
 The deterministic extractor is a conservative offline fallback for tests and
 plumbing checks. Use `--model MODEL_NAME` for schema-constrained LLM extraction;
 the application, not the model, creates provenance IDs and source metadata.
+The deterministic path preserves explicit value-temperature pairs in repeated
+series and value-first phrases. For metric-only chunks, it carries catalyst
+context from another chunk only when the same paper names exactly one catalyst,
+and attaches that source chunk as evidence. It does not guess when multiple
+catalysts are present. Estimated, predicted, calculated, and equilibrium values
+are excluded from observed-performance edges. Query results collapse identical
+same-paper facts introduced by overlapping chunks while retaining every
+supporting evidence span and edge ID.
 
 ## Stored artifacts
 

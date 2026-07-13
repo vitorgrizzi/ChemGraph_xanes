@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import csv
+import json
 import math
 import os
 import re
@@ -179,6 +180,42 @@ def _temperature_deg_c(condition: KGNode | None) -> float | None:
     return value
 
 
+def _result_fact_key(result: dict[str, Any]) -> tuple[Any, ...]:
+    """Identify one same-paper observation fact independent of chunk overlap."""
+    edge_attributes = result["edge"].get("attributes", {})
+    measurement_attributes = edge_attributes.get("attributes", {})
+    condition_attributes = (
+        result["condition"].get("attributes", {}) if result["condition"] else {}
+    )
+    condition_values = {
+        key: condition_attributes.get(key)
+        for key in (
+            "temperature",
+            "temperature_unit",
+            "pressure",
+            "pressure_unit",
+            "h2_co2_ratio",
+            "ghsv",
+            "whsv",
+            "time_on_stream",
+            "time_on_stream_unit",
+        )
+    }
+    return (
+        result["paper"].get("canonical_name") if result["paper"] else None,
+        result["source"]["node_id"],
+        result["edge"]["relation"],
+        edge_attributes.get("quantity"),
+        edge_attributes.get("value"),
+        edge_attributes.get("unit"),
+        measurement_attributes.get("comparator", "="),
+        measurement_attributes.get("range_min"),
+        measurement_attributes.get("range_max"),
+        json.dumps(condition_values, sort_keys=True),
+        tuple(sorted(node["canonical_name"] for node in result["reactions"])),
+    )
+
+
 def graph_query(
     kg_dir: str | Path,
     *,
@@ -274,8 +311,25 @@ def graph_query(
                 ] if observation else [],
                 "target": target.model_dump(mode="json"),
                 "evidence": evidence,
+                "supporting_edge_ids": [edge.edge_id],
             }
         )
+    deduplicated: dict[tuple[Any, ...], dict[str, Any]] = {}
+    for result in results:
+        key = _result_fact_key(result)
+        existing = deduplicated.get(key)
+        if existing is None:
+            deduplicated[key] = result
+            continue
+        evidence_by_id = {
+            span["evidence_id"]: span
+            for span in [*existing["evidence"], *result["evidence"]]
+        }
+        existing["evidence"] = list(evidence_by_id.values())
+        existing["supporting_edge_ids"] = sorted(
+            set(existing["supporting_edge_ids"] + result["supporting_edge_ids"])
+        )
+    results = list(deduplicated.values())
     results.sort(
         key=lambda item: (
             -float(item["edge"].get("confidence") or 0.0),
@@ -358,9 +412,12 @@ def hybrid_query(
                 },
             )
             item["graph_rank"] = min(item["graph_rank"] or rank, rank)
-            edge_id = result["edge"]["edge_id"]
-            if edge_id not in item["graph_hits"]:
-                item["graph_hits"].append(edge_id)
+            for edge_id in result.get(
+                "supporting_edge_ids",
+                [result["edge"]["edge_id"]],
+            ):
+                if edge_id not in item["graph_hits"]:
+                    item["graph_hits"].append(edge_id)
     for item in fused.values():
         item["score"] += 1.0 / (60 + item["graph_rank"])
     for rank, result in enumerate(retrieval_results["results"], start=1):

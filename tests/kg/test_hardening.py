@@ -3,7 +3,7 @@ import json
 import pandas as pd
 import pytest
 
-from chemgraph.kg.extract import regex_extract_record
+from chemgraph.kg.extract import extract_records_from_chunks, regex_extract_record
 from chemgraph.kg.query import graph_query, hybrid_query
 from chemgraph.kg.schema import (
     CatalystRecord,
@@ -161,6 +161,130 @@ def test_observed_80_and_91_percent_case_queries_without_cross_linking(tmp_path)
     assert strict["graph"]["num_results"] == 0
     assert inclusive["graph"]["num_results"] == 1
     assert inclusive["graph"]["results"][0]["edge"]["attributes"]["value"] == 80
+
+
+def test_multivalue_passage_restores_graph_results_with_paper_context(tmp_path):
+    context_chunk = PaperChunk(
+        paper_id="paper1",
+        chunk_id="context",
+        text=(
+            "The Cu/ZnO/Al2O3 catalyst was used for CO2 hydrogenation "
+            "to methanol."
+        ),
+    )
+    metric_chunk = PaperChunk(
+        paper_id="paper1",
+        chunk_id="metrics",
+        text=(
+            "Conversions increased from 11% at 170 °C to 51% at 230 °C, "
+            "while methanol selectivity increased from 69% at 170 °C and "
+            "reached 84% at 230 °C. Compared with the first solvent, the "
+            "second solvent gave 15% conversion and 82% methanol selectivity "
+            "at 170 °C."
+        ),
+    )
+
+    unlinked = regex_extract_record(metric_chunk)
+    assert unlinked.catalyst_name.startswith("unknown_catalyst_")
+
+    records = extract_records_from_chunks([context_chunk, metric_chunk])
+    metric_record = next(record for record in records if record.performance_metrics)
+    assert metric_record.catalyst_name == "Cu/ZnO/Al2O3"
+    assert metric_record.attributes["catalyst_context_propagated"]
+    assert verify_record(metric_record).accepted
+    build_kg(records, tmp_path)
+
+    result = hybrid_query(
+        tmp_path,
+        "methanol selectivity above 70% below 250 C",
+    )
+
+    observations = {
+        (
+            item["source"]["name"],
+            item["edge"]["attributes"]["value"],
+            item["condition"]["attributes"]["temperature"],
+        )
+        for item in result["graph"]["results"]
+    }
+    assert observations == {
+        ("Cu/ZnO/Al2O3", 84.0, 230.0),
+        ("Cu/ZnO/Al2O3", 82.0, 170.0),
+    }
+
+
+def test_paper_context_is_not_propagated_when_multiple_catalysts_are_named():
+    chunks = [
+        PaperChunk(
+            paper_id="paper1",
+            chunk_id="cu",
+            text="Cu/ZnO was tested for CO2 hydrogenation.",
+        ),
+        PaperChunk(
+            paper_id="paper1",
+            chunk_id="pd",
+            text="Pd/Al2O3 was tested for CO2 hydrogenation.",
+        ),
+        PaperChunk(
+            paper_id="paper1",
+            chunk_id="metrics",
+            text="Methanol selectivity reached 84% at 230 °C.",
+        ),
+    ]
+
+    records = extract_records_from_chunks(chunks)
+    metric_record = next(record for record in records if record.performance_metrics)
+
+    assert metric_record.catalyst_name.startswith("unknown_catalyst_")
+    assert not metric_record.attributes.get("catalyst_context_propagated", False)
+
+
+def test_estimated_equilibrium_metric_is_not_an_observed_performance_fact():
+    record = regex_extract_record(
+        PaperChunk(
+            paper_id="paper1",
+            chunk_id="chunk1",
+            text=(
+                "For Cu/ZnO, the equilibrium methanol selectivity was estimated "
+                "as 92% at 170 °C."
+            ),
+        )
+    )
+
+    assert record.performance_metrics == []
+
+
+def test_graph_query_deduplicates_overlapping_chunk_facts(tmp_path):
+    chunks = [
+        PaperChunk(
+            paper_id="paper1",
+            chunk_id="chunk1",
+            text=(
+                "First run: Cu/ZnO/Al2O3 reached methanol selectivity of 82% "
+                "at 170 °C during CO2 hydrogenation to methanol."
+            ),
+        ),
+        PaperChunk(
+            paper_id="paper1",
+            chunk_id="chunk2",
+            text=(
+                "Cu/ZnO/Al2O3 reached methanol selectivity of 82% at 170 °C "
+                "during CO2 hydrogenation to methanol, as shown in the first run."
+            ),
+        ),
+    ]
+    records = extract_records_from_chunks(chunks)
+    build_kg(records, tmp_path)
+
+    result = hybrid_query(
+        tmp_path,
+        "methanol selectivity above 70% below 250 C",
+    )
+
+    assert result["graph"]["num_results"] == 1
+    graph_result = result["graph"]["results"][0]
+    assert len(graph_result["evidence"]) == 2
+    assert len(graph_result["supporting_edge_ids"]) == 2
 
 
 def test_regex_extractor_preserves_mpa_and_infers_explicit_co2_to_methanol_context():
