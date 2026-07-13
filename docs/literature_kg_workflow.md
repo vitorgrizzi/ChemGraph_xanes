@@ -87,7 +87,10 @@ in the manifest.
 
 ## Retrieval and querying
 
-Natural-language metric filters are converted to typed graph constraints.
+Natural-language metric filters are converted to typed graph constraints by a
+deterministic parser; querying does not require an LLM. Strict language such as
+`above` and `below` is preserved as `>` and `<`, while `at least`, `at most`,
+and `at or below` remain inclusive.
 Temperature predicates use the condition linked to the returned metric, not
 another condition reported for the same catalyst.
 
@@ -100,9 +103,14 @@ python scripts/kg_query.py \
   --embedding-model sentence-transformers/all-MiniLM-L6-v2
 ```
 
-Graph-path and evidence rankings are combined with reciprocal-rank fusion. The
-response retains graph paths, observation and condition objects, paper IDs,
-and evidence spans rather than emitting an unsupported free-form answer.
+The response uses one `retrieval` object whose `method` reports `bm25` or
+`vector`; it does not duplicate lexical results under a misleading `semantic`
+key. Graph-path and evidence rankings are combined with reciprocal-rank fusion.
+Each fused result reports its `origins`, `graph_supported`, `graph_rank`, and
+`retrieval_rank`, so retrieval-only context cannot be mistaken for an answer
+that passed graph filters. The response retains graph paths, observation and
+condition objects, paper IDs, and evidence spans rather than emitting an
+unsupported free-form answer.
 
 ## Hypotheses
 

@@ -85,7 +85,7 @@ def _vector_scores(
     return sorted(scored, key=lambda item: (-item[0], item[1].evidence_id))
 
 
-def semantic_search(
+def evidence_search(
     kg_dir: str | Path,
     query: str,
     *,
@@ -117,6 +117,26 @@ def semantic_search(
             for rank, (score, span) in enumerate(scored[:top_k], start=1)
         ],
     }
+
+
+def semantic_search(
+    kg_dir: str | Path,
+    query: str,
+    *,
+    top_k: int = 5,
+    embedding_model: str | None = None,
+) -> dict[str, Any]:
+    """Backward-compatible alias for :func:`evidence_search`.
+
+    The historical name is imprecise because retrieval defaults to lexical
+    BM25. New callers should use ``evidence_search`` and inspect ``method``.
+    """
+    return evidence_search(
+        kg_dir,
+        query,
+        top_k=top_k,
+        embedding_model=embedding_model,
+    )
 
 
 def _graph_context(edges: list[KGEdge], nodes_by_id: dict[str, KGNode]):
@@ -166,7 +186,9 @@ def graph_query(
     catalyst_contains: str | None = None,
     metric_quantity: str | None = None,
     min_value: float | None = None,
+    min_value_operator: str = ">=",
     max_temperature: float | None = None,
+    max_temperature_operator: str = "<=",
     top_k: int = 20,
 ) -> dict[str, Any]:
     """Filter graph paths while preserving observation-condition linkage."""
@@ -181,6 +203,11 @@ def graph_query(
         conditions_by_observation,
         reactions_by_observation,
     ) = _graph_context(edges, nodes_by_id)
+
+    if min_value_operator not in {">", ">="}:
+        raise ValueError("min_value_operator must be '>' or '>='.")
+    if max_temperature_operator not in {"<", "<="}:
+        raise ValueError("max_temperature_operator must be '<' or '<='.")
 
     results = []
     for edge in edges:
@@ -202,7 +229,12 @@ def graph_query(
         if min_value is not None:
             value = edge.attributes.get("value", target.attributes.get("value"))
             comparator = str(edge.attributes.get("attributes", {}).get("comparator") or edge.attributes.get("comparator") or "=")
-            if value is None or comparator in {"below", "under", "<"} or float(value) < min_value:
+            below_minimum = (
+                float(value) <= min_value
+                if min_value_operator == ">"
+                else float(value) < min_value
+            ) if value is not None else True
+            if value is None or comparator in {"below", "under", "<"} or below_minimum:
                 continue
 
         condition = None
@@ -212,7 +244,12 @@ def graph_query(
                 condition = conditions_by_observation[observation.node_id].get(str(condition_id))
         if max_temperature is not None:
             temperature = _temperature_deg_c(condition)
-            if temperature is None or temperature > max_temperature:
+            above_maximum = (
+                temperature >= max_temperature
+                if max_temperature_operator == "<"
+                else temperature > max_temperature
+            ) if temperature is not None else True
+            if temperature is None or above_maximum:
                 continue
 
         evidence = [
@@ -259,15 +296,26 @@ def _parse_metric_query(query: str) -> dict[str, Any]:
         parsed["metric_quantity"] = "methanol_selectivity"
     if "conversion" in lower:
         parsed["metric_quantity"] = "conversion"
-    above = re.search(r"(?:above|over|>|greater than|at least)\s*(\d+(?:\.\d+)?)\s*%?", lower)
+    above = re.search(
+        r"(at or above|greater than|at least|above|over|>)\s*"
+        r"(\d+(?:\.\d+)?)\s*%?",
+        lower,
+    )
     if above:
-        parsed["min_value"] = float(above.group(1))
+        parsed["min_value"] = float(above.group(2))
+        parsed["min_value_operator"] = (
+            ">=" if above.group(1) in {"at least", "at or above"} else ">"
+        )
     below_temp = re.search(
-        r"(?:below|under|<|at most)\s*(\d+(?:\.\d+)?)\s*(?:(?:°|º)\s*)?c\b",
+        r"(at or below|at most|below|under|<)\s*(\d+(?:\.\d+)?)\s*"
+        r"(?:(?:°|º)\s*)?c\b",
         lower,
     )
     if below_temp:
-        parsed["max_temperature"] = float(below_temp.group(1))
+        parsed["max_temperature"] = float(below_temp.group(2))
+        parsed["max_temperature_operator"] = (
+            "<=" if below_temp.group(1) in {"at most", "at or below"} else "<"
+        )
     return parsed
 
 
@@ -290,7 +338,7 @@ def hybrid_query(
         if parsed
         else {"ok": True, "num_results": 0, "results": []}
     )
-    retrieval_results = semantic_search(
+    retrieval_results = evidence_search(
         kg_dir,
         query,
         top_k=top_k,
@@ -301,17 +349,44 @@ def hybrid_query(
         for evidence in result["evidence"]:
             item = fused.setdefault(
                 evidence["evidence_id"],
-                {"evidence": evidence, "score": 0.0, "graph_hits": []},
+                {
+                    "evidence": evidence,
+                    "score": 0.0,
+                    "graph_hits": [],
+                    "graph_rank": None,
+                    "retrieval_rank": None,
+                },
             )
-            item["score"] += 1.0 / (60 + rank)
-            item["graph_hits"].append(result["edge"]["edge_id"])
+            item["graph_rank"] = min(item["graph_rank"] or rank, rank)
+            edge_id = result["edge"]["edge_id"]
+            if edge_id not in item["graph_hits"]:
+                item["graph_hits"].append(edge_id)
+    for item in fused.values():
+        item["score"] += 1.0 / (60 + item["graph_rank"])
     for rank, result in enumerate(retrieval_results["results"], start=1):
         evidence = result["evidence"]
         item = fused.setdefault(
             evidence["evidence_id"],
-            {"evidence": evidence, "score": 0.0, "graph_hits": []},
+            {
+                "evidence": evidence,
+                "score": 0.0,
+                "graph_hits": [],
+                "graph_rank": None,
+                "retrieval_rank": None,
+            },
         )
         item["score"] += 1.0 / (60 + rank)
+        item["retrieval_rank"] = rank
+    for item in fused.values():
+        item["graph_supported"] = bool(item["graph_hits"])
+        item["origins"] = [
+            origin
+            for origin, present in (
+                ("graph", item["graph_rank"] is not None),
+                ("retrieval", item["retrieval_rank"] is not None),
+            )
+            if present
+        ]
     fused_results = sorted(
         fused.values(),
         key=lambda item: (-item["score"], item["evidence"]["evidence_id"]),
@@ -322,7 +397,6 @@ def hybrid_query(
         "parsed_filters": parsed,
         "graph": graph_results,
         "retrieval": retrieval_results,
-        "semantic": retrieval_results,
         "fused": {"num_results": len(fused_results), "results": fused_results},
     }
 

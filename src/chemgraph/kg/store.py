@@ -310,11 +310,13 @@ class KGBuilder:
         for span in record.evidence_spans:
             self.evidence[span.evidence_id] = span
 
+        dois = sorted({span.doi for span in record.evidence_spans if span.doi})
         paper = self._node(
             "Paper",
             record.paper_id,
-            record.paper_id,
+            dois[0] if len(dois) == 1 else record.paper_id,
             record.confidence,
+            attributes={"paper_id": record.paper_id, "dois": dois},
             paper_id=record.paper_id,
         )
         catalyst = self._node(

@@ -9,7 +9,7 @@ from typing import Any, Iterable
 from pydantic import BaseModel, Field
 
 from chemgraph.kg.ontology import PERCENT_QUANTITIES
-from chemgraph.kg.schema import CatalystRecord, Measurement
+from chemgraph.kg.schema import CatalystRecord, Measurement, ReactionCondition
 
 
 class VerificationIssue(BaseModel):
@@ -91,11 +91,38 @@ def _number_is_supported(value: float, text: str) -> bool:
     )
 
 
+def _metric_condition_are_co_located(
+    metric: Measurement,
+    condition: ReactionCondition,
+    evidence_text: str,
+) -> bool:
+    """Require metric and linked numerical conditions in one sentence."""
+    condition_values = [
+        value
+        for value in (
+            condition.temperature,
+            condition.pressure,
+            condition.h2_co2_ratio,
+        )
+        if value is not None
+    ]
+    if metric.value is None or not condition_values:
+        return True
+    quantity_token = metric.quantity.lower().replace("_", " ").split()[-1]
+    segments = re.split(r"(?<=[.!?])\s+|\n+", evidence_text)
+    return any(
+        _number_is_supported(metric.value, segment)
+        and quantity_token in segment.lower()
+        and all(_number_is_supported(value, segment) for value in condition_values)
+        for segment in segments
+    )
+
+
 def _metric_issues(
     record: CatalystRecord,
     metric: Measurement,
     evidence_by_id: dict[str, Any],
-    condition_ids: set[str],
+    conditions_by_id: dict[str, ReactionCondition],
     field_prefix: str = "performance_metrics",
 ) -> list[VerificationIssue]:
     issues: list[VerificationIssue] = []
@@ -124,7 +151,7 @@ def _metric_issues(
                 issues.append(_issue(record, field, "Measurement range maximum is not present in evidence."))
             elif metric.value is not None and float(range_max) < metric.value:
                 issues.append(_issue(record, field, "Measurement range maximum is below its minimum."))
-        if comparator in {"above", "over", ">", "below", "under", "<", "~", "approximately", "about"}:
+        if comparator in {"above", "over", ">", "below", "under", "<", "~", "approximately", "about", "around"}:
             comparator_tokens = {
                 "above": ("above", "over", ">"),
                 "over": ("above", "over", ">"),
@@ -132,17 +159,31 @@ def _metric_issues(
                 "below": ("below", "under", "<"),
                 "under": ("below", "under", "<"),
                 "<": ("below", "under", "<"),
-                "~": ("~", "approximately", "about"),
-                "approximately": ("~", "approximately", "about"),
-                "about": ("~", "approximately", "about"),
+                "~": ("~", "approximately", "about", "around"),
+                "approximately": ("~", "approximately", "about", "around"),
+                "about": ("~", "approximately", "about", "around"),
+                "around": ("~", "approximately", "about", "around"),
             }[comparator]
             if not any(token in evidence_text.lower() for token in comparator_tokens):
                 issues.append(_issue(record, field, "Measurement comparator is not present in its evidence text."))
 
-    if metric.condition_id is not None and metric.condition_id not in condition_ids:
+    if metric.condition_id is not None and metric.condition_id not in conditions_by_id:
         issues.append(_issue(record, field, "Measurement condition_id does not resolve within the record."))
-    if condition_ids and metric.condition_id is None:
+    if conditions_by_id and metric.condition_id is None:
         issues.append(_issue(record, field, "Measurement is not linked to a reaction condition."))
+    if metric.condition_id in conditions_by_id and metric.evidence_span_id in evidence_by_id:
+        if not _metric_condition_are_co_located(
+            metric,
+            conditions_by_id[metric.condition_id],
+            evidence_by_id[metric.evidence_span_id].text,
+        ):
+            issues.append(
+                _issue(
+                    record,
+                    field,
+                    "Measurement and linked numerical condition are not stated in the same sentence.",
+                )
+            )
 
     quantity = metric.quantity.lower()
     unit = (metric.unit or "").lower()
@@ -191,7 +232,9 @@ def verify_record(record: CatalystRecord) -> VerificationResult:
             if not _value_is_supported(field, item, combined_text):
                 issues.append(_issue(record, field, f"Extracted value is not stated in evidence: {item!r}."))
 
-    condition_ids = {condition.condition_id for condition in record.reaction_conditions}
+    conditions_by_id = {
+        condition.condition_id: condition for condition in record.reaction_conditions
+    }
     for condition in record.reaction_conditions:
         field = f"reaction_conditions.{condition.condition_id}"
         if condition.evidence_span_id is None:
@@ -215,14 +258,14 @@ def verify_record(record: CatalystRecord) -> VerificationResult:
             issues.append(_issue(record, field, "H2/CO2 ratio must be positive."))
 
     for metric in record.performance_metrics:
-        issues.extend(_metric_issues(record, metric, evidence_by_id, condition_ids))
+        issues.extend(_metric_issues(record, metric, evidence_by_id, conditions_by_id))
     for metric in record.material_properties:
         issues.extend(
             _metric_issues(
                 record,
                 metric,
                 evidence_by_id,
-                set(),
+                {},
                 field_prefix="material_properties",
             )
         )

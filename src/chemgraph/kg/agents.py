@@ -17,6 +17,7 @@ from chemgraph.kg.extract import (
 from chemgraph.kg.hypotheses import score_hypothesis, suggest_hypotheses
 from chemgraph.kg.ingest import ingest_path, read_chunks_jsonl
 from chemgraph.kg.query import (
+    evidence_search,
     export_training_table,
     get_evidence,
     graph_query,
@@ -80,7 +81,22 @@ class GraphBuilderAgent:
 
 
 class QueryAgent:
+    def retrieval(
+        self,
+        kg_dir: str,
+        query: str,
+        top_k: int = 5,
+        embedding_model: str | None = None,
+    ) -> dict[str, Any]:
+        return evidence_search(
+            kg_dir,
+            query,
+            top_k=top_k,
+            embedding_model=embedding_model,
+        )
+
     def semantic(self, kg_dir: str, query: str, top_k: int = 5) -> dict[str, Any]:
+        """Backward-compatible alias for evidence retrieval."""
         return semantic_search(kg_dir, query, top_k=top_k)
 
     def graph(self, kg_dir: str, **kwargs) -> dict[str, Any]:

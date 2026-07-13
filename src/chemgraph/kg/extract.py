@@ -17,7 +17,7 @@ from chemgraph.kg.schema import (
     ReactionCondition,
 )
 
-EXTRACTOR_VERSION = "literature_kg_mvp_regex"
+EXTRACTOR_VERSION = "literature_kg_regex_v2"
 
 
 EXTRACTION_PROMPT = """You are extracting structured catalysis data from scientific text.
@@ -27,8 +27,11 @@ Rules:
 - Do not infer missing values.
 - Do not use outside knowledge.
 - If a field is not present, use null or [].
-- Do not invent paper, chunk, evidence, record, condition, or measurement IDs;
+- Do not invent persistent paper, chunk, evidence, record, or measurement IDs;
   the application attaches source-controlled provenance after extraction.
+- Use local condition labels such as condition_1 only to link each measurement
+  to an explicitly stated reaction condition. The application replaces these
+  labels with stable condition IDs.
 - Preserve raw text for numerical values.
 - Preserve comparators such as above, below, approximately, and ranges.
 - Keep each measurement linked to the reaction condition under which it was measured.
@@ -172,23 +175,26 @@ def _detect_reaction(text: str) -> str | None:
         return "CO2 hydrogenation"
     if "methanol synthesis" in lower:
         return "CO2 hydrogenation to methanol"
+    if "co2 conversion" in lower and re.search(
+        r"methanol\s+(?:selectivity|yield)|selectivity\s+(?:towards?|to|for)\s+methanol",
+        lower,
+    ):
+        return "CO2 hydrogenation to methanol"
     return None
 
 
 def _extract_conditions(text: str, evidence_id: str) -> list[ReactionCondition]:
     normalized = text.replace("CO₂", "CO2").replace("H₂", "H2")
-    temperatures = [
-        float(match.group(1))
-        for match in re.finditer(
-            r"(-?\d+(?:\.\d+)?)\s*(?:(?:°|º)\s*|deg(?:ree)?s?\s*)?C\b",
-            normalized,
-            flags=re.I,
-        )
-    ]
-    pressures = [
-        float(match.group(1))
-        for match in re.finditer(r"(\d+(?:\.\d+)?)\s*bar\b", normalized, flags=re.I)
-    ]
+    temperature_match = re.search(
+        r"(-?\d+(?:\.\d+)?)\s*(?:(?:°|º)\s*|deg(?:ree)?s?\s*)?(C|K)\b",
+        normalized,
+        flags=re.I,
+    )
+    pressure_match = re.search(
+        r"(\d+(?:\.\d+)?)\s*(bar|MPa|kPa|Pa)\b",
+        normalized,
+        flags=re.I,
+    )
     ratios = [
         float(match.group(1))
         for match in re.finditer(
@@ -197,12 +203,25 @@ def _extract_conditions(text: str, evidence_id: str) -> list[ReactionCondition]:
             flags=re.I,
         )
     ]
-    if not temperatures and not pressures and not ratios:
+    if temperature_match is None and pressure_match is None and not ratios:
         return []
+    temperature_unit = None
+    if temperature_match:
+        temperature_unit = "K" if temperature_match.group(2).lower() == "k" else "degC"
+    pressure_unit = pressure_match.group(2) if pressure_match else None
+    if pressure_unit:
+        pressure_unit = {
+            "bar": "bar",
+            "mpa": "MPa",
+            "kpa": "kPa",
+            "pa": "Pa",
+        }[pressure_unit.lower()]
     return [
         ReactionCondition(
-            temperature=temperatures[0] if temperatures else None,
-            pressure=pressures[0] if pressures else None,
+            temperature=float(temperature_match.group(1)) if temperature_match else None,
+            temperature_unit=temperature_unit,
+            pressure=float(pressure_match.group(1)) if pressure_match else None,
+            pressure_unit=pressure_unit,
             h2_co2_ratio=ratios[0] if ratios else None,
             evidence_span_id=evidence_id,
         )
@@ -219,7 +238,7 @@ def _extract_measurements(
         r"((?:CO2|CO|methanol|methane|higher alcohol|carbon)?\s*"
         r"(?:conversion|selectivity|yield|space-time yield|STY|time-on-stream|time on stream))"
         r"(?:\s*(?:of|was|is|reached))?\s*"
-        r"(?:(=|:|above|over|>|below|under|<|~|approximately|about)\s*)?"
+        r"(?:(=|:|above|over|>|below|under|<|~|approximately|about|around)\s*)?"
         r"(\d+(?:\.\d+)?)"
         r"(?:\s*(?:-|–|to)\s*(\d+(?:\.\d+)?))?\s*"
         r"(?:\s*(?:±|\+/-)\s*(\d+(?:\.\d+)?))?\s*"
@@ -249,6 +268,33 @@ def _extract_measurements(
                 evidence_span_id=evidence_id,
                 confidence=0.65,
                 attributes=attributes,
+            )
+        )
+    product_first_pattern = re.compile(
+        r"(selectivity\s+(?:towards?|to|for|of)\s+"
+        r"(?:methanol|methane|CO2|CO|higher alcohol|carbon))"
+        r"(?P<preamble>(?:(?![.!?]).){0,100}?)"
+        r"(?P<value>\d+(?:\.\d+)?)\s*(?P<unit>%|percent\b)",
+        flags=re.IGNORECASE,
+    )
+    for match in product_first_pattern.finditer(text):
+        preamble = match.group("preamble")
+        comparator_match = re.search(
+            r"(above|over|below|under|approximately|about|around|~|>|<)",
+            preamble,
+            flags=re.IGNORECASE,
+        )
+        comparator = comparator_match.group(1).lower() if comparator_match else "="
+        metrics.append(
+            Measurement(
+                quantity=_canonical_quantity(match.group(1)),
+                value=float(match.group("value")),
+                unit=match.group("unit"),
+                raw_value=match.group(0),
+                condition_id=condition_id,
+                evidence_span_id=evidence_id,
+                confidence=0.65,
+                attributes={"comparator": comparator},
             )
         )
     return metrics
@@ -285,14 +331,11 @@ def _extract_condition_metric_pairs(
             else:
                 pending_metrics.append(metric)
     unique_conditions = list({item.condition_id: item for item in conditions}.values())
-    fallback_condition_id = (
-        unique_conditions[0].condition_id if len(unique_conditions) == 1 else None
-    )
-    for metric in pending_metrics:
-        data = metric.model_dump()
-        data["measurement_id"] = ""
-        data["condition_id"] = fallback_condition_id
-        metrics.append(Measurement.model_validate(data))
+    # A condition elsewhere in a chunk does not establish that it applies to
+    # an unconditioned measurement. Keep such measurements only when the
+    # entire chunk contains no reaction condition.
+    if not unique_conditions:
+        metrics.extend(pending_metrics)
     return unique_conditions, metrics
 
 
@@ -397,15 +440,12 @@ def llm_extract_record(chunk: PaperChunk, llm, retries: int = 1) -> CatalystReco
                 if old_id:
                     condition_id_map[old_id] = condition.condition_id
             data["reaction_conditions"] = [item.model_dump() for item in conditions]
-            condition_ids = [item.condition_id for item in conditions]
             for metric_group in ("performance_metrics", "material_properties"):
                 for item in data.get(metric_group, []):
                     old_condition_id = str(item.get("condition_id") or "")
                     item["measurement_id"] = ""
                     item["evidence_span_id"] = evidence.evidence_id
                     item["condition_id"] = condition_id_map.get(old_condition_id)
-                    if len(condition_ids) == 1 and not item.get("condition_id"):
-                        item["condition_id"] = condition_ids[0]
             for item in data.get("synthesis_steps", []):
                 item["step_id"] = ""
                 item["evidence_span_id"] = evidence.evidence_id

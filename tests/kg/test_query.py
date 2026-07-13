@@ -55,7 +55,8 @@ def test_hybrid_query_returns_graph_and_evidence(tmp_path):
 
     assert result["graph"]["num_results"] == 1
     assert result["graph"]["results"][0]["source"]["name"] == "Cu/ZnO/Al2O3"
-    assert result["semantic"]["num_results"] >= 1
+    assert result["retrieval"]["num_results"] >= 1
+    assert "semantic" not in result
 
 
 def test_export_training_table(tmp_path):

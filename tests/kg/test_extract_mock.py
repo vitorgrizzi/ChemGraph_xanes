@@ -78,3 +78,36 @@ def test_llm_hallucinated_value_fails_grounding():
     record = extract_records_from_chunks([chunk], llm=HallucinatingLLM())[0]
 
     assert not verify_record(record).accepted
+
+
+class ConditionLinkingLLM(FakeLLM):
+    def invoke(self, prompt):
+        payload = json.loads(super().invoke(prompt))
+        payload["reaction_conditions"] = [
+            {
+                "condition_id": "condition_1",
+                "temperature": 210,
+                "temperature_unit": "degC",
+            }
+        ]
+        payload["performance_metrics"][0]["condition_id"] = "condition_1"
+        return json.dumps(payload)
+
+
+def test_llm_local_condition_labels_are_remapped_without_inference():
+    chunk = PaperChunk(
+        paper_id="paper1",
+        chunk_id="chunk1",
+        text=(
+            "Cu/ZnO methanol selectivity was 83% at 210 C during CO2 "
+            "hydrogenation to methanol."
+        ),
+    )
+
+    record = extract_records_from_chunks([chunk], llm=ConditionLinkingLLM())[0]
+    condition = record.reaction_conditions[0]
+    metric = record.performance_metrics[0]
+
+    assert condition.condition_id != "condition_1"
+    assert metric.condition_id == condition.condition_id
+    assert verify_record(record).accepted

@@ -111,6 +111,77 @@ def test_regex_extractor_preserves_measurement_ranges():
     assert verify_record(record).accepted
 
 
+def test_regex_extractor_links_only_sentence_local_conditions():
+    record = regex_extract_record(
+        PaperChunk(
+            paper_id="paper1",
+            chunk_id="chunk1",
+            text=(
+                "A high selectivity towards methanol was maintained at around 80% "
+                "during recycling at 250 °C for Cu/ZnO/Al2O3 catalyst. "
+                "Conclusion. Hexanol reached the highest methanol selectivity of "
+                "91% among the pure solvents."
+            ),
+        )
+    )
+
+    assert [metric.value for metric in record.performance_metrics] == [80.0]
+    metric = record.performance_metrics[0]
+    assert metric.attributes["comparator"] == "around"
+    condition = record.reaction_conditions[0]
+    assert metric.condition_id == condition.condition_id
+    assert condition.temperature == 250
+    assert verify_record(record).accepted
+
+
+def test_observed_80_and_91_percent_case_queries_without_cross_linking(tmp_path):
+    record = regex_extract_record(
+        PaperChunk(
+            paper_id="paper1",
+            chunk_id="chunk1",
+            text=(
+                "A high selectivity towards methanol was maintained at around 80% "
+                "during recycling at 250 °C for Cu/ZnO/Al2O3 catalyst. "
+                "Hexanol reached the highest methanol selectivity of 91% among "
+                "the pure solvents."
+            ),
+        )
+    )
+    build_kg([record], tmp_path)
+
+    strict = hybrid_query(
+        tmp_path,
+        "methanol selectivity above 70% below 250 C",
+    )
+    inclusive = hybrid_query(
+        tmp_path,
+        "methanol selectivity above 70% at or below 250 C",
+    )
+
+    assert strict["graph"]["num_results"] == 0
+    assert inclusive["graph"]["num_results"] == 1
+    assert inclusive["graph"]["results"][0]["edge"]["attributes"]["value"] == 80
+
+
+def test_regex_extractor_preserves_mpa_and_infers_explicit_co2_to_methanol_context():
+    record = regex_extract_record(
+        PaperChunk(
+            paper_id="paper1",
+            chunk_id="chunk1",
+            text=(
+                "The Cu-Zn/Al catalyst delivered CO2 conversion of 9.9% and "
+                "methanol selectivity of 82.7% under 3 MPa and 250 °C."
+            ),
+        )
+    )
+
+    assert record.reaction == "CO2 hydrogenation to methanol"
+    assert record.reaction_conditions[0].pressure == 3
+    assert record.reaction_conditions[0].pressure_unit == "MPa"
+    assert record.reaction_conditions[0].temperature == 250
+    assert verify_record(record).accepted
+
+
 def test_verifier_rejects_unentailed_metric_and_missing_condition_reference():
     span = EvidenceSpan(paper_id="paper1", chunk_id="chunk1", text="Cu/ZnO was tested.")
     condition = ReactionCondition(temperature=200, evidence_span_id="missing")
@@ -182,7 +253,70 @@ def test_hybrid_query_fuses_graph_and_retrieval_results(tmp_path):
     assert result["graph"]["num_results"] == 1
     assert result["retrieval"]["method"] == "bm25"
     assert result["fused"]["num_results"] >= 1
-    assert result["fused"]["results"][0]["graph_hits"]
+    first = result["fused"]["results"][0]
+    assert first["graph_hits"]
+    assert first["graph_supported"]
+    assert first["origins"] == ["graph", "retrieval"]
+    assert first["graph_rank"] == 1
+    assert first["retrieval_rank"] == 1
+    assert "semantic" not in result
+
+
+def test_hybrid_query_preserves_strict_and_inclusive_language(tmp_path):
+    build_kg([_grounded_record(high_temperature=210)], tmp_path)
+
+    strict = hybrid_query(
+        tmp_path,
+        "methanol selectivity above 83% below 210 C",
+    )
+    inclusive = hybrid_query(
+        tmp_path,
+        "methanol selectivity at least 83% at or below 210 C",
+    )
+
+    assert strict["parsed_filters"]["min_value_operator"] == ">"
+    assert strict["parsed_filters"]["max_temperature_operator"] == "<"
+    assert strict["graph"]["num_results"] == 0
+    assert inclusive["parsed_filters"]["min_value_operator"] == ">="
+    assert inclusive["parsed_filters"]["max_temperature_operator"] == "<="
+    assert inclusive["graph"]["num_results"] == 1
+
+
+def test_verifier_rejects_cross_sentence_metric_condition_link():
+    span = EvidenceSpan(
+        paper_id="paper1",
+        chunk_id="chunk1",
+        text=(
+            "Cu/ZnO/Al2O3 was recycled at 250 °C. "
+            "Methanol selectivity reached 91% among the tested solvents."
+        ),
+    )
+    condition = ReactionCondition(
+        temperature=250,
+        evidence_span_id=span.evidence_id,
+    )
+    metric = Measurement(
+        quantity="methanol_selectivity",
+        value=91,
+        unit="percent",
+        condition_id=condition.condition_id,
+        evidence_span_id=span.evidence_id,
+    )
+    record = CatalystRecord(
+        paper_id="paper1",
+        catalyst_name="Cu/ZnO/Al2O3",
+        reaction_conditions=[condition],
+        performance_metrics=[metric],
+        evidence_spans=[span],
+        field_evidence_ids={"catalyst_name": [span.evidence_id]},
+    )
+
+    result = verify_record(record)
+
+    assert not result.accepted
+    assert "not stated in the same sentence" in " ".join(
+        issue.message for issue in result.issues
+    )
 
 
 def test_artifact_validator_detects_hash_tampering(tmp_path):

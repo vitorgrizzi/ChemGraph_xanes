@@ -8,6 +8,7 @@ def test_store_builds_nodes_edges_and_evidence(tmp_path):
     span = EvidenceSpan(
         paper_id="paper1",
         chunk_id="chunk1",
+        doi="10.1234/example",
         text=(
             "Cu/ZnO/Al2O3 reached methanol selectivity of 83% at 210 C "
             "during CO2 hydrogenation to methanol."
@@ -44,6 +45,9 @@ def test_store_builds_nodes_edges_and_evidence(tmp_path):
     assert result["n_nodes"] >= 4
     assert result["n_edges"] >= 4
     assert store.get_evidence(span.evidence_id).text.startswith("Cu/ZnO")
+    paper = next(node for node in store.load_nodes() if node.node_type == "Paper")
+    assert paper.name == "10.1234/example"
+    assert paper.attributes["dois"] == ["10.1234/example"]
     assert Path(result["paths"]["nodes"]).exists()
     assert Path(result["paths"]["edges"]).exists()
     assert (tmp_path / "evidence.sqlite").exists()
