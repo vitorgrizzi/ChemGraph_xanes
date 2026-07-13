@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Any
+from typing import Any, Literal
 
 from langchain_core.tools import tool
 from pydantic import BaseModel, Field
@@ -102,8 +102,21 @@ class QueryAgent:
     def graph(self, kg_dir: str, **kwargs) -> dict[str, Any]:
         return graph_query(kg_dir, **kwargs)
 
-    def hybrid(self, kg_dir: str, query: str, top_k: int = 10) -> dict[str, Any]:
-        return hybrid_query(kg_dir, query, top_k=top_k)
+    def hybrid(
+        self,
+        kg_dir: str,
+        query: str,
+        top_k: int = 10,
+        embedding_model: str | None = None,
+        response_mode: Literal["compact", "full"] = "compact",
+    ) -> dict[str, Any]:
+        return hybrid_query(
+            kg_dir,
+            query,
+            top_k=top_k,
+            embedding_model=embedding_model,
+            response_mode=response_mode,
+        )
 
 
 class InsightAgent:
@@ -188,7 +201,11 @@ class OrchestratorAgent:
             "graph": graph,
         }
         if query:
-            output["query"] = QueryAgent().hybrid(str(kg_dir), query)
+            output["query"] = QueryAgent().hybrid(
+                str(kg_dir),
+                query,
+                response_mode="full",
+            )
         if goal:
             output["hypotheses"] = InsightAgent().run(str(kg_dir), goal)
         return output
@@ -225,6 +242,10 @@ class KGQueryInput(BaseModel):
     embedding_model: str | None = Field(
         default=None,
         description="Optional sentence-transformers model for vector evidence retrieval.",
+    )
+    response_mode: Literal["compact", "full"] = Field(
+        default="compact",
+        description="Compact model-facing output or full audit/provenance output.",
     )
 
 
@@ -306,13 +327,15 @@ def kg_hybrid_query(
     query: str,
     top_k: int = 10,
     embedding_model: str | None = None,
+    response_mode: Literal["compact", "full"] = "compact",
 ) -> dict:
-    """Ask a hybrid graph + evidence-retrieval question."""
+    """Ask a hybrid graph + evidence-retrieval question with compact output by default."""
     return hybrid_query(
         kg_dir,
         query,
         top_k=top_k,
         embedding_model=embedding_model,
+        response_mode=response_mode,
     )
 
 

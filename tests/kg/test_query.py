@@ -1,5 +1,7 @@
 import csv
 
+import pytest
+
 from chemgraph.kg.query import export_training_table, hybrid_query
 from chemgraph.kg.schema import CatalystRecord, EvidenceSpan, Measurement, ReactionCondition
 from chemgraph.kg.store import build_kg
@@ -9,6 +11,7 @@ def _build_demo_kg(tmp_path):
     span = EvidenceSpan(
         paper_id="paper1",
         chunk_id="chunk1",
+        doi="10.1234/example",
         text=(
             "Cu/ZnO/Al2O3 gave methanol selectivity of 83% at 210 C and 50 bar "
             "during CO2 hydrogenation to methanol."
@@ -57,6 +60,61 @@ def test_hybrid_query_returns_graph_and_evidence(tmp_path):
     assert result["graph"]["results"][0]["source"]["name"] == "Cu/ZnO/Al2O3"
     assert result["retrieval"]["num_results"] >= 1
     assert "semantic" not in result
+
+
+def test_compact_query_returns_model_facing_answers(tmp_path):
+    _build_demo_kg(tmp_path)
+
+    result = hybrid_query(
+        tmp_path,
+        "Which catalysts report methanol selectivity above 70% below 220 C?",
+        response_mode="compact",
+    )
+
+    assert result["response_mode"] == "compact"
+    assert result["answer_count"] == 1
+    assert result["retrieval_context"] == []
+    assert result["warnings"] == []
+    assert not {"graph", "retrieval", "fused"} & result.keys()
+    answer = result["answers"][0]
+    assert answer["catalyst"] == "Cu/ZnO/Al2O3"
+    assert answer["metric_quantity"] == "methanol_selectivity"
+    assert answer["value"] == 83
+    assert answer["temperature"] == 210
+    assert answer["pressure"] == 50
+    assert answer["doi"] == "10.1234/example"
+    assert answer["evidence_ids"]
+    assert answer["supporting_edge_ids"]
+    assert "83%" in answer["evidence_excerpt"]
+    assert len(answer["evidence_excerpt"]) <= 322
+
+
+def test_compact_query_uses_retrieval_only_as_explicit_fallback(tmp_path):
+    _build_demo_kg(tmp_path)
+
+    result = hybrid_query(
+        tmp_path,
+        "methanol selectivity above 99% below 220 C",
+        response_mode="compact",
+    )
+
+    assert result["answer_count"] == 0
+    assert result["answers"] == []
+    assert result["warnings"]
+    assert result["retrieval_context"]
+    assert len(result["retrieval_context"]) <= 3
+    assert all(
+        context["graph_supported"] is False
+        for context in result["retrieval_context"]
+    )
+    assert all("text" not in context for context in result["retrieval_context"])
+
+
+def test_hybrid_query_rejects_unknown_response_mode(tmp_path):
+    _build_demo_kg(tmp_path)
+
+    with pytest.raises(ValueError, match="response_mode"):
+        hybrid_query(tmp_path, "methanol selectivity", response_mode="brief")
 
 
 def test_export_training_table(tmp_path):

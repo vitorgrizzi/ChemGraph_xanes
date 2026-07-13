@@ -1079,9 +1079,20 @@ def render_literature_kg_panel():
             value="Which catalysts report methanol selectivity above 70% for CO2 hydrogenation?",
             key="kg_query_text",
         )
+        response_mode = st.selectbox(
+            "Response mode",
+            options=("compact", "full"),
+            key="kg_query_response_mode",
+        )
         if st.button("Run Query", key="kg_query_button"):
             try:
-                st.json(hybrid_query(kg_dir, query_text))
+                st.json(
+                    hybrid_query(
+                        kg_dir,
+                        query_text,
+                        response_mode=response_mode,
+                    )
+                )
             except Exception as exc:
                 st.error(f"KG query failed: {exc}")
 

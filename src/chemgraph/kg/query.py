@@ -9,7 +9,7 @@ import os
 import re
 from collections import defaultdict
 from pathlib import Path
-from typing import Any
+from typing import Any, Literal
 
 from chemgraph.kg.schema import EvidenceSpan, KGEdge, KGNode
 from chemgraph.kg.store import LiteratureKGStore
@@ -373,14 +373,177 @@ def _parse_metric_query(query: str) -> dict[str, Any]:
     return parsed
 
 
+def _compact_excerpt(
+    text: str,
+    *,
+    value: float | None = None,
+    quantity: str | None = None,
+    query: str | None = None,
+    limit: int = 320,
+) -> str:
+    """Select a short evidence window around the relevant metric or query terms."""
+    normalized = re.sub(r"\s+", " ", text).strip()
+    if len(normalized) <= limit:
+        return normalized
+
+    protected = re.sub(
+        r"\b(Figs?|Eqs?|Refs?)\.",
+        r"\1<period>",
+        normalized,
+        flags=re.I,
+    )
+    sentences = [
+        sentence.replace("<period>", ".").strip()
+        for sentence in re.split(r"(?<=[.!?])\s+", protected)
+        if sentence.strip()
+    ]
+    quantity_token = (quantity or "").replace("_", " ").split()[-1:]
+    value_text = f"{value:g}" if value is not None else None
+    selected = None
+    for sentence in sentences:
+        if value_text and value_text in sentence and (
+            not quantity_token or quantity_token[0].lower() in sentence.lower()
+        ):
+            selected = sentence
+            break
+    if selected is None and query:
+        query_terms = _terms(query)
+        selected = max(
+            sentences,
+            key=lambda sentence: sum(term in sentence.lower() for term in query_terms),
+            default=normalized,
+        )
+    selected = selected or normalized
+    if len(selected) <= limit:
+        return selected
+
+    anchors = [value_text] if value_text else []
+    anchors.extend(quantity_token)
+    if query:
+        anchors.extend(_terms(query))
+    anchor_index = next(
+        (
+            selected.lower().find(anchor.lower())
+            for anchor in anchors
+            if anchor and selected.lower().find(anchor.lower()) >= 0
+        ),
+        0,
+    )
+    start = max(0, anchor_index - limit // 3)
+    stop = min(len(selected), start + limit)
+    start = max(0, stop - limit)
+    excerpt = selected[start:stop].strip()
+    return f"{'…' if start else ''}{excerpt}{'…' if stop < len(selected) else ''}"
+
+
+def compact_query_result(full_result: dict[str, Any]) -> dict[str, Any]:
+    """Project a full hybrid result into a token-efficient, model-facing form."""
+    answers = []
+    for result in full_result["graph"]["results"]:
+        edge_attributes = result["edge"].get("attributes", {})
+        measurement_attributes = edge_attributes.get("attributes", {})
+        condition_attributes = (
+            result["condition"].get("attributes", {}) if result["condition"] else {}
+        )
+        evidence = result.get("evidence", [])
+        evidence_ids = sorted({span["evidence_id"] for span in evidence})
+        paper_attributes = result["paper"].get("attributes", {}) if result["paper"] else {}
+        dois = list(paper_attributes.get("dois") or [])
+        if not dois:
+            dois = sorted({span.get("doi") for span in evidence if span.get("doi")})
+        value = edge_attributes.get("value")
+        quantity = edge_attributes.get("quantity")
+        best_evidence = next(
+            (
+                span
+                for span in evidence
+                if value is not None and f"{float(value):g}" in span.get("text", "")
+            ),
+            evidence[0] if evidence else None,
+        )
+        answer = {
+            "catalyst": result["source"]["name"],
+            "metric_quantity": quantity,
+            "value": value,
+            "unit": edge_attributes.get("unit"),
+            "comparator": measurement_attributes.get("comparator", "="),
+            "temperature": condition_attributes.get("temperature"),
+            "temperature_unit": condition_attributes.get("temperature_unit"),
+            "pressure": condition_attributes.get("pressure"),
+            "pressure_unit": condition_attributes.get("pressure_unit"),
+            "h2_co2_ratio": condition_attributes.get("h2_co2_ratio"),
+            "reaction": (
+                result["reactions"][0]["name"] if result.get("reactions") else None
+            ),
+            "paper_id": (
+                paper_attributes.get("paper_id")
+                or (result["paper"].get("canonical_name") if result["paper"] else None)
+            ),
+            "doi": dois[0] if dois else None,
+            "confidence": result["edge"].get("confidence"),
+            "evidence_ids": evidence_ids,
+            "evidence_excerpt": (
+                _compact_excerpt(
+                    best_evidence["text"],
+                    value=float(value) if value is not None else None,
+                    quantity=str(quantity or ""),
+                )
+                if best_evidence
+                else None
+            ),
+            "supporting_edge_ids": result.get(
+                "supporting_edge_ids",
+                [result["edge"]["edge_id"]],
+            ),
+        }
+        answers.append({key: item for key, item in answer.items() if item is not None})
+
+    retrieval_context = []
+    warnings = []
+    if not answers:
+        warnings.append(
+            "No graph-supported answers matched; retrieval_context is unfiltered evidence."
+        )
+        for result in full_result["retrieval"]["results"][:3]:
+            evidence = result["evidence"]
+            retrieval_context.append(
+                {
+                    "graph_supported": False,
+                    "retrieval_rank": result["rank"],
+                    "score": result["score"],
+                    "evidence_id": evidence["evidence_id"],
+                    "paper_id": evidence["paper_id"],
+                    "doi": evidence.get("doi"),
+                    "evidence_excerpt": _compact_excerpt(
+                        evidence["text"],
+                        query=full_result["query"],
+                    ),
+                }
+            )
+
+    return {
+        "ok": full_result["ok"],
+        "query": full_result["query"],
+        "response_mode": "compact",
+        "parsed_filters": full_result["parsed_filters"],
+        "answer_count": len(answers),
+        "answers": answers,
+        "retrieval_context": retrieval_context,
+        "warnings": warnings,
+    }
+
+
 def hybrid_query(
     kg_dir: str | Path,
     query: str,
     *,
     top_k: int = 10,
     embedding_model: str | None = None,
+    response_mode: Literal["full", "compact"] = "full",
 ) -> dict[str, Any]:
-    """Fuse graph-path and evidence-retrieval rankings with reciprocal rank fusion."""
+    """Fuse graph and evidence rankings, returning a full or compact response."""
+    if response_mode not in {"full", "compact"}:
+        raise ValueError("response_mode must be 'full' or 'compact'.")
     parsed = _parse_metric_query(query)
     graph_results = (
         graph_query(
@@ -448,7 +611,7 @@ def hybrid_query(
         fused.values(),
         key=lambda item: (-item["score"], item["evidence"]["evidence_id"]),
     )[:top_k]
-    return {
+    full_result = {
         "ok": True,
         "query": query,
         "parsed_filters": parsed,
@@ -456,6 +619,7 @@ def hybrid_query(
         "retrieval": retrieval_results,
         "fused": {"num_results": len(fused_results), "results": fused_results},
     }
+    return compact_query_result(full_result) if response_mode == "compact" else full_result
 
 
 def get_evidence(kg_dir: str | Path, evidence_id: str) -> dict[str, Any]:

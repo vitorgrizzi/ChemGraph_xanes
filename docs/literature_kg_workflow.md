@@ -57,7 +57,8 @@ python scripts/kg_validate.py --kg data/kg_demo/graph
 
 python scripts/kg_query.py \
   --kg data/kg_demo/graph \
-  --q "Which catalysts report methanol selectivity above 70% below 220 C?"
+  --q "Which catalysts report methanol selectivity above 70% below 220 C?" \
+  --response-mode compact
 ```
 
 `kg_build.py` always runs grounding and reference verification. It fails closed
@@ -119,6 +120,14 @@ Each fused result reports its `origins`, `graph_supported`, `graph_rank`, and
 that passed graph filters. The response retains graph paths, observation and
 condition objects, paper IDs, and evidence spans rather than emitting an
 unsupported free-form answer.
+
+Use `response_mode="compact"` for model-facing calls. It returns parsed filters,
+flattened graph-supported answers, short evidence excerpts, evidence and edge
+IDs, and retrieval-only context only when no structured answer matched. Use
+`response_mode="full"` for auditing the complete graph, retrieval, and fused
+objects. LangChain and MCP query tools default to compact output; the Python API
+and CLI retain full output by default for compatibility. Full evidence remains
+available on demand through `kg_get_evidence`.
 
 ## Hypotheses
 

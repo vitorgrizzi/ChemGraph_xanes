@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from typing import Literal
+
 from mcp.server.fastmcp import FastMCP
 
 from chemgraph.kg.extract import (
@@ -107,19 +109,21 @@ def kg_build_graph(records_path: str, kg_dir: str) -> dict:
 
 @mcp.tool(
     name="kg_hybrid_query",
-    description="Run a hybrid graph and evidence-span query over a built KG.",
+    description="Run a hybrid KG query with compact model-facing output by default.",
 )
 def kg_hybrid_query(
     kg_dir: str,
     query: str,
     top_k: int = 10,
     embedding_model: str | None = None,
+    response_mode: Literal["compact", "full"] = "compact",
 ) -> dict:
     return hybrid_query(
         kg_dir,
         query,
         top_k=top_k,
         embedding_model=embedding_model,
+        response_mode=response_mode,
     )
 
 

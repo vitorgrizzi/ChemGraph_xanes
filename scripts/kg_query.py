@@ -15,6 +15,12 @@ def main() -> None:
     parser.add_argument("--q", required=True, help="Natural-language question.")
     parser.add_argument("--top-k", type=int, default=10)
     parser.add_argument(
+        "--response-mode",
+        choices=("full", "compact"),
+        default="full",
+        help="Full audit output or compact model-facing output.",
+    )
+    parser.add_argument(
         "--embedding-model",
         default=None,
         help="Optional sentence-transformers model for vector retrieval.",
@@ -28,6 +34,7 @@ def main() -> None:
                 args.q,
                 top_k=args.top_k,
                 embedding_model=args.embedding_model,
+                response_mode=args.response_mode,
             ),
             indent=2,
         )
