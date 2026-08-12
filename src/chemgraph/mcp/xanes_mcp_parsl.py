@@ -174,6 +174,7 @@ async def run_xanes_ensemble(params: xanes_input_schema_ensemble):
         Input parameters for the ensemble calculation.
     """
     from chemgraph.tools.xanes_tools import (
+        _resolve_fdmnes_executable,
         extract_conv,
         prepare_xanes_batch,
     )
@@ -199,7 +200,7 @@ async def run_xanes_ensemble(params: xanes_input_schema_ensemble):
     )
 
     output_dir = Path(batch["root_dir"])
-    fdmnes_exe = params.fdmnes_exe
+    fdmnes_exe = _resolve_fdmnes_executable(params.fdmnes_exe)
     pending_tasks = []
     results = []
 

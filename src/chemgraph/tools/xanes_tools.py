@@ -68,6 +68,14 @@ XANES_PASSTHROUGH_PARAM_KEYS = {
 # -----------------------------------------------------------------------------
 
 
+def _resolve_fdmnes_executable(requested_exe: str) -> str:
+    """Prefer the configured executable over the generic command fallback."""
+    configured_exe = os.environ.get("FDMNES_EXE")
+    if configured_exe and requested_exe.strip() == "fdmnes":
+        return configured_exe
+    return requested_exe
+
+
 def _canonical_xanes_param_key(key: str) -> str:
     """Return the canonical parameter name for common FDMNES aliases."""
     normalized = key.strip().lower().replace("-", "_").replace(" ", "_")
