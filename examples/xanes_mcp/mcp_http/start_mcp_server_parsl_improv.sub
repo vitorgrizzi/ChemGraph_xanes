@@ -34,6 +34,8 @@ CHEMGRAPH_WALLTIME="01:00:00"
 CHEMGRAPH_QUEUE="debug"
 CHEMGRAPH_MAX_NODES="2"
 CHEMGRAPH_CPUS_NODE="128"   # Worker-node core count, not the small driver job
+CHEMGRAPH_DRAIN_SECONDS="600"
+CHEMGRAPH_TASK_RETRIES="1"
 # -----------------------------------------------
 
 cd "${PBS_O_WORKDIR:-$(pwd)}"
@@ -49,6 +51,8 @@ export CHEMGRAPH_PBS_WALLTIME="$CHEMGRAPH_WALLTIME"
 export CHEMGRAPH_PBS_QUEUE="$CHEMGRAPH_QUEUE"
 export CHEMGRAPH_MAX_BLOCKS="$CHEMGRAPH_MAX_NODES"
 export CHEMGRAPH_CPUS_PER_NODE="$CHEMGRAPH_CPUS_NODE"
+export CHEMGRAPH_DRAIN_PERIOD="$CHEMGRAPH_DRAIN_SECONDS"
+export CHEMGRAPH_RETRIES="$CHEMGRAPH_TASK_RETRIES"
 export CHEMGRAPH_CONDA_SH="$CONDA_SH"
 export CHEMGRAPH_CONDA_ENV="$CONDA_ENV"
 export CHEMGRAPH_OMP_NUM_THREADS=1
@@ -64,6 +68,8 @@ log "PBS account:      $CHEMGRAPH_PBS_ACCOUNT"
 log "Worker walltime:  $CHEMGRAPH_PBS_WALLTIME"
 log "Worker max nodes: $CHEMGRAPH_MAX_BLOCKS"
 log "Worker cpus/node: $CHEMGRAPH_CPUS_PER_NODE"
+log "Worker drain:     $CHEMGRAPH_DRAIN_PERIOD seconds"
+log "Task retries:     $CHEMGRAPH_RETRIES"
 
 python -u -m chemgraph.mcp.xanes_mcp_parsl \
     --transport streamable_http \

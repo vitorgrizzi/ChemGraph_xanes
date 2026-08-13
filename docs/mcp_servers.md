@@ -105,12 +105,23 @@ variables are:
 
 - `CHEMGRAPH_PBS_ACCOUNT`
 - `CHEMGRAPH_PBS_WALLTIME`
+- `CHEMGRAPH_DRAIN_PERIOD`
+- `CHEMGRAPH_RETRIES`
 - `CHEMGRAPH_MAX_BLOCKS`
 - `CHEMGRAPH_CPUS_PER_NODE`
 - `CHEMGRAPH_CONDA_SH`
 - `CHEMGRAPH_CONDA_ENV`
 - `CHEMGRAPH_OMP_NUM_THREADS`
 - `FDMNES_EXE`
+
+The Improv defaults use a 12-hour worker walltime, a 600-second drain period,
+and one task retry. `CHEMGRAPH_DRAIN_PERIOD` is the number of seconds after a
+worker manager starts before it stops accepting new tasks; the running task is
+allowed to finish. This prevents a long FDMNES calculation from being assigned
+to a PBS block near the end of its walltime. Set `CHEMGRAPH_PBS_WALLTIME` to a
+queue-supported value that is longer than the longest individual calculation.
+`CHEMGRAPH_RETRIES=1` allows a task lost with its worker block to run once more
+on a replacement block.
 
 Set `CHEMGRAPH_CPUS_PER_NODE` explicitly for Improv worker jobs. The driver
 job's `PBS_NP` value may be smaller and should not be used as the intended

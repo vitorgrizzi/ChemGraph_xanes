@@ -1,10 +1,5 @@
 import os
 
-from parsl.config import Config
-from parsl.executors import HighThroughputExecutor
-from parsl.launchers import SingleNodeLauncher
-from parsl.providers import PBSProProvider
-
 
 def _get_int_env(name: str, default: int) -> int:
     """Read an integer environment variable with a fallback default."""
@@ -67,6 +62,11 @@ def get_improv_config(run_dir=None):
     if run_dir is None:
         run_dir = os.getcwd()
 
+    from parsl.config import Config
+    from parsl.executors import HighThroughputExecutor
+    from parsl.launchers import SingleNodeLauncher
+    from parsl.providers import PBSProProvider
+
     account = os.getenv("CHEMGRAPH_PBS_ACCOUNT")
     if not account:
         raise ValueError(
@@ -74,7 +74,7 @@ def get_improv_config(run_dir=None):
             "before launching ChemGraph on Improv."
         )
 
-    walltime = os.getenv("CHEMGRAPH_PBS_WALLTIME", "01:00:00")
+    walltime = os.getenv("CHEMGRAPH_PBS_WALLTIME", "12:00:00")
     cpus_per_node = _get_int_env(
         "CHEMGRAPH_CPUS_PER_NODE",
         _get_int_env("PBS_NP", 128),
@@ -82,6 +82,12 @@ def get_improv_config(run_dir=None):
     max_blocks = _get_int_env("CHEMGRAPH_MAX_BLOCKS", 1)
     init_blocks = min(_get_int_env("CHEMGRAPH_INIT_BLOCKS", 1), max_blocks)
     min_blocks = _get_int_env("CHEMGRAPH_MIN_BLOCKS", 0)
+    drain_period = _get_int_env("CHEMGRAPH_DRAIN_PERIOD", 600)
+    retries = _get_int_env("CHEMGRAPH_RETRIES", 1)
+    if drain_period <= 0:
+        raise ValueError("CHEMGRAPH_DRAIN_PERIOD must be greater than zero.")
+    if retries < 0:
+        raise ValueError("CHEMGRAPH_RETRIES must be zero or greater.")
     worker_debug = os.getenv("CHEMGRAPH_WORKER_DEBUG", "").lower() in {
         "1",
         "true",
@@ -108,9 +114,11 @@ def get_improv_config(run_dir=None):
                 label="htex",
                 max_workers_per_node=1,
                 cores_per_worker=cpus_per_node,
+                drain_period=drain_period,
                 worker_debug=worker_debug,
                 provider=provider,
             )
         ],
+        retries=retries,
         run_dir=run_dir,
     )

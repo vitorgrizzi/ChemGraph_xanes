@@ -1,7 +1,7 @@
 #!/bin/sh
 #PBS -l select=1:ncpus=128:mpiprocs=128
 #PBS -A Hetero_Catalysis
-#PBS -l walltime=06:00:00
+#PBS -l walltime=24:00:00
 
 cd $PBS_O_WORKDIR
 
@@ -17,7 +17,9 @@ export PYTHONPATH="/lcrc/globalscratch/vferreiragrizzi/agents/ChemGraph_xanes/sr
 
 export COMPUTE_SYSTEM=improv
 export CHEMGRAPH_PBS_ACCOUNT="Hetero_Catalysis"
-export CHEMGRAPH_PBS_WALLTIME="04:00:00"
+export CHEMGRAPH_PBS_WALLTIME="12:00:00"
+export CHEMGRAPH_DRAIN_PERIOD=600
+export CHEMGRAPH_RETRIES=1
 export CHEMGRAPH_MAX_BLOCKS=2
 export CHEMGRAPH_CPUS_PER_NODE=128
 export CHEMGRAPH_CONDA_SH="$HOME/miniconda/etc/profile.d/conda.sh"
