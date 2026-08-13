@@ -1,0 +1,3 @@
+--> executable follows <--
+cd "/lcrc/globalscratch/vferreiragrizzi/agents/parallel_task/tio2_batch_20260813T163237Z/fdmnes_runs/fdmnes_batch_runs/run_10" && "/home/vferreiragrizzi/parallel_fdmnes/mpirun_fdmnes"
+--> end executable <--

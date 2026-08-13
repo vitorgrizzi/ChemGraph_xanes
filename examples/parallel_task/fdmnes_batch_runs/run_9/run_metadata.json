@@ -1,0 +1,22 @@
+{
+  "structure": "mp-390_O4Ti2",
+  "source": "/lcrc/globalscratch/vferreiragrizzi/agents/parallel_task/xanes_data/mp-390_O4Ti2.cif",
+  "run_dir": "/lcrc/globalscratch/vferreiragrizzi/agents/parallel_task/tio2_batch_20260813T163237Z/fdmnes_runs/fdmnes_batch_runs/run_9",
+  "z_absorber": 22,
+  "absorber_idx": null,
+  "edge": "K",
+  "green": true,
+  "density_all": false,
+  "quadrupole": true,
+  "spherical": false,
+  "scf": true,
+  "energy_range": [
+    -20.0,
+    1.0,
+    -10.0,
+    0.05,
+    10.0,
+    0.1,
+    50.0
+  ]
+}
