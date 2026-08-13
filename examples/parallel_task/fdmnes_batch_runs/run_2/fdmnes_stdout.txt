@@ -1,0 +1,2945 @@
+ FDMNES program, Revision 15th of July 2025        
+   Date = 13 08 2026                              
+   Time = 11 h 34 mn 57 s                         
+ 
+   range    
+   radius   
+   edge     
+   z_absorbe
+   green    
+   quadrupol
+   scf      
+   crystal  
+
+ Filout: run_2
+ Threshold: Titanium K1 edge
+
+ Sequential calculation
+
+ Number of calculated non equivalent absorbing atom =    2
+
+ E_edge     =  4966.00 eV
+
+   run_2_1
+
+ Cluster radius = 5.00 A, nb. of atom =  52
+ Fermi energy calculation : cluster radius = 5.00 A, nb. of atom =  52
+ Potential sup calculation: cluster radius = 7.50 A, nb. of atom = 179
+
+ Point group : 1        (C1   )
+
+ ipr   Z  mult     ch_val    ch_core   ch_total     ch_out   Atom charge
+   1  22    8       2.884     17.901     20.785      0.000      1.215
+   2  22    4       2.955     17.906     20.861      0.043      1.139
+   3   8    8       5.171      2.000      7.171      0.005      0.829
+   4   8    8       5.179      2.000      7.179      0.002      0.821
+   5   8    8       5.171      2.000      7.171      0.004      0.829
+
+ Cycle   1,  Fermi energy = -11.616 eV, Occupancy val abs =  0.820
+
+ Cycle   1: Total energy =      -324070.5 eV,
+             Delta ch (  1) = 1.593, Ch =  2.808, Ch_p =  1.215, Weight = 0.05000, Mod_p =  0
+
+      ipr   Z   Energy_Tot      Charge     Ch-Ch_i  pop_orb_val(L)   L    Radius
+        1  22     -22809.8       1.294       0.080       0.820       2   1.23390
+        2  22     -22830.1       1.217       0.078       0.869       2   1.24172
+        3   8      -2094.7       0.789      -0.040       4.260       1   0.90690
+        4   8      -2095.1       0.782      -0.039       4.268       1   0.90792
+        5   8      -2094.1       0.790      -0.039       4.256       1   0.90680
+
+ Cycle   2,  Fermi energy = -11.696 eV, Occupancy val abs =  0.925
+
+ Cycle   2: Total energy =      -324408.9 eV, Delta energy =    977.001 >   3.600 eV
+             Delta ch (  2) = 1.312, Ch =  2.529, Ch_p =  1.217, Weight = 0.05000, Mod_p =  0
+                                                            Next weight = 0.02500
+
+      ipr   Z   Energy_Tot      Charge     Ch-Ch_i  pop_orb_val(L)   L    Radius
+        1  22     -22868.9       1.327       0.112       0.925       2   1.23390
+        2  22     -22876.4       1.250       0.110       0.964       2   1.24172
+        3   8      -2079.1       0.773      -0.056       4.145       1   0.90690
+        4   8      -2083.8       0.765      -0.056       4.186       1   0.90792
+        5   8      -2081.2       0.774      -0.056       4.162       1   0.90680
+
+ Cycle   3,  Fermi energy = -11.587 eV, Occupancy val abs =  0.976
+
+ Cycle   3: Total energy =      -324502.9 eV, Delta energy =    325.053 >   3.600 eV
+             Delta ch (  2) = 1.213, Ch =  2.463, Ch_p =  1.250, Weight = 0.02500, Mod_p =  0
+
+      ipr   Z   Energy_Tot      Charge     Ch-Ch_i  pop_orb_val(L)   L    Radius
+        1  22     -22886.4       1.357       0.142       0.976       2   1.23390
+        2  22     -22893.8       1.280       0.141       1.011       2   1.24172
+        3   8      -2073.4       0.759      -0.070       4.105       1   0.90690
+        4   8      -2079.6       0.749      -0.072       4.157       1   0.90792
+        5   8      -2076.5       0.759      -0.071       4.129       1   0.90680
+
+ Cycle   4,  Fermi energy = -11.515 eV, Occupancy val abs =  1.024
+
+ Cycle   4: Total energy =      -324606.1 eV, Delta energy =    336.382 >   3.600 eV
+             Delta ch (  1) = 1.116, Ch =  2.474, Ch_p =  1.357, Weight = 0.02500, Mod_p =  0
+
+      ipr   Z   Energy_Tot      Charge     Ch-Ch_i  pop_orb_val(L)   L    Radius
+        1  22     -22901.8       1.385       0.170       1.024       2   1.23390
+        2  22     -22917.8       1.307       0.168       1.069       2   1.24172
+        3   8      -2067.8       0.745      -0.083       4.064       1   0.90690
+        4   8      -2075.4       0.735      -0.086       4.127       1   0.90792
+        5   8      -2071.8       0.745      -0.085       4.095       1   0.90680
+
+ Cycle   5,  Fermi energy = -11.450 eV, Occupancy val abs =  1.078
+
+ Cycle   5: Total energy =      -324701.1 eV, Delta energy =    317.492 >   3.600 eV
+             Delta ch (  1) = 1.017, Ch =  2.402, Ch_p =  1.385, Weight = 0.02500, Mod_p =  0
+
+      ipr   Z   Energy_Tot      Charge     Ch-Ch_i  pop_orb_val(L)   L    Radius
+        1  22     -22919.9       1.411       0.196       1.078       2   1.23390
+        2  22     -22933.2       1.332       0.193       1.117       2   1.24172
+        3   8      -2062.7       0.734      -0.095       4.025       1   0.90690
+        4   8      -2071.2       0.721      -0.100       4.097       1   0.90792
+        5   8      -2067.2       0.732      -0.098       4.061       1   0.90680
+
+ Cycle   6,  Fermi energy = -11.337 eV, Occupancy val abs =  1.121
+
+ Cycle   6: Total energy =      -324773.9 eV, Delta energy =    250.994 >   3.600 eV
+             Delta ch (  1) = 0.941, Ch =  2.351, Ch_p =  1.411, Weight = 0.02500, Mod_p =  0
+
+      ipr   Z   Energy_Tot      Charge     Ch-Ch_i  pop_orb_val(L)   L    Radius
+        1  22     -22932.9       1.434       0.219       1.121       2   1.23390
+        2  22     -22947.8       1.356       0.216       1.162       2   1.24172
+        3   8      -2058.7       0.723      -0.106       3.996       1   0.90690
+        4   8      -2067.8       0.709      -0.112       4.073       1   0.90792
+        5   8      -2063.5       0.720      -0.109       4.035       1   0.90680
+
+ Cycle   7,  Fermi energy = -11.245 eV, Occupancy val abs =  1.163
+
+ Cycle   7: Total energy =      -324848.8 eV, Delta energy =    247.295 >   3.600 eV
+             Delta ch (  1) = 0.864, Ch =  2.298, Ch_p =  1.434, Weight = 0.02500, Mod_p =  0
+
+      ipr   Z   Energy_Tot      Charge     Ch-Ch_i  pop_orb_val(L)   L    Radius
+        1  22     -22946.7       1.456       0.241       1.163       2   1.23390
+        2  22     -22960.4       1.377       0.237       1.202       2   1.24172
+        3   8      -2054.9       0.713      -0.116       3.969       1   0.90690
+        4   8      -2064.4       0.697      -0.123       4.049       1   0.90792
+        5   8      -2059.9       0.709      -0.120       4.009       1   0.90680
+
+ Cycle   8,  Fermi energy =  -9.655 eV, Occupancy val abs =  1.161
+
+ Cycle   8: Total energy =      -324576.7 eV, Delta energy =    601.114 >   3.600 eV
+             Delta ch (  1) = 0.993, Ch =  2.448, Ch_p =  1.456, Weight = 0.02500, Mod_p =  0
+
+      ipr   Z   Energy_Tot      Charge     Ch-Ch_i  pop_orb_val(L)   L    Radius
+        1  22     -22909.0       1.481       0.266       1.161       2   1.23390
+        2  22     -22926.6       1.401       0.261       1.212       2   1.24172
+        3   8      -2063.1       0.701      -0.128       4.050       1   0.90690
+        4   8      -2070.2       0.685      -0.136       4.108       1   0.90792
+        5   8      -2066.4       0.697      -0.132       4.076       1   0.90680
+
+ Cycle   9,  Fermi energy =  -9.515 eV, Occupancy val abs =  1.209
+
+ Cycle   9: Total energy =      -324653.0 eV, Delta energy =    244.027 >   3.600 eV
+             Delta ch (  1) = 0.918, Ch =  2.398, Ch_p =  1.481, Weight = 0.02500, Mod_p =  0
+
+      ipr   Z   Energy_Tot      Charge     Ch-Ch_i  pop_orb_val(L)   L    Radius
+        1  22     -22922.6       1.503       0.289       1.209       2   1.23390
+        2  22     -22939.4       1.423       0.284       1.257       2   1.24172
+        3   8      -2059.3       0.690      -0.138       4.023       1   0.90690
+        4   8      -2067.0       0.673      -0.148       4.086       1   0.90792
+        5   8      -2063.0       0.686      -0.144       4.052       1   0.90680
+
+ Cycle  10,  Fermi energy =  -9.388 eV, Occupancy val abs =  1.255
+
+ Cycle  10: Total energy =      -324727.9 eV, Delta energy =    236.173 >   3.600 eV
+             Delta ch (  1) = 0.846, Ch =  2.349, Ch_p =  1.503, Weight = 0.02500, Mod_p =  0
+
+      ipr   Z   Energy_Tot      Charge     Ch-Ch_i  pop_orb_val(L)   L    Radius
+        1  22     -22935.9       1.525       0.310       1.255       2   1.23390
+        2  22     -22951.8       1.443       0.304       1.301       2   1.24172
+        3   8      -2055.7       0.681      -0.148       3.997       1   0.90690
+        4   8      -2063.8       0.662      -0.159       4.064       1   0.90792
+        5   8      -2059.7       0.675      -0.154       4.028       1   0.90680
+
+ Cycle  11,  Fermi energy =  -9.279 eV, Occupancy val abs =  1.300
+
+ Cycle  11: Total energy =      -324799.6 eV, Delta energy =    223.723 >   3.600 eV
+             Delta ch (  1) = 0.777, Ch =  2.302, Ch_p =  1.525, Weight = 0.02500, Mod_p =  0
+
+      ipr   Z   Energy_Tot      Charge     Ch-Ch_i  pop_orb_val(L)   L    Radius
+        1  22     -22948.6       1.544       0.329       1.300       2   1.23390
+        2  22     -22963.2       1.462       0.323       1.342       2   1.24172
+        3   8      -2052.4       0.672      -0.157       3.972       1   0.90690
+        4   8      -2060.8       0.652      -0.169       4.042       1   0.90792
+        5   8      -2056.5       0.665      -0.164       4.005       1   0.90680
+
+ Cycle  12,  Fermi energy =  -9.186 eV, Occupancy val abs =  1.342
+
+ Cycle  12: Total energy =      -324867.2 eV, Delta energy =    209.754 >   3.600 eV
+             Delta ch (  1) = 0.714, Ch =  2.258, Ch_p =  1.544, Weight = 0.02500, Mod_p =  0
+
+      ipr   Z   Energy_Tot      Charge     Ch-Ch_i  pop_orb_val(L)   L    Radius
+        1  22     -22960.5       1.562       0.347       1.342       2   1.23390
+        2  22     -22974.2       1.480       0.340       1.381       2   1.24172
+        3   8      -2049.3       0.663      -0.165       3.950       1   0.90690
+        4   8      -2058.0       0.642      -0.179       4.022       1   0.90792
+        5   8      -2053.6       0.657      -0.173       3.984       1   0.90680
+
+ Cycle  13,  Fermi energy =  -9.110 eV, Occupancy val abs =  1.382
+
+ Cycle  13: Total energy =      -324931.7 eV, Delta energy =    198.379 >   3.600 eV
+             Delta ch (  1) = 0.653, Ch =  2.215, Ch_p =  1.562, Weight = 0.02500, Mod_p =  0
+
+      ipr   Z   Energy_Tot      Charge     Ch-Ch_i  pop_orb_val(L)   L    Radius
+        1  22     -22971.9       1.578       0.363       1.382       2   1.23390
+        2  22     -22984.2       1.496       0.356       1.418       2   1.24172
+        3   8      -2046.4       0.656      -0.173       3.928       1   0.90690
+        4   8      -2055.3       0.633      -0.188       4.002       1   0.90792
+        5   8      -2050.8       0.648      -0.181       3.964       1   0.90680
+
+ Cycle  14,  Fermi energy =  -9.034 eV, Occupancy val abs =  1.421
+
+ Cycle  14: Total energy =      -324992.4 eV, Delta energy =    186.348 >   3.600 eV
+             Delta ch (  1) = 0.597, Ch =  2.175, Ch_p =  1.578, Weight = 0.02500, Mod_p =  0
+
+      ipr   Z   Energy_Tot      Charge     Ch-Ch_i  pop_orb_val(L)   L    Radius
+        1  22     -22982.6       1.593       0.378       1.421       2   1.23390
+        2  22     -22993.7       1.510       0.371       1.453       2   1.24172
+        3   8      -2043.8       0.649      -0.180       3.908       1   0.90690
+        4   8      -2052.7       0.625      -0.196       3.984       1   0.90792
+        5   8      -2048.1       0.641      -0.188       3.944       1   0.90680
+
+ Cycle  15,  Fermi energy =  -8.970 eV, Occupancy val abs =  1.456
+
+ Cycle  15: Total energy =      -325048.4 eV, Delta energy =    171.412 >   3.600 eV
+             Delta ch (  1) = 0.544, Ch =  2.138, Ch_p =  1.593, Weight = 0.02500, Mod_p =  0
+
+      ipr   Z   Energy_Tot      Charge     Ch-Ch_i  pop_orb_val(L)   L    Radius
+        1  22     -22992.4       1.607       0.392       1.456       2   1.23390
+        2  22     -23002.4       1.524       0.384       1.485       2   1.24172
+        3   8      -2041.4       0.643      -0.186       3.890       1   0.90690
+        4   8      -2050.3       0.618      -0.203       3.966       1   0.90792
+        5   8      -2045.7       0.634      -0.195       3.927       1   0.90680
+
+ Cycle  16,  Fermi energy =  -8.916 eV, Occupancy val abs =  1.489
+
+ Cycle  16: Total energy =      -325100.8 eV, Delta energy =    158.512 >   3.600 eV
+             Delta ch (  1) = 0.496, Ch =  2.103, Ch_p =  1.607, Weight = 0.02500, Mod_p =  0
+
+      ipr   Z   Energy_Tot      Charge     Ch-Ch_i  pop_orb_val(L)   L    Radius
+        1  22     -23001.6       1.619       0.404       1.489       2   1.23390
+        2  22     -23010.4       1.536       0.397       1.514       2   1.24172
+        3   8      -2039.2       0.637      -0.191       3.874       1   0.90690
+        4   8      -2048.1       0.611      -0.210       3.950       1   0.90792
+        5   8      -2043.5       0.628      -0.201       3.910       1   0.90680
+
+ Cycle  17,  Fermi energy =  -8.877 eV, Occupancy val abs =  1.519
+
+ Cycle  17: Total energy =      -325149.1 eV, Delta energy =    147.371 >   3.600 eV
+             Delta ch (  2) = 0.455, Ch =  1.991, Ch_p =  1.536, Weight = 0.02500, Mod_p =  0
+
+      ipr   Z   Energy_Tot      Charge     Ch-Ch_i  pop_orb_val(L)   L    Radius
+        1  22     -23010.3       1.630       0.416       1.519       2   1.23390
+        2  22     -23017.5       1.547       0.408       1.540       2   1.24172
+        3   8      -2037.2       0.632      -0.196       3.859       1   0.90690
+        4   8      -2046.0       0.605      -0.216       3.935       1   0.90792
+        5   8      -2041.4       0.622      -0.207       3.895       1   0.90680
+
+ Cycle  18,  Fermi energy =  -8.821 eV, Occupancy val abs =  1.548
+
+ Cycle  18: Total energy =      -325192.1 eV, Delta energy =    132.917 >   3.600 eV
+             Delta ch (  2) = 0.415, Ch =  1.963, Ch_p =  1.547, Weight = 0.02500, Mod_p =  0
+
+      ipr   Z   Energy_Tot      Charge     Ch-Ch_i  pop_orb_val(L)   L    Radius
+        1  22     -23017.7       1.641       0.426       1.548       2   1.23390
+        2  22     -23024.7       1.558       0.418       1.566       2   1.24172
+        3   8      -2035.4       0.628      -0.201       3.845       1   0.90690
+        4   8      -2044.1       0.599      -0.222       3.921       1   0.90792
+        5   8      -2039.5       0.617      -0.212       3.881       1   0.90680
+
+ Cycle  19,  Fermi energy =  -8.784 eV, Occupancy val abs =  1.573
+
+ Cycle  19: Total energy =      -325231.8 eV, Delta energy =    121.358 >   3.600 eV
+             Delta ch (  2) = 0.381, Ch =  1.939, Ch_p =  1.558, Weight = 0.02500, Mod_p =  0
+
+      ipr   Z   Energy_Tot      Charge     Ch-Ch_i  pop_orb_val(L)   L    Radius
+        1  22     -23024.7       1.650       0.435       1.573       2   1.23390
+        2  22     -23030.9       1.567       0.428       1.589       2   1.24172
+        3   8      -2033.7       0.624      -0.205       3.833       1   0.90690
+        4   8      -2042.3       0.594      -0.227       3.908       1   0.90792
+        5   8      -2037.8       0.612      -0.217       3.868       1   0.90680
+
+ Cycle  20,  Fermi energy =  -8.752 eV, Occupancy val abs =  1.595
+
+ Cycle  20: Total energy =      -325266.7 eV, Delta energy =    108.669 >   3.600 eV
+             Delta ch (  2) = 0.350, Ch =  1.918, Ch_p =  1.567, Weight = 0.02500, Mod_p =  0
+
+      ipr   Z   Energy_Tot      Charge     Ch-Ch_i  pop_orb_val(L)   L    Radius
+        1  22     -23030.9       1.659       0.444       1.595       2   1.23390
+        2  22     -23036.4       1.576       0.437       1.609       2   1.24172
+        3   8      -2032.3       0.620      -0.209       3.822       1   0.90690
+        4   8      -2040.7       0.589      -0.232       3.896       1   0.90792
+        5   8      -2036.2       0.608      -0.221       3.856       1   0.90680
+
+ Cycle  21,  Fermi energy =  -8.717 eV, Occupancy val abs =  1.616
+
+ Cycle  21: Total energy =      -325299.1 eV, Delta energy =    101.405 >   3.600 eV
+             Delta ch (  2) = 0.323, Ch =  1.899, Ch_p =  1.576, Weight = 0.02500, Mod_p =  0
+
+      ipr   Z   Energy_Tot      Charge     Ch-Ch_i  pop_orb_val(L)   L    Radius
+        1  22     -23037.0       1.666       0.451       1.616       2   1.23390
+        2  22     -23041.0       1.584       0.445       1.627       2   1.24172
+        3   8      -2030.9       0.617      -0.212       3.811       1   0.90690
+        4   8      -2039.2       0.584      -0.236       3.885       1   0.90792
+        5   8      -2034.8       0.604      -0.225       3.845       1   0.90680
+
+ Cycle  22,  Fermi energy =  -8.679 eV, Occupancy val abs =  1.634
+
+ Cycle  22: Total energy =      -325325.8 eV, Delta energy =     85.676 >   3.600 eV
+             Delta ch (  2) = 0.295, Ch =  1.879, Ch_p =  1.584, Weight = 0.02500, Mod_p =  0
+
+      ipr   Z   Energy_Tot      Charge     Ch-Ch_i  pop_orb_val(L)   L    Radius
+        1  22     -23041.5       1.673       0.458       1.634       2   1.23390
+        2  22     -23046.0       1.592       0.452       1.645       2   1.24172
+        3   8      -2029.8       0.614      -0.215       3.803       1   0.90690
+        4   8      -2037.9       0.580      -0.241       3.875       1   0.90792
+        5   8      -2033.5       0.601      -0.229       3.836       1   0.90680
+
+ Cycle  23,  Fermi energy =  -8.655 eV, Occupancy val abs =  1.650
+
+ Cycle  23: Total energy =      -325350.7 eV, Delta energy =     79.542 >   3.600 eV
+             Delta ch (  2) = 0.274, Ch =  1.865, Ch_p =  1.592, Weight = 0.02500, Mod_p =  0
+
+      ipr   Z   Energy_Tot      Charge     Ch-Ch_i  pop_orb_val(L)   L    Radius
+        1  22     -23046.3       1.680       0.465       1.650       2   1.23390
+        2  22     -23049.4       1.598       0.459       1.659       2   1.24172
+        3   8      -2028.7       0.611      -0.218       3.795       1   0.90690
+        4   8      -2036.7       0.577      -0.244       3.866       1   0.90792
+        5   8      -2032.4       0.597      -0.232       3.827       1   0.90680
+
+ Cycle  24,  Fermi energy =  -8.619 eV, Occupancy val abs =  1.664
+
+ Cycle  24: Total energy =      -325370.0 eV, Delta energy =     65.109 >   3.600 eV
+             Delta ch (  2) = 0.253, Ch =  1.851, Ch_p =  1.598, Weight = 0.02500, Mod_p =  0
+
+      ipr   Z   Energy_Tot      Charge     Ch-Ch_i  pop_orb_val(L)   L    Radius
+        1  22     -23049.8       1.686       0.471       1.664       2   1.23390
+        2  22     -23053.0       1.605       0.465       1.673       2   1.24172
+        3   8      -2027.9       0.608      -0.221       3.788       1   0.90690
+        4   8      -2035.6       0.573      -0.248       3.858       1   0.90792
+        5   8      -2031.4       0.594      -0.235       3.820       1   0.90680
+
+ Cycle  25,  Fermi energy =  -8.585 eV, Occupancy val abs =  1.677
+
+ Cycle  25: Total energy =      -325388.7 eV, Delta energy =     63.181 >   3.600 eV
+             Delta ch (  2) = 0.230, Ch =  1.835, Ch_p =  1.605, Weight = 0.02500, Mod_p =  0
+
+      ipr   Z   Energy_Tot      Charge     Ch-Ch_i  pop_orb_val(L)   L    Radius
+        1  22     -23053.0       1.691       0.476       1.677       2   1.23390
+        2  22     -23056.9       1.611       0.471       1.687       2   1.24172
+        3   8      -2027.0       0.606      -0.223       3.782       1   0.90690
+        4   8      -2034.6       0.570      -0.251       3.851       1   0.90792
+        5   8      -2030.5       0.592      -0.238       3.813       1   0.90680
+
+ Cycle  26,  Fermi energy =  -8.567 eV, Occupancy val abs =  1.688
+
+ Cycle  26: Total energy =      -325407.0 eV, Delta energy =     59.985 >   3.600 eV
+             Delta ch (  2) = 0.215, Ch =  1.826, Ch_p =  1.611, Weight = 0.02500, Mod_p =  0
+
+      ipr   Z   Energy_Tot      Charge     Ch-Ch_i  pop_orb_val(L)   L    Radius
+        1  22     -23056.7       1.696       0.481       1.688       2   1.23390
+        2  22     -23059.1       1.616       0.476       1.696       2   1.24172
+        3   8      -2026.3       0.604      -0.225       3.776       1   0.90690
+        4   8      -2033.7       0.567      -0.254       3.844       1   0.90792
+        5   8      -2029.6       0.589      -0.240       3.807       1   0.90680
+
+ Cycle  27,  Fermi energy =  -8.535 eV, Occupancy val abs =  1.698
+
+ Cycle  27: Total energy =      -325418.9 eV, Delta energy =     44.091 >   3.600 eV
+             Delta ch (  2) = 0.199, Ch =  1.815, Ch_p =  1.616, Weight = 0.02500, Mod_p =  0
+
+      ipr   Z   Energy_Tot      Charge     Ch-Ch_i  pop_orb_val(L)   L    Radius
+        1  22     -23059.0       1.700       0.485       1.698       2   1.23390
+        2  22     -23061.7       1.621       0.481       1.707       2   1.24172
+        3   8      -2025.7       0.602      -0.227       3.772       1   0.90690
+        4   8      -2033.0       0.564      -0.256       3.839       1   0.90792
+        5   8      -2028.9       0.587      -0.243       3.802       1   0.90680
+
+ Cycle  28,  Fermi energy =  -8.504 eV, Occupancy val abs =  1.706
+
+ Cycle  28: Total energy =      -325428.8 eV, Delta energy =     38.521 >   3.600 eV
+             Delta ch (  2) = 0.185, Ch =  1.805, Ch_p =  1.621, Weight = 0.02500, Mod_p =  0
+
+      ipr   Z   Energy_Tot      Charge     Ch-Ch_i  pop_orb_val(L)   L    Radius
+        1  22     -23060.9       1.705       0.490       1.706       2   1.23390
+        2  22     -23063.9       1.625       0.486       1.716       2   1.24172
+        3   8      -2025.2       0.600      -0.229       3.768       1   0.90690
+        4   8      -2032.3       0.562      -0.259       3.834       1   0.90792
+        5   8      -2028.3       0.585      -0.245       3.798       1   0.90680
+
+ Cycle  29,  Fermi energy =  -8.474 eV, Occupancy val abs =  1.714
+
+ Cycle  29: Total energy =      -325439.2 eV, Delta energy =     39.295 >   3.600 eV
+             Delta ch (  2) = 0.168, Ch =  1.793, Ch_p =  1.625, Weight = 0.02500, Mod_p =  0
+
+      ipr   Z   Energy_Tot      Charge     Ch-Ch_i  pop_orb_val(L)   L    Radius
+        1  22     -23062.5       1.708       0.494       1.714       2   1.23390
+        2  22     -23066.8       1.630       0.490       1.726       2   1.24172
+        3   8      -2024.6       0.598      -0.231       3.764       1   0.90690
+        4   8      -2031.6       0.560      -0.261       3.829       1   0.90792
+        5   8      -2027.7       0.583      -0.247       3.793       1   0.90680
+
+ Cycle  30,  Fermi energy =  -8.443 eV, Occupancy val abs =  1.721
+
+ Cycle  30: Total energy =      -325446.4 eV, Delta energy =     30.496 >   3.600 eV
+             Delta ch (  2) = 0.156, Ch =  1.786, Ch_p =  1.630, Weight = 0.02500, Mod_p =  0
+
+      ipr   Z   Energy_Tot      Charge     Ch-Ch_i  pop_orb_val(L)   L    Radius
+        1  22     -23064.1       1.712       0.497       1.721       2   1.23390
+        2  22     -23068.5       1.634       0.494       1.733       2   1.24172
+        3   8      -2024.2       0.597      -0.232       3.761       1   0.90690
+        4   8      -2031.0       0.557      -0.263       3.825       1   0.90792
+        5   8      -2027.2       0.581      -0.249       3.790       1   0.90680
+
+ Cycle  31,  Fermi energy =  -8.415 eV, Occupancy val abs =  1.727
+
+ Cycle  31: Total energy =      -325452.1 eV, Delta energy =     25.968 >   3.600 eV
+             Delta ch (  2) = 0.146, Ch =  1.779, Ch_p =  1.634, Weight = 0.02500, Mod_p =  0
+
+      ipr   Z   Energy_Tot      Charge     Ch-Ch_i  pop_orb_val(L)   L    Radius
+        1  22     -23065.3       1.715       0.501       1.727       2   1.23390
+        2  22     -23069.9       1.637       0.498       1.740       2   1.24172
+        3   8      -2023.9       0.595      -0.234       3.759       1   0.90690
+        4   8      -2030.6       0.555      -0.266       3.821       1   0.90792
+        5   8      -2026.8       0.579      -0.250       3.787       1   0.90680
+
+ Cycle  32,  Fermi energy =  -8.387 eV, Occupancy val abs =  1.732
+
+ Cycle  32: Total energy =      -325456.4 eV, Delta energy =     22.304 >   3.600 eV
+             Delta ch (  2) = 0.136, Ch =  1.773, Ch_p =  1.637, Weight = 0.02500, Mod_p =  0
+
+      ipr   Z   Energy_Tot      Charge     Ch-Ch_i  pop_orb_val(L)   L    Radius
+        1  22     -23066.4       1.719       0.504       1.732       2   1.23390
+        2  22     -23071.2       1.641       0.501       1.745       2   1.24172
+        3   8      -2023.6       0.594      -0.235       3.757       1   0.90690
+        4   8      -2030.1       0.554      -0.267       3.818       1   0.90792
+        5   8      -2026.4       0.578      -0.252       3.784       1   0.90680
+
+ Cycle  33,  Fermi energy =  -8.361 eV, Occupancy val abs =  1.737
+
+ Cycle  33: Total energy =      -325459.8 eV, Delta energy =     19.200 >   3.600 eV
+             Delta ch (  2) = 0.128, Ch =  1.768, Ch_p =  1.641, Weight = 0.02500, Mod_p =  0
+
+      ipr   Z   Energy_Tot      Charge     Ch-Ch_i  pop_orb_val(L)   L    Radius
+        1  22     -23067.2       1.722       0.507       1.737       2   1.23390
+        2  22     -23072.2       1.644       0.504       1.751       2   1.24172
+        3   8      -2023.3       0.592      -0.236       3.755       1   0.90690
+        4   8      -2029.7       0.552      -0.269       3.816       1   0.90792
+        5   8      -2026.1       0.576      -0.253       3.782       1   0.90680
+
+ Cycle  34,  Fermi energy =  -8.349 eV, Occupancy val abs =  1.741
+
+ Cycle  34: Total energy =      -325467.5 eV, Delta energy =     29.545 >   3.600 eV
+             Delta ch (  2) = 0.122, Ch =  1.766, Ch_p =  1.644, Weight = 0.02500, Mod_p =  0
+
+      ipr   Z   Energy_Tot      Charge     Ch-Ch_i  pop_orb_val(L)   L    Radius
+        1  22     -23069.3       1.724       0.509       1.741       2   1.23390
+        2  22     -23072.7       1.647       0.507       1.753       2   1.24172
+        3   8      -2022.9       0.591      -0.238       3.752       1   0.90690
+        4   8      -2029.2       0.550      -0.271       3.812       1   0.90792
+        5   8      -2025.7       0.575      -0.255       3.778       1   0.90680
+
+ Cycle  35,  Fermi energy =  -8.323 eV, Occupancy val abs =  1.744
+
+ Cycle  35: Total energy =      -325469.1 eV, Delta energy =     13.807 >   3.600 eV
+             Delta ch (  2) = 0.114, Ch =  1.761, Ch_p =  1.647, Weight = 0.02500, Mod_p =  0
+
+      ipr   Z   Energy_Tot      Charge     Ch-Ch_i  pop_orb_val(L)   L    Radius
+        1  22     -23069.8       1.727       0.512       1.744       2   1.23390
+        2  22     -23073.6       1.650       0.510       1.758       2   1.24172
+        3   8      -2022.7       0.590      -0.239       3.751       1   0.90690
+        4   8      -2028.9       0.549      -0.272       3.810       1   0.90792
+        5   8      -2025.4       0.573      -0.256       3.777       1   0.90680
+
+ Cycle  36,  Fermi energy =  -8.299 eV, Occupancy val abs =  1.746
+
+ Cycle  36: Total energy =      -325469.9 eV, Delta energy =     11.563 >   3.600 eV
+             Delta ch (  2) = 0.107, Ch =  1.757, Ch_p =  1.650, Weight = 0.02500, Mod_p =  0
+
+      ipr   Z   Energy_Tot      Charge     Ch-Ch_i  pop_orb_val(L)   L    Radius
+        1  22     -23070.2       1.729       0.514       1.746       2   1.23390
+        2  22     -23074.5       1.652       0.513       1.762       2   1.24172
+        3   8      -2022.5       0.589      -0.240       3.750       1   0.90690
+        4   8      -2028.6       0.547      -0.274       3.808       1   0.90792
+        5   8      -2025.2       0.572      -0.257       3.775       1   0.90680
+
+ Cycle  37,  Fermi energy =  -8.276 eV, Occupancy val abs =  1.749
+
+ Cycle  37: Total energy =      -325470.1 eV, Delta energy =      9.795 >   3.600 eV
+             Delta ch (  2) = 0.101, Ch =  1.753, Ch_p =  1.652, Weight = 0.02500, Mod_p =  0
+
+      ipr   Z   Energy_Tot      Charge     Ch-Ch_i  pop_orb_val(L)   L    Radius
+        1  22     -23070.5       1.732       0.517       1.749       2   1.23390
+        2  22     -23075.1       1.655       0.515       1.765       2   1.24172
+        3   8      -2022.3       0.588      -0.241       3.749       1   0.90690
+        4   8      -2028.4       0.546      -0.275       3.806       1   0.90792
+        5   8      -2025.0       0.571      -0.258       3.774       1   0.90680
+
+ Cycle  38,  Fermi energy =  -8.258 eV, Occupancy val abs =  1.750
+
+ Cycle  38: Total energy =      -325470.7 eV, Delta energy =     10.827 >   3.600 eV
+             Delta ch (  2) = 0.092, Ch =  1.747, Ch_p =  1.655, Weight = 0.02500, Mod_p =  0
+
+      ipr   Z   Energy_Tot      Charge     Ch-Ch_i  pop_orb_val(L)   L    Radius
+        1  22     -23070.4       1.734       0.519       1.750       2   1.23390
+        2  22     -23076.6       1.657       0.518       1.769       2   1.24172
+        3   8      -2022.2       0.587      -0.242       3.748       1   0.90690
+        4   8      -2028.2       0.544      -0.276       3.805       1   0.90792
+        5   8      -2024.8       0.570      -0.260       3.773       1   0.90680
+
+ Cycle  39,  Fermi energy =  -8.230 eV, Occupancy val abs =  1.753
+
+ Cycle  39: Total energy =      -325471.6 eV, Delta energy =     11.486 >   3.600 eV
+             Delta ch (  2) = 0.086, Ch =  1.743, Ch_p =  1.657, Weight = 0.02500, Mod_p =  0
+
+      ipr   Z   Energy_Tot      Charge     Ch-Ch_i  pop_orb_val(L)   L    Radius
+        1  22     -23070.9       1.736       0.521       1.753       2   1.23390
+        2  22     -23077.2       1.659       0.520       1.772       2   1.24172
+        3   8      -2022.0       0.586      -0.243       3.747       1   0.90690
+        4   8      -2027.9       0.543      -0.278       3.803       1   0.90792
+        5   8      -2024.6       0.569      -0.261       3.771       1   0.90680
+
+ Cycle  40,  Fermi energy =  -8.209 eV, Occupancy val abs =  1.754
+
+ Cycle  40: Total energy =      -325470.4 eV, Delta energy =      5.121 >   3.600 eV
+             Delta ch (  2) = 0.082, Ch =  1.741, Ch_p =  1.659, Weight = 0.02500, Mod_p =  0
+
+      ipr   Z   Energy_Tot      Charge     Ch-Ch_i  pop_orb_val(L)   L    Radius
+        1  22     -23071.0       1.738       0.523       1.754       2   1.23390
+        2  22     -23077.5       1.661       0.522       1.774       2   1.24172
+        3   8      -2021.9       0.585      -0.244       3.746       1   0.90690
+        4   8      -2027.7       0.542      -0.279       3.802       1   0.90792
+        5   8      -2024.4       0.568      -0.262       3.771       1   0.90680
+
+ Cycle  41,  Fermi energy =  -8.188 eV, Occupancy val abs =  1.755
+
+ Cycle  41: Total energy =      -325469.0 eV, Delta energy =      4.415 >   3.600 eV
+             Delta ch (  2) = 0.078, Ch =  1.739, Ch_p =  1.661, Weight = 0.02500, Mod_p =  0
+
+      ipr   Z   Energy_Tot      Charge     Ch-Ch_i  pop_orb_val(L)   L    Radius
+        1  22     -23071.1       1.740       0.525       1.755       2   1.23390
+        2  22     -23077.7       1.663       0.524       1.776       2   1.24172
+        3   8      -2021.8       0.584      -0.244       3.746       1   0.90690
+        4   8      -2027.6       0.541      -0.280       3.801       1   0.90792
+        5   8      -2024.3       0.567      -0.263       3.770       1   0.90680
+
+ Cycle  42,  Fermi energy =  -8.163 eV, Occupancy val abs =  1.758
+
+ Cycle  42: Total energy =      -325466.6 eV, Delta energy =      6.754 >   3.600 eV
+             Delta ch (  2) = 0.078, Ch =  1.741, Ch_p =  1.663, Weight = 0.02500, Mod_p =  0
+
+      ipr   Z   Energy_Tot      Charge     Ch-Ch_i  pop_orb_val(L)   L    Radius
+        1  22     -23071.3       1.742       0.527       1.758       2   1.23390
+        2  22     -23077.1       1.665       0.526       1.777       2   1.24172
+        3   8      -2021.8       0.584      -0.245       3.746       1   0.90690
+        4   8      -2027.4       0.540      -0.281       3.800       1   0.90792
+        5   8      -2024.2       0.566      -0.264       3.770       1   0.90680
+
+ Cycle  43,  Fermi energy =  -8.144 eV, Occupancy val abs =  1.759
+
+ Cycle  43: Total energy =      -325465.1 eV, Delta energy =      3.686 >   3.600 eV
+             Delta ch (  2) = 0.074, Ch =  1.739, Ch_p =  1.665, Weight = 0.02500, Mod_p =  0
+
+      ipr   Z   Energy_Tot      Charge     Ch-Ch_i  pop_orb_val(L)   L    Radius
+        1  22     -23071.3       1.743       0.528       1.759       2   1.23390
+        2  22     -23077.4       1.667       0.528       1.779       2   1.24172
+        3   8      -2021.7       0.583      -0.246       3.745       1   0.90690
+        4   8      -2027.3       0.539      -0.282       3.799       1   0.90792
+        5   8      -2024.1       0.565      -0.264       3.769       1   0.90680
+
+ Cycle  44,  Fermi energy =  -8.125 eV, Occupancy val abs =  1.759
+
+ Cycle  44: Total energy =      -325463.3 eV, Delta energy =      3.516 <   3.600 eV,  Weight = 0.02500. Converged !
+
+      ipr   Z   Energy_Tot      Charge     Ch-Ch_i  pop_orb_val(L)   L    Radius
+        1  22     -23071.3       1.745       0.530       1.759       2   1.23390
+        2  22     -23077.6       1.669       0.529       1.780       2   1.24172
+        3   8      -2021.6       0.582      -0.247       3.745       1   0.90690
+        4   8      -2027.2       0.538      -0.283       3.799       1   0.90792
+        5   8      -2024.0       0.564      -0.265       3.769       1   0.90680
+
+  ia   Z  it  igr ipr iap     posx      posy      posz   igrpt PtGrName Comp  Axe  Mag
+   1  22   0    1   0   1   0.00000   0.00000   0.00000    1      1       F    T    F
+   2   8   2   35   3   2  -0.94939   0.06491  -1.69669    1      1       F    F    F
+   3   8   2   13   3   3   0.94630   1.50490  -0.80544    1      1       F    F    F
+   4   8   2   31   5   4  -0.97861  -1.48961   0.79598    1      1       F    F    F
+   5   8   2   21   4   5   1.02345  -0.12964   1.66201    1      1       F    F    F
+   6   8   2   29   5   6  -1.29661   1.26934   0.79598    1      1       F    F    F
+   7   8   2   24   3   7   1.32274  -1.25404  -0.80544    1      1       F    F    F
+   8  22   1    6   1   8  -0.00309   1.56982  -2.50213    1      1       F    F    F
+   9  22   1    2   2   9  -0.00155  -1.75101   2.47305    1      1       F    F    F
+  10   8   2   16   4  10   1.24559   2.62930   1.66201    1      1       F    F    F
+  11   8   2   27   4  11  -1.02654  -0.12964   3.28409    1      1       F    F    F
+  12   8   2   26   3  12  -1.32583  -2.69403  -1.69669    1      1       F    F    F
+  13  22   1    8   2  13   2.27058   1.00793   2.47305    1      1       F    F    F
+  14  22   1    8   2  14  -2.27367   1.00793   2.47305    1      1       F    F    F
+  15   8   2   24   3  15  -3.22151  -1.25404  -0.80544    1      1       F    F    F
+  16   8   2   26   3  16  -1.32583   2.82386  -1.69669    1      1       F    F    F
+  17   8   2   20   5  17   1.29352   0.30048  -3.29811    1      1       F    F    F
+  18   8   2   16   4  18   1.24559  -2.88859   1.66201    1      1       F    F    F
+  19  22   1   12   1  19   2.26904  -2.75894   0.00000    1      1       F    F    F
+  20  22   1   12   1  20   2.26904   2.75894   0.00000    1      1       F    F    F
+  21  22   1   12   1  21  -2.27522   2.75894   0.00000    1      1       F    F    F
+  22  22   1   12   1  22  -2.27522  -2.75894   0.00000    1      1       F    F    F
+  23   8   2   29   5  23   3.24765   1.26934   0.79598    1      1       F    F    F
+  24  22   1   10   1  24  -2.27213  -1.18913  -2.50213    1      1       F    F    F
+  25  22   1   10   1  25   2.27213  -1.18913  -2.50213    1      1       F    F    F
+  26   8   2   21   4  26  -3.52081  -0.12964   1.66201    1      1       F    F    F
+  27   8   2   31   5  27   3.56565  -1.48961   0.79598    1      1       F    F    F
+  28   8   2   35   3  28   3.59487   0.06491  -1.69669    1      1       F    F    F
+  29   8   2   13   3  29  -3.59796   1.50490  -0.80544    1      1       F    F    F
+  30   8   2   13   3  30   0.94630  -4.01298  -0.80544    1      1       F    F    F
+  31   8   2   31   5  31  -0.97861   4.02828   0.79598    1      1       F    F    F
+  32   8   2   18   5  32   0.97552  -2.45846  -3.29811    1      1       F    F    F
+  33   8   2   34   4  33  -1.24868   2.62930   3.28409    1      1       F    F    F
+  34   8   2   33   4  34  -1.24868  -1.05948  -4.16414    1      1       F    F    F
+  35  22   1    2   2  35  -0.00155   3.76688   2.47305    1      1       F    F    F
+  36   8   2   29   5  36  -1.29661  -4.24855   0.79598    1      1       F    F    F
+  37   8   2   17   5  37   0.97552  -1.48961   4.15012    1      1       F    F    F
+  38   8   2   26   3  38   3.21842  -2.69403  -1.69669    1      1       F    F    F
+  39   8   2   19   5  39   1.29352   1.26934   4.15012    1      1       F    F    F
+  40   8   2   16   4  40  -3.29867   2.62930   1.66201    1      1       F    F    F
+  41   8   2   24   3  41   1.32274   4.26385  -0.80544    1      1       F    F    F
+  42  22   1    1   1  42  -4.54426   0.00000   0.00000    1      1       F    F    F
+  43  22   1    1   1  43   4.54426   0.00000   0.00000    1      1       F    F    F
+  44   8   2   34   4  44  -1.24868  -2.88859   3.28409    1      1       F    F    F
+  45   8   2   18   5  45   0.97552   3.05943  -3.29811    1      1       F    F    F
+  46   8   2   26   3  46   3.21842   2.82386  -1.69669    1      1       F    F    F
+  47   8   2   28   4  47  -1.02654   1.69946  -4.16414    1      1       F    F    F
+  48   8   2   20   5  48  -3.25074   0.30048  -3.29811    1      1       F    F    F
+  49  22   1    6   1  49  -0.00309  -3.94807  -2.50213    1      1       F    F    F
+  50   8   2   16   4  50  -3.29867  -2.88859   1.66201    1      1       F    F    F
+  51   8   2   27   4  51   3.51772  -0.12964   3.28409    1      1       F    F    F
+  52  22   1    3   1  52  -0.00309   0.00000   4.94610    1      1       F    F    F
+
+     V0bdcF =   -16.054 eV,     Vhbdc =    -6.446 eV,     rsbdc =   1.995 a.u.
+
+ ipr    Z     Atom-Charge  Atom-Radius Ionic-Charge Ionic-Radius     Vmft
+   0   22*        1.670        1.235        3.524        0.860      -20.999
+   1   22         1.739        1.235        3.595        0.860      -21.456
+   2   22         1.580        1.258        3.598        0.860      -20.999
+   3    8         0.645        0.894       -1.533        1.400      -20.999
+   4    8         0.509        0.914       -1.571        1.400      -20.999
+   5    8         0.577        0.904       -1.550        1.400      -20.999
+Epsii used =  4852.954 eV
+ Number of Energies =  811
+    Energy    <xanes>    
+  -20.0000  1.1565430E-03
+  -19.0000  1.1126981E-02
+  -18.0000  2.5230859E-01
+  -17.0000  3.1961812E-03
+  -16.0000  1.0115989E-03
+  -15.0000  6.5044434E-04
+  -14.0000  5.2404848E-04
+  -13.0000  4.6766740E-04
+  -12.0000  4.4415487E-04
+  -11.0000  4.4430350E-04
+  -10.0000  4.7111982E-04
+  -9.95000  4.7338784E-04
+  -9.90000  4.7576499E-04
+  -9.85000  4.7825507E-04
+  -9.80000  4.8086231E-04
+  -9.75000  4.8359100E-04
+  -9.70000  4.8644551E-04
+  -9.65000  4.8943085E-04
+  -9.60000  4.9255215E-04
+  -9.55000  4.9581492E-04
+  -9.50000  4.9922476E-04
+  -9.45000  5.0278819E-04
+  -9.40000  5.0651185E-04
+  -9.35000  5.1040282E-04
+  -9.30000  5.1446856E-04
+  -9.25000  5.1871681E-04
+  -9.20000  5.2315644E-04
+  -9.15000  5.2779658E-04
+  -9.10000  5.3264683E-04
+  -9.05000  5.3771761E-04
+  -9.00000  5.4301982E-04
+  -8.95000  5.4856567E-04
+  -8.90000  5.5436806E-04
+  -8.85000  5.6044095E-04
+  -8.80000  5.6679882E-04
+  -8.75000  5.7345752E-04
+  -8.70000  5.8043470E-04
+  -8.65000  5.8774859E-04
+  -8.60000  5.9541947E-04
+  -8.55000  6.0346837E-04
+  -8.50000  6.1191935E-04
+  -8.45000  6.2079759E-04
+  -8.40000  6.3013134E-04
+  -8.35000  6.3995079E-04
+  -8.30000  6.5028751E-04
+  -8.25000  6.6117798E-04
+  -8.20000  6.7266155E-04
+  -8.15000  6.8478137E-04
+  -8.10000  6.9758434E-04
+  -8.05000  7.1112307E-04
+  -8.00000  7.2545466E-04
+  -7.95000  7.4064341E-04
+  -7.90000  7.5675982E-04
+  -7.85000  7.7388081E-04
+  -7.80000  7.9209405E-04
+  -7.75000  8.1149743E-04
+  -7.70000  8.3219864E-04
+  -7.65000  8.5432143E-04
+  -7.60000  8.7800429E-04
+  -7.55000  9.0340435E-04
+  -7.50000  9.3069992E-04
+  -7.45000  9.6009337E-04
+  -7.40000  9.9181765E-04
+  -7.35000  1.0261399E-03
+  -7.30000  1.0633718E-03
+  -7.25000  1.1038717E-03
+  -7.20000  1.1480624E-03
+  -7.15000  1.1964398E-03
+  -7.10000  1.2495885E-03
+  -7.05000  1.3082068E-03
+  -7.00000  1.3731366E-03
+  -6.95000  1.4453979E-03
+  -6.90000  1.5262357E-03
+  -6.85000  1.6172003E-03
+  -6.80000  1.7202258E-03
+  -6.75000  1.8377718E-03
+  -6.70000  1.9730159E-03
+  -6.65000  2.1301385E-03
+  -6.60000  2.3147566E-03
+  -6.55000  2.5346672E-03
+  -6.50000  2.8010758E-03
+  -6.45000  3.1309589E-03
+  -6.40000  3.5521416E-03
+  -6.35000  4.1167528E-03
+  -6.30000  4.9505367E-03
+  -6.25000  6.5787842E-03
+  -6.20000  1.9312396E-02
+  -6.15000  1.3477145E-02
+  -6.10000  1.3919384E-02
+  -6.05000  3.4253522E-02
+  -6.00000  5.5679336E-02
+  -5.95000  1.0267079E-01
+  -5.90000  7.8324456E-01
+  -5.85000  1.9556743E-01
+  -5.80000  1.7962599E-01
+  -5.75000  1.4751289E+00
+  -5.70000  9.3215524E-01
+  -5.65000  1.2751272E-01
+  -5.60000  5.9660084E-01
+  -5.55000  6.3414463E-02
+  -5.50000  1.5938977E-01
+  -5.45000  5.1912960E-01
+  -5.40000  1.7597328E-01
+  -5.35000  2.3239041E-01
+  -5.30000  7.3152719E-01
+  -5.25000  1.0049089E+00
+  -5.20000  1.1870224E+00
+  -5.15000  5.4092273E-01
+  -5.10000  4.2672679E-01
+  -5.05000  2.5515838E-01
+  -5.00000  1.8956357E-01
+  -4.95000  1.0610394E-01
+  -4.90000  1.6836009E-01
+  -4.85000  1.6662596E-01
+  -4.80000  2.3199352E-01
+  -4.75000  2.5411522E-01
+  -4.70000  2.1333594E-01
+  -4.65000  2.9147316E-01
+  -4.60000  1.7635724E-01
+  -4.55000  2.0913515E-01
+  -4.50000  1.8935542E-01
+  -4.45000  1.7901248E-01
+  -4.40000  1.8777788E-01
+  -4.35000  3.2687601E-01
+  -4.30000  2.9446180E-01
+  -4.25000  2.4694192E-01
+  -4.20000  2.1159301E-01
+  -4.15000  1.7905782E-01
+  -4.10000  1.4113968E-01
+  -4.05000  1.4452211E-01
+  -4.00000  1.7177126E-01
+  -3.95000  1.5967525E-01
+  -3.90000  1.8492570E-01
+  -3.85000  2.7410468E-01
+  -3.80000  3.1080849E-01
+  -3.75000  2.4097229E-01
+  -3.70000  2.1350447E-01
+  -3.65000  1.8217895E-01
+  -3.60000  2.4917988E-01
+  -3.55000  3.6823207E-01
+  -3.50000  4.9865065E-01
+  -3.45000  5.8299592E-01
+  -3.40000  7.4489436E-01
+  -3.35000  9.5245373E-01
+  -3.30000  1.0665576E+00
+  -3.25000  1.1801948E+00
+  -3.20000  1.3039695E+00
+  -3.15000  1.0911063E+00
+  -3.10000  8.8444842E-01
+  -3.05000  9.9423593E-01
+  -3.00000  7.2625283E-01
+  -2.95000  4.4585293E-01
+  -2.90000  3.8515150E-01
+  -2.85000  4.1039490E-01
+  -2.80000  3.6276554E-01
+  -2.75000  3.7566625E-01
+  -2.70000  3.8915196E-01
+  -2.65000  3.8177360E-01
+  -2.60000  3.7789939E-01
+  -2.55000  3.8464825E-01
+  -2.50000  4.3571825E-01
+  -2.45000  4.6147796E-01
+  -2.40000  5.5620579E-01
+  -2.35000  3.1765978E-01
+  -2.30000  2.0810682E-01
+  -2.25000  1.7794133E-01
+  -2.20000  1.2816690E-01
+  -2.15000  1.1661019E-01
+  -2.10000  8.3610442E-02
+  -2.05000  6.5766716E-02
+  -2.00000  5.5837088E-02
+  -1.95000  4.8392542E-02
+  -1.90000  4.2582321E-02
+  -1.85000  3.7905172E-02
+  -1.80000  3.4066491E-02
+  -1.75000  3.0871560E-02
+  -1.70000  2.8182685E-02
+  -1.65000  2.5898483E-02
+  -1.60000  2.3942451E-02
+  -1.55000  2.2255622E-02
+  -1.50000  2.0791843E-02
+  -1.45000  1.9514628E-02
+  -1.40000  1.8394757E-02
+  -1.35000  1.7408638E-02
+  -1.30000  1.6537027E-02
+  -1.25000  1.5763905E-02
+  -1.20000  1.5075440E-02
+  -1.15000  1.4461815E-02
+  -1.10000  1.3913886E-02
+  -1.05000  1.3424047E-02
+  -1.00000  1.2985889E-02
+  -0.95000  1.2594024E-02
+  -0.90000  9.8604161E-03
+  -0.85000  9.6852985E-03
+  -0.80000  9.5315647E-03
+  -0.75000  9.3981329E-03
+  -0.70000  9.2842264E-03
+  -0.65000  9.1893674E-03
+  -0.60000  9.1134175E-03
+  -0.55000  9.0566352E-03
+  -0.50000  9.0198051E-03
+  -0.45000  9.0043433E-03
+  -0.40000  9.0125228E-03
+  -0.35000  9.0479330E-03
+  -0.30000  9.1160846E-03
+  -0.25000  9.2255149E-03
+  -0.20000  9.3897460E-03
+  -0.15000  9.6308867E-03
+  -0.10000  9.9867724E-03
+  -0.05000  1.0526036E-02
+  -0.00000  1.1382580E-02
+   0.05000  1.2842918E-02
+   0.10000  1.5593750E-02
+   0.15000  2.1503727E-02
+   0.20000  3.6278258E-02
+   0.25000  7.2804155E-02
+   0.30000  4.7269038E-02
+   0.35000  2.8082047E-02
+   0.40000  1.9837980E-02
+   0.45000  1.6342615E-02
+   0.50000  1.4850971E-02
+   0.55000  1.4373322E-02
+   0.60000  1.4574701E-02
+   0.65000  1.5415871E-02
+   0.70000  1.7070577E-02
+   0.75000  1.9921366E-02
+   0.80000  2.4304835E-02
+   0.85000  2.9260092E-02
+   0.90000  3.2227105E-02
+   0.95000  3.2971239E-02
+   1.00000  3.2889804E-02
+   1.05000  3.3175947E-02
+   1.10000  3.5538294E-02
+   1.15000  4.1329325E-02
+   1.20000  4.6069032E-02
+   1.25000  4.7980125E-02
+   1.30000  5.1001839E-02
+   1.35000  5.6342882E-02
+   1.40000  6.2721465E-02
+   1.45000  6.7480883E-02
+   1.50000  6.7951547E-02
+   1.55000  6.4504559E-02
+   1.60000  6.1952078E-02
+   1.65000  6.3507551E-02
+   1.70000  7.1021442E-02
+   1.75000  8.1635766E-02
+   1.80000  9.6897212E-02
+   1.85000  1.0999152E-01
+   1.90000  1.1099227E-01
+   1.95000  9.8083200E-02
+   2.00000  8.5643231E-02
+   2.05000  7.7357665E-02
+   2.10000  7.3118442E-02
+   2.15000  7.2560496E-02
+   2.20000  7.7673116E-02
+   2.25000  8.6886716E-02
+   2.30000  8.7959554E-02
+   2.35000  8.0886147E-02
+   2.40000  7.4641651E-02
+   2.45000  7.1204027E-02
+   2.50000  6.7839701E-02
+   2.55000  6.4974838E-02
+   2.60000  6.3087086E-02
+   2.65000  6.1787521E-02
+   2.70000  6.0758239E-02
+   2.75000  6.0086057E-02
+   2.80000  5.9735961E-02
+   2.85000  5.9595964E-02
+   2.90000  5.9569101E-02
+   2.95000  5.9582674E-02
+   3.00000  5.9582706E-02
+   3.05000  5.9529253E-02
+   3.10000  5.9393816E-02
+   3.15000  5.9157512E-02
+   3.20000  5.8809545E-02
+   3.25000  5.8345647E-02
+   3.30000  5.7766654E-02
+   3.35000  5.7240742E-02
+   3.40000  5.6406214E-02
+   3.45000  5.5475532E-02
+   3.50000  5.4456499E-02
+   3.55000  5.3377453E-02
+   3.60000  5.2175621E-02
+   3.65000  5.0894691E-02
+   3.70000  4.9532982E-02
+   3.75000  4.8026621E-02
+   3.80000  4.6493304E-02
+   3.85000  4.4904031E-02
+   3.90000  4.3281578E-02
+   3.95000  4.1653683E-02
+   4.00000  4.0048707E-02
+   4.05000  3.8492017E-02
+   4.10000  3.7004622E-02
+   4.15000  3.5603835E-02
+   4.20000  3.4305121E-02
+   4.25000  3.3124342E-02
+   4.30000  3.2079722E-02
+   4.35000  3.1193756E-02
+   4.40000  3.0494742E-02
+   4.45000  3.0016863E-02
+   4.50000  2.9796218E-02
+   4.55000  2.9859446E-02
+   4.60000  3.0208029E-02
+   4.65000  3.0820979E-02
+   4.70000  3.1706145E-02
+   4.75000  3.2976423E-02
+   4.80000  3.4873868E-02
+   4.85000  3.7716454E-02
+   4.90000  4.1770868E-02
+   4.95000  4.6951379E-02
+   5.00000  5.2221744E-02
+   5.05000  5.5214086E-02
+   5.10000  5.3701460E-02
+   5.15000  4.8239532E-02
+   5.20000  4.1521188E-02
+   5.25000  3.5565254E-02
+   5.30000  3.0930649E-02
+   5.35000  2.7384218E-02
+   5.40000  2.4541057E-02
+   5.45000  2.2175947E-02
+   5.50000  2.0214531E-02
+   5.55000  1.8608225E-02
+   5.60000  1.7289721E-02
+   5.65000  1.6193938E-02
+   5.70000  1.5276050E-02
+   5.75000  1.4505902E-02
+   5.80000  1.3858146E-02
+   5.85000  1.3310201E-02
+   5.90000  1.2843315E-02
+   5.95000  1.2442854E-02
+   6.00000  1.2097732E-02
+   6.05000  1.1799628E-02
+   6.10000  1.1542282E-02
+   6.15000  1.1320975E-02
+   6.20000  1.1132147E-02
+   6.25000  1.0973114E-02
+   6.30000  1.0841892E-02
+   6.35000  1.0737045E-02
+   6.40000  1.0657602E-02
+   6.45000  1.0602998E-02
+   6.50000  1.0573010E-02
+   6.55000  1.0567743E-02
+   6.60000  1.0587615E-02
+   6.65000  1.0633350E-02
+   6.70000  1.0706002E-02
+   6.75000  1.0806953E-02
+   6.80000  1.0937960E-02
+   6.85000  1.1100672E-02
+   6.90000  1.1298169E-02
+   6.95000  1.1533674E-02
+   7.00000  1.1811043E-02
+   7.05000  1.2134922E-02
+   7.10000  1.2510859E-02
+   7.15000  1.2945422E-02
+   7.20000  1.3446542E-02
+   7.25000  1.4023638E-02
+   7.30000  1.4687882E-02
+   7.35000  1.5452607E-02
+   7.40000  1.6333705E-02
+   7.45000  1.7350089E-02
+   7.50000  1.8524424E-02
+   7.55000  1.9884109E-02
+   7.60000  2.1462345E-02
+   7.65000  2.3299173E-02
+   7.70000  2.5442905E-02
+   7.75000  2.7951351E-02
+   7.80000  3.0892553E-02
+   7.85000  3.4345143E-02
+   7.90000  3.8396293E-02
+   7.95000  4.3137310E-02
+   8.00000  4.8653712E-02
+   8.05000  5.5008286E-02
+   8.10000  6.2215898E-02
+   8.15000  7.0210056E-02
+   8.20000  7.8809345E-02
+   8.25000  8.7694691E-02
+   8.30000  9.6408947E-02
+   8.35000  1.0438664E-01
+   8.40000  1.1101496E-01
+   8.45000  1.1573034E-01
+   8.50000  1.1814649E-01
+   8.55000  1.1817919E-01
+   8.60000  1.1608724E-01
+   8.65000  1.1238981E-01
+   8.70000  1.0197128E-01
+   8.75000  9.7151350E-02
+   8.80000  9.2476658E-02
+   8.85000  8.8119102E-02
+   8.90000  8.4149133E-02
+   8.95000  8.0568161E-02
+   9.00000  7.7339068E-02
+   9.05000  7.4411286E-02
+   9.10000  7.1738272E-02
+   9.15000  6.9286353E-02
+   9.20000  6.7035714E-02
+   9.25000  6.4977229E-02
+   9.30000  6.3107594E-02
+   9.35000  6.1425413E-02
+   9.40000  5.9928924E-02
+   9.45000  5.8615146E-02
+   9.50000  5.7479952E-02
+   9.55000  5.6518539E-02
+   9.60000  5.5725973E-02
+   9.65000  5.5097583E-02
+   9.70000  5.4629207E-02
+   9.75000  5.4317213E-02
+   9.80000  5.4158514E-02
+   9.85000  5.4150171E-02
+   9.90000  5.4289511E-02
+   9.95000  5.4573974E-02
+   10.0000  5.5001074E-02
+   10.1000  5.6273901E-02
+   10.2000  5.8092163E-02
+   10.3000  6.0447525E-02
+   10.4000  6.3343894E-02
+   10.5000  6.6802034E-02
+   10.6000  7.0863804E-02
+   10.7000  7.5595222E-02
+   10.8000  8.1091381E-02
+   10.9000  8.7482101E-02
+   11.0000  9.4939978E-02
+   11.1000  1.0369041E-01
+   11.2000  1.1402212E-01
+   11.3000  1.2629172E-01
+   11.4000  1.4091238E-01
+   11.5000  1.5830749E-01
+   11.6000  1.7880150E-01
+   11.7000  2.0242470E-01
+   11.8000  2.2862142E-01
+   11.9000  2.5593974E-01
+   12.0000  2.8192676E-01
+   12.1000  3.0353497E-01
+   12.2000  3.1808819E-01
+   12.3000  3.2428310E-01
+   12.4000  3.2247645E-01
+   12.5000  3.1429048E-01
+   12.6000  3.0204330E-01
+   12.7000  2.8783037E-01
+   12.8000  2.7317348E-01
+   12.9000  2.5915230E-01
+   13.0000  2.4663740E-01
+   13.1000  2.3635617E-01
+   13.2000  2.2883045E-01
+   13.3000  2.2427362E-01
+   13.4000  2.2251968E-01
+   13.5000  2.2306849E-01
+   13.6000  2.2526418E-01
+   13.7000  2.2849005E-01
+   13.8000  2.3225993E-01
+   13.9000  2.3620942E-01
+   14.0000  2.4008650E-01
+   14.1000  2.4378809E-01
+   14.2000  2.4739630E-01
+   14.3000  2.5114846E-01
+   14.4000  2.5534027E-01
+   14.5000  2.6022270E-01
+   14.6000  2.6594586E-01
+   14.7000  2.7255667E-01
+   14.8000  2.8002855E-01
+   14.9000  2.8829376E-01
+   15.0000  2.9727240E-01
+   15.1000  3.0688674E-01
+   15.2000  3.1706047E-01
+   15.3000  3.2771579E-01
+   15.4000  3.3876621E-01
+   15.5000  3.5010898E-01
+   15.6000  3.6162195E-01
+   15.7000  3.7317187E-01
+   15.8000  3.8462431E-01
+   15.9000  3.9583282E-01
+   16.0000  4.0664360E-01
+   16.1000  4.1690753E-01
+   16.2000  4.2651589E-01
+   16.3000  4.3542631E-01
+   16.4000  4.4371447E-01
+   16.5000  4.5156435E-01
+   16.6000  4.5922068E-01
+   16.7000  4.6692599E-01
+   16.8000  4.7483052E-01
+   16.9000  4.8293436E-01
+   17.0000  4.9116514E-01
+   17.1000  4.9950799E-01
+   17.2000  5.0804080E-01
+   17.3000  5.1687551E-01
+   17.4000  5.2609779E-01
+   17.5000  5.3573231E-01
+   17.6000  5.4575464E-01
+   17.7000  5.5609205E-01
+   17.8000  5.6663408E-01
+   17.9000  5.7724168E-01
+   18.0000  5.8776112E-01
+   18.1000  5.9802328E-01
+   18.2000  6.0785760E-01
+   18.3000  6.1710079E-01
+   18.4000  6.2559984E-01
+   18.5000  6.3321885E-01
+   18.6000  6.3984279E-01
+   18.7000  6.4538282E-01
+   18.8000  6.4978539E-01
+   18.9000  6.5302244E-01
+   19.0000  6.5507084E-01
+   19.1000  6.5600667E-01
+   19.2000  6.5592407E-01
+   19.3000  6.5495311E-01
+   19.4000  6.5325470E-01
+   19.5000  6.5101430E-01
+   19.6000  6.4843139E-01
+   19.7000  6.4571325E-01
+   19.8000  6.4305953E-01
+   19.9000  6.4065701E-01
+   20.0000  6.3867468E-01
+   20.1000  6.3725684E-01
+   20.2000  6.3652046E-01
+   20.3000  6.3655457E-01
+   20.4000  6.3742125E-01
+   20.5000  6.3915767E-01
+   20.6000  6.4177838E-01
+   20.7000  6.4527753E-01
+   20.8000  6.4963480E-01
+   20.9000  6.5480332E-01
+   21.0000  6.6072244E-01
+   21.1000  6.6731515E-01
+   21.2000  6.7448813E-01
+   21.3000  6.8213451E-01
+   21.4000  6.9013736E-01
+   21.5000  6.9834317E-01
+   21.6000  7.0669596E-01
+   21.7000  7.1506125E-01
+   21.8000  7.2335386E-01
+   21.9000  7.3151383E-01
+   22.0000  7.3951317E-01
+   22.1000  7.4753530E-01
+   22.2000  7.5521689E-01
+   22.3000  7.6279013E-01
+   22.4000  7.7030039E-01
+   22.5000  7.7779255E-01
+   22.6000  7.8530354E-01
+   22.7000  7.9296688E-01
+   22.8000  8.0053552E-01
+   22.9000  8.0809372E-01
+   23.0000  8.1657478E-01
+   23.1000  8.2377626E-01
+   23.2000  8.3046544E-01
+   23.3000  8.3631345E-01
+   23.4000  8.4090590E-01
+   23.5000  8.4374948E-01
+   23.6000  8.4431452E-01
+   23.7000  8.4208919E-01
+   23.8000  8.3664920E-01
+   23.9000  8.2772969E-01
+   24.0000  8.1527906E-01
+   24.1000  7.9947985E-01
+   24.2000  7.8072897E-01
+   24.3000  7.5958321E-01
+   24.4000  7.3668553E-01
+   24.5000  7.1269179E-01
+   24.6000  6.8820681E-01
+   24.7000  6.6374742E-01
+   24.8000  6.3972544E-01
+   24.9000  6.1644644E-01
+   25.0000  5.9412156E-01
+   25.1000  5.7288245E-01
+   25.2000  5.5279402E-01
+   25.3000  5.3387433E-01
+   25.4000  5.1610645E-01
+   25.5000  4.9943656E-01
+   25.6000  4.8378633E-01
+   25.7000  4.6907179E-01
+   25.8000  4.5519580E-01
+   25.9000  4.4207077E-01
+   26.0000  4.2962106E-01
+   26.1000  4.1779379E-01
+   26.2000  4.0656183E-01
+   26.3000  3.9592485E-01
+   26.4000  3.8590159E-01
+   26.5000  3.7651734E-01
+   26.6000  3.6779997E-01
+   26.7000  3.5976967E-01
+   26.8000  3.5243314E-01
+   26.9000  3.4578520E-01
+   27.0000  3.3980999E-01
+   27.1000  3.3448406E-01
+   27.2000  3.2977984E-01
+   27.3000  3.2566717E-01
+   27.4000  3.2211625E-01
+   27.5000  3.1909905E-01
+   27.6000  3.1659007E-01
+   27.7000  3.1456621E-01
+   27.8000  3.1300681E-01
+   27.9000  3.1189345E-01
+   28.0000  3.1120961E-01
+   28.1000  3.1094031E-01
+   28.2000  3.1107178E-01
+   28.3000  3.1159151E-01
+   28.4000  3.1248774E-01
+   28.5000  3.1374928E-01
+   28.6000  3.1536585E-01
+   28.7000  3.1732520E-01
+   28.8000  3.1961573E-01
+   28.9000  3.2222526E-01
+   29.0000  3.2514004E-01
+   29.1000  3.2834591E-01
+   29.2000  3.3182724E-01
+   29.3000  3.3556687E-01
+   29.4000  3.3954617E-01
+   29.5000  3.4374474E-01
+   29.6000  3.4814091E-01
+   29.7000  3.5271159E-01
+   29.8000  3.5743202E-01
+   29.9000  3.6227788E-01
+   30.0000  3.6722379E-01
+   30.1000  3.7224418E-01
+   30.2000  3.7731275E-01
+   30.3000  3.8240624E-01
+   30.4000  3.8750100E-01
+   30.5000  3.9257497E-01
+   30.6000  3.9760909E-01
+   30.7000  4.0258462E-01
+   30.8000  4.0748386E-01
+   30.9000  4.1229199E-01
+   31.0000  4.1699683E-01
+   31.1000  4.2158834E-01
+   31.2000  4.2605830E-01
+   31.3000  4.3040151E-01
+   31.4000  4.3461499E-01
+   31.5000  4.3869664E-01
+   31.6000  4.4264760E-01
+   31.7000  4.4647160E-01
+   31.8000  4.5017340E-01
+   31.9000  4.5375956E-01
+   32.0000  4.5723851E-01
+   32.1000  4.6062034E-01
+   32.2000  4.6391706E-01
+   32.3000  4.6714229E-01
+   32.4000  4.7031075E-01
+   32.5000  4.7343902E-01
+   32.6000  4.7654523E-01
+   32.7000  4.7964870E-01
+   32.8000  4.8277051E-01
+   32.9000  4.8593486E-01
+   33.0000  4.8916440E-01
+   33.1000  4.9248150E-01
+   33.2000  4.9591388E-01
+   33.3000  4.9948809E-01
+   33.4000  5.0323122E-01
+   33.5000  5.0717047E-01
+   33.6000  5.1133321E-01
+   33.7000  5.1574596E-01
+   33.8000  5.2043416E-01
+   33.9000  5.2542141E-01
+   34.0000  5.3072915E-01
+   34.1000  5.3637522E-01
+   34.2000  5.4237489E-01
+   34.3000  5.4873781E-01
+   34.4000  5.5547003E-01
+   34.5000  5.6257312E-01
+   34.6000  5.7004406E-01
+   34.7000  5.7787615E-01
+   34.8000  5.8605650E-01
+   34.9000  5.9456853E-01
+   35.0000  6.0339411E-01
+   35.1000  6.1230235E-01
+   35.2000  6.2139480E-01
+   35.3000  6.3067174E-01
+   35.4000  6.4006722E-01
+   35.5000  6.4948913E-01
+   35.6000  6.5881377E-01
+   35.7000  6.6787952E-01
+   35.8000  6.7648195E-01
+   35.9000  6.8437490E-01
+   36.0000  6.9127604E-01
+   36.1000  6.9688055E-01
+   36.2000  7.0087654E-01
+   36.3000  7.0297237E-01
+   36.4000  7.0292131E-01
+   36.5000  7.0054903E-01
+   36.6000  6.9577352E-01
+   36.7000  6.8861876E-01
+   36.8000  6.7921980E-01
+   36.9000  6.6781182E-01
+   37.0000  6.5468059E-01
+   37.1000  6.4015430E-01
+   37.2000  6.2457459E-01
+   37.3000  6.0827486E-01
+   37.4000  5.9156198E-01
+   37.5000  5.7471172E-01
+   37.6000  5.5796790E-01
+   37.7000  5.4151516E-01
+   37.8000  5.2551006E-01
+   37.9000  5.1007731E-01
+   38.0000  4.9531199E-01
+   38.1000  4.8128339E-01
+   38.2000  4.6803736E-01
+   38.3000  4.5559910E-01
+   38.4000  4.4398579E-01
+   38.5000  4.3318174E-01
+   38.6000  4.2316098E-01
+   38.7000  4.1389081E-01
+   38.8000  4.0532975E-01
+   38.9000  3.9742910E-01
+   39.0000  3.9013679E-01
+   39.1000  3.8339569E-01
+   39.2000  3.7714511E-01
+   39.3000  3.7132702E-01
+   39.4000  3.6588499E-01
+   39.5000  3.6076906E-01
+   39.6000  3.5591907E-01
+   39.7000  3.5128561E-01
+   39.8000  3.4682403E-01
+   39.9000  3.4249388E-01
+   40.0000  3.3825871E-01
+   40.1000  3.3408653E-01
+   40.2000  3.2994827E-01
+   40.3000  3.2582200E-01
+   40.4000  3.2168942E-01
+   40.5000  3.1753621E-01
+   40.6000  3.1335330E-01
+   40.7000  3.0914021E-01
+   40.8000  3.0489445E-01
+   40.9000  3.0061742E-01
+   41.0000  2.9631694E-01
+   41.1000  2.9200479E-01
+   41.2000  2.8769695E-01
+   41.3000  2.8341203E-01
+   41.4000  2.7917138E-01
+   41.5000  2.7499945E-01
+   41.6000  2.7091781E-01
+   41.7000  2.6695056E-01
+   41.8000  2.6312004E-01
+   41.9000  2.5944811E-01
+   42.0000  2.5595389E-01
+   42.1000  2.5265279E-01
+   42.2000  2.4955955E-01
+   42.3000  2.4667943E-01
+   42.4000  2.4401400E-01
+   42.5000  2.4156275E-01
+   42.6000  2.3932209E-01
+   42.7000  2.3728620E-01
+   42.8000  2.3544798E-01
+   42.9000  2.3379995E-01
+   43.0000  2.3233494E-01
+   43.1000  2.3104667E-01
+   43.2000  2.2992994E-01
+   43.3000  2.2898073E-01
+   43.4000  2.2819580E-01
+   43.5000  2.2757253E-01
+   43.6000  2.2710846E-01
+   43.7000  2.2680106E-01
+   43.8000  2.2664787E-01
+   43.9000  2.2664518E-01
+   44.0000  2.2678847E-01
+   44.1000  2.2707077E-01
+   44.2000  2.2748420E-01
+   44.3000  2.2802053E-01
+   44.4000  2.2866998E-01
+   44.5000  2.2942154E-01
+   44.6000  2.3025871E-01
+   44.7000  2.3111632E-01
+   44.8000  2.3203798E-01
+   44.9000  2.3301193E-01
+   45.0000  2.3402719E-01
+   45.1000  2.3507372E-01
+   45.2000  2.3614289E-01
+   45.3000  2.3722814E-01
+   45.4000  2.3832522E-01
+   45.5000  2.3943208E-01
+   45.6000  2.4054912E-01
+   45.7000  2.4167897E-01
+   45.8000  2.4282634E-01
+   45.9000  2.4399742E-01
+   46.0000  2.4519963E-01
+   46.1000  2.4644176E-01
+   46.2000  2.4773249E-01
+   46.3000  2.4908033E-01
+   46.4000  2.5049389E-01
+   46.5000  2.5198018E-01
+   46.6000  2.5354572E-01
+   46.7000  2.5519509E-01
+   46.8000  2.5693111E-01
+   46.9000  2.5875468E-01
+   47.0000  2.6066585E-01
+   47.1000  2.6265968E-01
+   47.2000  2.6472941E-01
+   47.3000  2.6686852E-01
+   47.4000  2.6906679E-01
+   47.5000  2.7131159E-01
+   47.6000  2.7358827E-01
+   47.7000  2.7588194E-01
+   47.8000  2.7817415E-01
+   47.9000  2.8044570E-01
+   48.0000  2.8267535E-01
+   48.1000  2.8484200E-01
+   48.2000  2.8692530E-01
+   48.3000  2.8890376E-01
+   48.4000  2.9075822E-01
+   48.5000  2.9247032E-01
+   48.6000  2.9402357E-01
+   48.7000  2.9540533E-01
+   48.8000  2.9660250E-01
+   48.9000  2.9760655E-01
+   49.0000  2.9841135E-01
+   49.1000  2.9901367E-01
+   49.2000  2.9941281E-01
+   49.3000  2.9961081E-01
+   49.4000  2.9961290E-01
+   49.5000  2.9942618E-01
+   49.6000  2.9905923E-01
+   49.7000  2.9852173E-01
+   49.8000  2.9782509E-01
+   49.9000  2.9698150E-01
+   50.0000  2.9600367E-01
+
+ E_edge     =  4966.00 eV
+
+   run_2_2
+
+ Cluster radius = 5.00 A, nb. of atom =  51
+ Fermi energy calculation : cluster radius = 5.00 A, nb. of atom =  51
+ Potential sup calculation: cluster radius = 7.50 A, nb. of atom = 181
+
+ Point group : 2        (C2   )
+
+ ipr   Z  mult     ch_val    ch_core   ch_total     ch_out   Atom charge
+   1  22    8       2.551     17.859     20.410      0.059      1.590
+   2  22    4       2.601     17.864     20.465      0.000      1.535
+   3   8    8       5.048      2.000      7.048      0.103      0.952
+   4   8    8       5.059      2.000      7.059      0.001      0.941
+   5   8    8       5.049      2.000      7.049      0.005      0.951
+
+ Cycle   1,  Fermi energy = -12.397 eV, Occupancy val abs =  0.743
+
+ Cycle   1: Total energy =      -323191.6 eV,
+             Delta ch (  2) = 1.471, Ch =  3.006, Ch_p =  1.535, Weight = 0.05000, Mod_p =  0
+
+      ipr   Z   Energy_Tot      Charge     Ch-Ch_i  pop_orb_val(L)   L    Radius
+        1  22     -22772.6       1.662       0.073       0.676       2   1.17387
+        2  22     -22782.6       1.609       0.074       0.743       2   1.18010
+        3   8      -2077.9       0.914      -0.037       4.004       1   0.88142
+        4   8      -2078.2       0.906      -0.036       4.095       1   0.88292
+        5   8      -2079.0       0.914      -0.036       4.096       1   0.88156
+
+ Cycle   2,  Fermi energy = -12.054 eV, Occupancy val abs =  0.844
+
+ Cycle   2: Total energy =      -323399.2 eV, Delta energy =    664.546 >   3.600 eV
+             Delta ch (  1) = 1.286, Ch =  2.948, Ch_p =  1.662, Weight = 0.05000, Mod_p =  0
+                                                            Next weight = 0.02500
+
+      ipr   Z   Energy_Tot      Charge     Ch-Ch_i  pop_orb_val(L)   L    Radius
+        1  22     -22800.1       1.694       0.105       0.738       2   1.17387
+        2  22     -22836.6       1.639       0.104       0.844       2   1.18010
+        3   8      -2064.5       0.899      -0.053       3.912       1   0.88142
+        4   8      -2073.5       0.889      -0.052       4.068       1   0.88292
+        5   8      -2068.5       0.899      -0.052       4.025       1   0.88156
+
+ Cycle   3,  Fermi energy = -11.916 eV, Occupancy val abs =  0.888
+
+ Cycle   3: Total energy =      -323495.1 eV, Delta energy =    303.437 >   3.600 eV
+             Delta ch (  1) = 1.196, Ch =  2.891, Ch_p =  1.694, Weight = 0.02500, Mod_p =  0
+
+      ipr   Z   Energy_Tot      Charge     Ch-Ch_i  pop_orb_val(L)   L    Radius
+        1  22     -22817.0       1.724       0.135       0.770       2   1.17387
+        2  22     -22852.7       1.667       0.132       0.888       2   1.18010
+        3   8      -2059.0       0.885      -0.067       3.874       1   0.88142
+        4   8      -2070.8       0.874      -0.067       4.050       1   0.88292
+        5   8      -2063.7       0.884      -0.066       3.992       1   0.88156
+
+ Cycle   4,  Fermi energy = -11.722 eV, Occupancy val abs =  0.934
+
+ Cycle   4: Total energy =      -323535.4 eV, Delta energy =    180.063 >   3.600 eV
+             Delta ch (  1) = 1.145, Ch =  2.869, Ch_p =  1.724, Weight = 0.02500, Mod_p =  0
+
+      ipr   Z   Energy_Tot      Charge     Ch-Ch_i  pop_orb_val(L)   L    Radius
+        1  22     -22823.0       1.753       0.163       0.797       2   1.17387
+        2  22     -22868.3       1.693       0.158       0.934       2   1.18010
+        3   8      -2055.6       0.872      -0.080       3.853       1   0.88142
+        4   8      -2068.9       0.859      -0.082       4.040       1   0.88292
+        5   8      -2060.4       0.871      -0.080       3.971       1   0.88156
+
+ Cycle   5,  Fermi energy = -11.640 eV, Occupancy val abs =  0.979
+
+ Cycle   5: Total energy =      -323653.0 eV, Delta energy =    347.717 >   3.600 eV
+             Delta ch (  1) = 1.042, Ch =  2.795, Ch_p =  1.753, Weight = 0.02500, Mod_p =  0
+
+      ipr   Z   Energy_Tot      Charge     Ch-Ch_i  pop_orb_val(L)   L    Radius
+        1  22     -22843.8       1.779       0.189       0.838       2   1.17387
+        2  22     -22884.9       1.717       0.182       0.979       2   1.18010
+        3   8      -2049.8       0.860      -0.092       3.810       1   0.88142
+        4   8      -2065.5       0.845      -0.096       4.017       1   0.88292
+        5   8      -2055.0       0.859      -0.092       3.931       1   0.88156
+
+ Cycle   6,  Fermi energy = -11.482 eV, Occupancy val abs =  1.013
+
+ Cycle   6: Total energy =      -323696.7 eV, Delta energy =    174.581 >   3.600 eV
+             Delta ch (  1) = 0.983, Ch =  2.762, Ch_p =  1.779, Weight = 0.02500, Mod_p =  0
+
+      ipr   Z   Energy_Tot      Charge     Ch-Ch_i  pop_orb_val(L)   L    Radius
+        1  22     -22852.8       1.803       0.214       0.868       2   1.17387
+        2  22     -22894.0       1.739       0.204       1.013       2   1.18010
+        3   8      -2046.9       0.849      -0.103       3.791       1   0.88142
+        4   8      -2063.3       0.832      -0.110       4.004       1   0.88292
+        5   8      -2052.0       0.847      -0.103       3.911       1   0.88156
+
+ Cycle   7,  Fermi energy = -11.331 eV, Occupancy val abs =  1.047
+
+ Cycle   7: Total energy =      -323737.5 eV, Delta energy =    162.498 >   3.600 eV
+             Delta ch (  1) = 0.928, Ch =  2.731, Ch_p =  1.803, Weight = 0.02500, Mod_p =  0
+
+      ipr   Z   Energy_Tot      Charge     Ch-Ch_i  pop_orb_val(L)   L    Radius
+        1  22     -22861.1       1.827       0.237       0.897       2   1.17387
+        2  22     -22902.8       1.760       0.225       1.047       2   1.18010
+        3   8      -2044.4       0.838      -0.113       3.775       1   0.88142
+        4   8      -2061.1       0.819      -0.122       3.991       1   0.88292
+        5   8      -2049.1       0.837      -0.114       3.892       1   0.88156
+
+ Cycle   8,  Fermi energy = -11.221 eV, Occupancy val abs =  1.084
+
+ Cycle   8: Total energy =      -323804.5 eV, Delta energy =    222.537 >   3.600 eV
+             Delta ch (  1) = 0.862, Ch =  2.688, Ch_p =  1.827, Weight = 0.02500, Mod_p =  0
+
+      ipr   Z   Energy_Tot      Charge     Ch-Ch_i  pop_orb_val(L)   L    Radius
+        1  22     -22872.6       1.848       0.259       0.930       2   1.17387
+        2  22     -22916.0       1.779       0.244       1.084       2   1.18010
+        3   8      -2040.8       0.829      -0.123       3.750       1   0.88142
+        4   8      -2058.5       0.807      -0.134       3.973       1   0.88292
+        5   8      -2045.6       0.827      -0.124       3.867       1   0.88156
+
+ Cycle   9,  Fermi energy = -11.094 eV, Occupancy val abs =  1.117
+
+ Cycle   9: Total energy =      -323845.2 eV, Delta energy =    154.168 >   3.600 eV
+             Delta ch (  1) = 0.813, Ch =  2.661, Ch_p =  1.848, Weight = 0.02500, Mod_p =  0
+
+      ipr   Z   Energy_Tot      Charge     Ch-Ch_i  pop_orb_val(L)   L    Radius
+        1  22     -22879.9       1.869       0.279       0.957       2   1.17387
+        2  22     -22925.8       1.797       0.262       1.117       2   1.18010
+        3   8      -2038.6       0.820      -0.132       3.736       1   0.88142
+        4   8      -2056.3       0.796      -0.145       3.959       1   0.88292
+        5   8      -2043.0       0.818      -0.133       3.849       1   0.88156
+
+ Cycle  10,  Fermi energy = -11.000 eV, Occupancy val abs =  1.147
+
+ Cycle  10: Total energy =      -323907.4 eV, Delta energy =    204.133 >   3.600 eV
+             Delta ch (  1) = 0.746, Ch =  2.615, Ch_p =  1.869, Weight = 0.02500, Mod_p =  0
+
+      ipr   Z   Energy_Tot      Charge     Ch-Ch_i  pop_orb_val(L)   L    Radius
+        1  22     -22892.2       1.887       0.298       0.990       2   1.17387
+        2  22     -22934.5       1.814       0.279       1.147       2   1.18010
+        3   8      -2035.5       0.812      -0.140       3.713       1   0.88142
+        4   8      -2053.7       0.785      -0.156       3.941       1   0.88292
+        5   8      -2039.7       0.810      -0.141       3.825       1   0.88156
+
+ Cycle  11,  Fermi energy = -10.897 eV, Occupancy val abs =  1.177
+
+ Cycle  11: Total energy =      -323947.9 eV, Delta energy =    151.450 >   3.600 eV
+             Delta ch (  1) = 0.696, Ch =  2.583, Ch_p =  1.887, Weight = 0.02500, Mod_p =  0
+
+      ipr   Z   Energy_Tot      Charge     Ch-Ch_i  pop_orb_val(L)   L    Radius
+        1  22     -22900.1       1.905       0.315       1.016       2   1.17387
+        2  22     -22942.8       1.829       0.294       1.177       2   1.18010
+        3   8      -2033.4       0.804      -0.147       3.698       1   0.88142
+        4   8      -2051.4       0.775      -0.166       3.926       1   0.88292
+        5   8      -2037.3       0.802      -0.149       3.808       1   0.88156
+
+ Cycle  12,  Fermi energy = -10.792 eV, Occupancy val abs =  1.205
+
+ Cycle  12: Total energy =      -323980.3 eV, Delta energy =    122.675 >   3.600 eV
+             Delta ch (  1) = 0.657, Ch =  2.562, Ch_p =  1.905, Weight = 0.02500, Mod_p =  0
+
+      ipr   Z   Energy_Tot      Charge     Ch-Ch_i  pop_orb_val(L)   L    Radius
+        1  22     -22906.0       1.921       0.331       1.039       2   1.17387
+        2  22     -22950.4       1.843       0.308       1.205       2   1.18010
+        3   8      -2031.7       0.797      -0.155       3.688       1   0.88142
+        4   8      -2049.4       0.766      -0.175       3.912       1   0.88292
+        5   8      -2035.3       0.795      -0.156       3.794       1   0.88156
+
+ Cycle  13,  Fermi energy = -10.700 eV, Occupancy val abs =  1.230
+
+ Cycle  13: Total energy =      -324018.0 eV, Delta energy =    133.000 >   3.600 eV
+             Delta ch (  1) = 0.613, Ch =  2.534, Ch_p =  1.921, Weight = 0.02500, Mod_p =  0
+
+      ipr   Z   Energy_Tot      Charge     Ch-Ch_i  pop_orb_val(L)   L    Radius
+        1  22     -22913.4       1.936       0.347       1.063       2   1.17387
+        2  22     -22956.8       1.857       0.322       1.230       2   1.18010
+        3   8      -2029.9       0.791      -0.161       3.676       1   0.88142
+        4   8      -2047.3       0.757      -0.184       3.898       1   0.88292
+        5   8      -2033.2       0.788      -0.162       3.779       1   0.88156
+
+ Cycle  14,  Fermi energy = -10.608 eV, Occupancy val abs =  1.256
+
+ Cycle  14: Total energy =      -324048.4 eV, Delta energy =    112.284 >   3.600 eV
+             Delta ch (  1) = 0.577, Ch =  2.513, Ch_p =  1.936, Weight = 0.02500, Mod_p =  0
+
+      ipr   Z   Energy_Tot      Charge     Ch-Ch_i  pop_orb_val(L)   L    Radius
+        1  22     -22918.9       1.951       0.361       1.085       2   1.17387
+        2  22     -22963.6       1.869       0.334       1.256       2   1.18010
+        3   8      -2028.5       0.784      -0.167       3.667       1   0.88142
+        4   8      -2045.4       0.749      -0.192       3.885       1   0.88292
+        5   8      -2031.4       0.782      -0.168       3.767       1   0.88156
+
+ Cycle  15,  Fermi energy = -10.070 eV, Occupancy val abs =  1.216
+
+ Cycle  15: Total energy =      -323731.9 eV, Delta energy =    708.832 >   3.600 eV
+             Delta ch (  1) = 0.712, Ch =  2.663, Ch_p =  1.951, Weight = 0.02500, Mod_p =  0
+
+      ipr   Z   Energy_Tot      Charge     Ch-Ch_i  pop_orb_val(L)   L    Radius
+        1  22     -22878.9       1.969       0.379       1.055       2   1.17387
+        2  22     -22915.5       1.886       0.351       1.216       2   1.18010
+        3   8      -2040.4       0.775      -0.176       3.781       1   0.88142
+        4   8      -2049.3       0.740      -0.201       3.926       1   0.88292
+        5   8      -2040.1       0.774      -0.176       3.852       1   0.88156
+
+ Cycle  16,  Fermi energy =  -9.948 eV, Occupancy val abs =  1.252
+
+ Cycle  16: Total energy =      -323777.1 eV, Delta energy =    154.237 >   3.600 eV
+             Delta ch (  1) = 0.667, Ch =  2.636, Ch_p =  1.969, Weight = 0.02500, Mod_p =  0
+
+      ipr   Z   Energy_Tot      Charge     Ch-Ch_i  pop_orb_val(L)   L    Radius
+        1  22     -22886.3       1.985       0.396       1.082       2   1.17387
+        2  22     -22925.8       1.901       0.366       1.252       2   1.18010
+        3   8      -2037.5       0.767      -0.185       3.761       1   0.88142
+        4   8      -2047.7       0.731      -0.210       3.915       1   0.88292
+        5   8      -2037.8       0.767      -0.184       3.836       1   0.88156
+
+ Cycle  17,  Fermi energy =  -9.838 eV, Occupancy val abs =  1.286
+
+ Cycle  17: Total energy =      -323821.3 eV, Delta energy =    148.503 >   3.600 eV
+             Delta ch (  1) = 0.624, Ch =  2.609, Ch_p =  1.985, Weight = 0.02500, Mod_p =  0
+
+      ipr   Z   Energy_Tot      Charge     Ch-Ch_i  pop_orb_val(L)   L    Radius
+        1  22     -22893.5       2.001       0.411       1.108       2   1.17387
+        2  22     -22935.3       1.915       0.380       1.286       2   1.18010
+        3   8      -2034.8       0.760      -0.192       3.743       1   0.88142
+        4   8      -2046.0       0.723      -0.218       3.904       1   0.88292
+        5   8      -2035.6       0.760      -0.191       3.821       1   0.88156
+
+ Cycle  18,  Fermi energy =  -9.735 eV, Occupancy val abs =  1.318
+
+ Cycle  18: Total energy =      -323862.8 eV, Delta energy =    139.658 >   3.600 eV
+             Delta ch (  1) = 0.583, Ch =  2.584, Ch_p =  2.001, Weight = 0.02500, Mod_p =  0
+
+      ipr   Z   Energy_Tot      Charge     Ch-Ch_i  pop_orb_val(L)   L    Radius
+        1  22     -22900.3       2.015       0.426       1.133       2   1.17387
+        2  22     -22944.4       1.928       0.393       1.318       2   1.18010
+        3   8      -2032.4       0.753      -0.199       3.726       1   0.88142
+        4   8      -2044.4       0.716      -0.226       3.893       1   0.88292
+        5   8      -2033.5       0.754      -0.197       3.806       1   0.88156
+
+ Cycle  19,  Fermi energy =  -9.642 eV, Occupancy val abs =  1.348
+
+ Cycle  19: Total energy =      -323902.9 eV, Delta energy =    133.437 >   3.600 eV
+             Delta ch (  1) = 0.544, Ch =  2.559, Ch_p =  2.015, Weight = 0.02500, Mod_p =  0
+
+      ipr   Z   Energy_Tot      Charge     Ch-Ch_i  pop_orb_val(L)   L    Radius
+        1  22     -22907.0       2.029       0.439       1.157       2   1.17387
+        2  22     -22952.8       1.939       0.404       1.348       2   1.18010
+        3   8      -2030.2       0.746      -0.206       3.711       1   0.88142
+        4   8      -2042.7       0.708      -0.233       3.882       1   0.88292
+        5   8      -2031.6       0.748      -0.203       3.792       1   0.88156
+
+ Cycle  20,  Fermi energy =  -9.557 eV, Occupancy val abs =  1.376
+
+ Cycle  20: Total energy =      -323941.7 eV, Delta energy =    127.116 >   3.600 eV
+             Delta ch (  1) = 0.507, Ch =  2.536, Ch_p =  2.029, Weight = 0.02500, Mod_p =  0
+
+      ipr   Z   Energy_Tot      Charge     Ch-Ch_i  pop_orb_val(L)   L    Radius
+        1  22     -22913.3       2.042       0.452       1.180       2   1.17387
+        2  22     -22960.8       1.950       0.415       1.376       2   1.18010
+        3   8      -2028.2       0.740      -0.211       3.697       1   0.88142
+        4   8      -2041.1       0.702      -0.240       3.871       1   0.88292
+        5   8      -2029.7       0.742      -0.208       3.779       1   0.88156
+
+ Cycle  21,  Fermi energy =  -9.476 eV, Occupancy val abs =  1.402
+
+ Cycle  21: Total energy =      -323977.4 eV, Delta energy =    116.369 >   3.600 eV
+             Delta ch (  1) = 0.473, Ch =  2.515, Ch_p =  2.042, Weight = 0.02500, Mod_p =  0
+
+      ipr   Z   Energy_Tot      Charge     Ch-Ch_i  pop_orb_val(L)   L    Radius
+        1  22     -22919.1       2.054       0.464       1.201       2   1.17387
+        2  22     -22968.3       1.959       0.424       1.402       2   1.18010
+        3   8      -2026.4       0.735      -0.217       3.684       1   0.88142
+        4   8      -2039.6       0.695      -0.246       3.861       1   0.88292
+        5   8      -2028.0       0.737      -0.213       3.767       1   0.88156
+
+ Cycle  22,  Fermi energy =  -9.402 eV, Occupancy val abs =  1.425
+
+ Cycle  22: Total energy =      -324009.2 eV, Delta energy =    106.954 >   3.600 eV
+             Delta ch (  1) = 0.440, Ch =  2.493, Ch_p =  2.054, Weight = 0.02500, Mod_p =  0
+
+      ipr   Z   Energy_Tot      Charge     Ch-Ch_i  pop_orb_val(L)   L    Radius
+        1  22     -22924.8       2.065       0.475       1.222       2   1.17387
+        2  22     -22974.2       1.968       0.433       1.425       2   1.18010
+        3   8      -2024.7       0.730      -0.222       3.673       1   0.88142
+        4   8      -2038.1       0.689      -0.252       3.850       1   0.88292
+        5   8      -2026.4       0.733      -0.218       3.756       1   0.88156
+
+ Cycle  23,  Fermi energy =  -9.333 eV, Occupancy val abs =  1.445
+
+ Cycle  23: Total energy =      -324038.6 eV, Delta energy =     99.411 >   3.600 eV
+             Delta ch (  1) = 0.408, Ch =  2.473, Ch_p =  2.065, Weight = 0.02500, Mod_p =  0
+
+      ipr   Z   Energy_Tot      Charge     Ch-Ch_i  pop_orb_val(L)   L    Radius
+        1  22     -22930.2       2.075       0.485       1.241       2   1.17387
+        2  22     -22979.4       1.976       0.441       1.445       2   1.18010
+        3   8      -2023.2       0.725      -0.226       3.663       1   0.88142
+        4   8      -2036.7       0.684      -0.257       3.841       1   0.88292
+        5   8      -2025.0       0.729      -0.222       3.746       1   0.88156
+
+ Cycle  24,  Fermi energy =  -9.270 eV, Occupancy val abs =  1.465
+
+ Cycle  24: Total energy =      -324067.1 eV, Delta energy =     95.151 >   3.600 eV
+             Delta ch (  1) = 0.380, Ch =  2.455, Ch_p =  2.075, Weight = 0.02500, Mod_p =  0
+
+      ipr   Z   Energy_Tot      Charge     Ch-Ch_i  pop_orb_val(L)   L    Radius
+        1  22     -22935.0       2.084       0.495       1.259       2   1.17387
+        2  22     -22985.4       1.984       0.449       1.465       2   1.18010
+        3   8      -2021.8       0.721      -0.231       3.653       1   0.88142
+        4   8      -2035.3       0.679      -0.262       3.831       1   0.88292
+        5   8      -2023.6       0.725      -0.226       3.736       1   0.88156
+
+ Cycle  25,  Fermi energy =  -9.230 eV, Occupancy val abs =  1.480
+
+ Cycle  25: Total energy =      -324103.5 eV, Delta energy =    111.529 >   3.600 eV
+             Delta ch (  1) = 0.343, Ch =  2.427, Ch_p =  2.084, Weight = 0.02500, Mod_p =  0
+
+      ipr   Z   Energy_Tot      Charge     Ch-Ch_i  pop_orb_val(L)   L    Radius
+        1  22     -22942.4       2.093       0.503       1.280       2   1.17387
+        2  22     -22989.1       1.991       0.456       1.480       2   1.18010
+        3   8      -2020.1       0.717      -0.234       3.640       1   0.88142
+        4   8      -2033.8       0.674      -0.267       3.821       1   0.88292
+        5   8      -2022.0       0.721      -0.229       3.724       1   0.88156
+
+ Cycle  26,  Fermi energy =  -9.183 eV, Occupancy val abs =  1.496
+
+ Cycle  26: Total energy =      -324131.2 eV, Delta energy =     89.676 >   3.600 eV
+             Delta ch (  1) = 0.316, Ch =  2.409, Ch_p =  2.093, Weight = 0.02500, Mod_p =  0
+
+      ipr   Z   Energy_Tot      Charge     Ch-Ch_i  pop_orb_val(L)   L    Radius
+        1  22     -22947.2       2.101       0.511       1.296       2   1.17387
+        2  22     -22994.2       1.997       0.462       1.496       2   1.18010
+        3   8      -2018.8       0.714      -0.238       3.630       1   0.88142
+        4   8      -2032.5       0.670      -0.271       3.812       1   0.88292
+        5   8      -2020.8       0.718      -0.233       3.715       1   0.88156
+
+ Cycle  27,  Fermi energy =  -9.105 eV, Occupancy val abs =  1.511
+
+ Cycle  27: Total energy =      -324134.7 eV, Delta energy =     31.868 >   3.600 eV
+             Delta ch (  1) = 0.306, Ch =  2.407, Ch_p =  2.101, Weight = 0.02500, Mod_p =  0
+
+      ipr   Z   Energy_Tot      Charge     Ch-Ch_i  pop_orb_val(L)   L    Radius
+        1  22     -22947.6       2.108       0.519       1.306       2   1.17387
+        2  22     -22997.8       2.002       0.467       1.511       2   1.18010
+        3   8      -2018.5       0.710      -0.241       3.629       1   0.88142
+        4   8      -2031.7       0.666      -0.276       3.806       1   0.88292
+        5   8      -2020.2       0.715      -0.236       3.712       1   0.88156
+
+ Cycle  28,  Fermi energy =  -9.062 eV, Occupancy val abs =  1.524
+
+ Cycle  28: Total energy =      -324157.0 eV, Delta energy =     74.422 >   3.600 eV
+             Delta ch (  1) = 0.284, Ch =  2.393, Ch_p =  2.108, Weight = 0.02500, Mod_p =  0
+
+      ipr   Z   Energy_Tot      Charge     Ch-Ch_i  pop_orb_val(L)   L    Radius
+        1  22     -22951.3       2.115       0.526       1.319       2   1.17387
+        2  22     -23002.4       2.007       0.472       1.524       2   1.18010
+        3   8      -2017.4       0.707      -0.244       3.621       1   0.88142
+        4   8      -2030.5       0.662      -0.279       3.798       1   0.88292
+        5   8      -2019.2       0.713      -0.238       3.705       1   0.88156
+
+ Cycle  29,  Fermi energy =  -9.015 eV, Occupancy val abs =  1.534
+
+ Cycle  29: Total energy =      -324171.9 eV, Delta energy =     55.795 >   3.600 eV
+             Delta ch (  1) = 0.264, Ch =  2.380, Ch_p =  2.115, Weight = 0.02500, Mod_p =  0
+
+      ipr   Z   Energy_Tot      Charge     Ch-Ch_i  pop_orb_val(L)   L    Radius
+        1  22     -22954.6       2.122       0.533       1.332       2   1.17387
+        2  22     -23004.6       2.012       0.477       1.534       2   1.18010
+        3   8      -2016.6       0.705      -0.247       3.616       1   0.88142
+        4   8      -2029.6       0.658      -0.283       3.792       1   0.88292
+        5   8      -2018.3       0.710      -0.241       3.699       1   0.88156
+
+ Cycle  30,  Fermi energy =  -8.971 eV, Occupancy val abs =  1.542
+
+ Cycle  30: Total energy =      -324186.4 eV, Delta energy =     53.887 >   3.600 eV
+             Delta ch (  1) = 0.245, Ch =  2.367, Ch_p =  2.122, Weight = 0.02500, Mod_p =  0
+
+      ipr   Z   Energy_Tot      Charge     Ch-Ch_i  pop_orb_val(L)   L    Radius
+        1  22     -22958.0       2.128       0.539       1.344       2   1.17387
+        2  22     -23006.4       2.016       0.481       1.542       2   1.18010
+        3   8      -2015.9       0.702      -0.250       3.611       1   0.88142
+        4   8      -2028.7       0.655      -0.286       3.786       1   0.88292
+        5   8      -2017.6       0.708      -0.243       3.693       1   0.88156
+
+ Cycle  31,  Fermi energy =  -8.929 eV, Occupancy val abs =  1.550
+
+ Cycle  31: Total energy =      -324198.9 eV, Delta energy =     47.967 >   3.600 eV
+             Delta ch (  1) = 0.226, Ch =  2.354, Ch_p =  2.128, Weight = 0.02500, Mod_p =  0
+
+      ipr   Z   Energy_Tot      Charge     Ch-Ch_i  pop_orb_val(L)   L    Radius
+        1  22     -22961.1       2.134       0.544       1.355       2   1.17387
+        2  22     -23007.7       2.020       0.485       1.550       2   1.18010
+        3   8      -2015.2       0.699      -0.252       3.606       1   0.88142
+        4   8      -2027.8       0.652      -0.289       3.780       1   0.88292
+        5   8      -2016.9       0.706      -0.245       3.689       1   0.88156
+
+ Cycle  32,  Fermi energy =  -8.893 eV, Occupancy val abs =  1.559
+
+ Cycle  32: Total energy =      -324213.4 eV, Delta energy =     51.739 >   3.600 eV
+             Delta ch (  1) = 0.211, Ch =  2.345, Ch_p =  2.134, Weight = 0.02500, Mod_p =  0
+
+      ipr   Z   Energy_Tot      Charge     Ch-Ch_i  pop_orb_val(L)   L    Radius
+        1  22     -22963.4       2.139       0.550       1.364       2   1.17387
+        2  22     -23011.4       2.024       0.489       1.559       2   1.18010
+        3   8      -2014.4       0.697      -0.255       3.601       1   0.88142
+        4   8      -2027.0       0.649      -0.292       3.774       1   0.88292
+        5   8      -2016.1       0.704      -0.247       3.684       1   0.88156
+
+ Cycle  33,  Fermi energy =  -8.857 eV, Occupancy val abs =  1.564
+
+ Cycle  33: Total energy =      -324223.8 eV, Delta energy =     40.923 >   3.600 eV
+             Delta ch (  1) = 0.195, Ch =  2.334, Ch_p =  2.139, Weight = 0.02500, Mod_p =  0
+
+      ipr   Z   Energy_Tot      Charge     Ch-Ch_i  pop_orb_val(L)   L    Radius
+        1  22     -22966.2       2.144       0.555       1.374       2   1.17387
+        2  22     -23012.3       2.027       0.492       1.564       2   1.18010
+        3   8      -2013.8       0.695      -0.257       3.597       1   0.88142
+        4   8      -2026.3       0.646      -0.295       3.769       1   0.88292
+        5   8      -2015.5       0.702      -0.249       3.679       1   0.88156
+
+ Cycle  34,  Fermi energy =  -8.812 eV, Occupancy val abs =  1.567
+
+ Cycle  34: Total energy =      -324226.1 eV, Delta energy =     31.974 >   3.600 eV
+             Delta ch (  1) = 0.182, Ch =  2.326, Ch_p =  2.144, Weight = 0.02500, Mod_p =  0
+
+      ipr   Z   Energy_Tot      Charge     Ch-Ch_i  pop_orb_val(L)   L    Radius
+        1  22     -22968.3       2.149       0.559       1.382       2   1.17387
+        2  22     -23011.0       2.030       0.495       1.567       2   1.18010
+        3   8      -2013.6       0.693      -0.259       3.596       1   0.88142
+        4   8      -2025.7       0.644      -0.297       3.766       1   0.88292
+        5   8      -2015.2       0.700      -0.251       3.678       1   0.88156
+
+ Cycle  35,  Fermi energy =  -8.778 eV, Occupancy val abs =  1.572
+
+ Cycle  35: Total energy =      -324235.1 eV, Delta energy =     36.517 >   3.600 eV
+             Delta ch (  1) = 0.168, Ch =  2.316, Ch_p =  2.149, Weight = 0.02500, Mod_p =  0
+
+      ipr   Z   Energy_Tot      Charge     Ch-Ch_i  pop_orb_val(L)   L    Radius
+        1  22     -22970.7       2.153       0.563       1.390       2   1.17387
+        2  22     -23012.0       2.034       0.498       1.572       2   1.18010
+        3   8      -2013.0       0.691      -0.261       3.592       1   0.88142
+        4   8      -2025.1       0.642      -0.300       3.762       1   0.88292
+        5   8      -2014.7       0.699      -0.252       3.674       1   0.88156
+
+ Cycle  36,  Fermi energy =  -8.748 eV, Occupancy val abs =  1.579
+
+ Cycle  36: Total energy =      -324244.8 eV, Delta energy =     36.872 >   3.600 eV
+             Delta ch (  1) = 0.158, Ch =  2.310, Ch_p =  2.153, Weight = 0.02500, Mod_p =  0
+
+      ipr   Z   Energy_Tot      Charge     Ch-Ch_i  pop_orb_val(L)   L    Radius
+        1  22     -22972.1       2.157       0.567       1.396       2   1.17387
+        2  22     -23015.0       2.036       0.501       1.579       2   1.18010
+        3   8      -2012.4       0.689      -0.262       3.588       1   0.88142
+        4   8      -2024.5       0.639      -0.302       3.758       1   0.88292
+        5   8      -2014.2       0.697      -0.254       3.671       1   0.88156
+
+ Cycle  37,  Fermi energy =  -8.719 eV, Occupancy val abs =  1.581
+
+ Cycle  37: Total energy =      -324252.1 eV, Delta energy =     30.602 >   3.600 eV
+             Delta ch (  1) = 0.145, Ch =  2.301, Ch_p =  2.157, Weight = 0.02500, Mod_p =  0
+
+      ipr   Z   Energy_Tot      Charge     Ch-Ch_i  pop_orb_val(L)   L    Radius
+        1  22     -22974.2       2.160       0.571       1.403       2   1.17387
+        2  22     -23015.4       2.039       0.504       1.581       2   1.18010
+        3   8      -2011.9       0.688      -0.264       3.584       1   0.88142
+        4   8      -2023.9       0.637      -0.304       3.754       1   0.88292
+        5   8      -2013.7       0.696      -0.255       3.668       1   0.88156
+
+ Cycle  38,  Fermi energy =  -8.692 eV, Occupancy val abs =  1.584
+
+ Cycle  38: Total energy =      -324258.2 eV, Delta energy =     27.508 >   3.600 eV
+             Delta ch (  1) = 0.133, Ch =  2.293, Ch_p =  2.160, Weight = 0.02500, Mod_p =  0
+
+      ipr   Z   Energy_Tot      Charge     Ch-Ch_i  pop_orb_val(L)   L    Radius
+        1  22     -22976.3       2.164       0.574       1.409       2   1.17387
+        2  22     -23015.4       2.041       0.506       1.584       2   1.18010
+        3   8      -2011.5       0.686      -0.265       3.582       1   0.88142
+        4   8      -2023.4       0.635      -0.306       3.751       1   0.88292
+        5   8      -2013.3       0.695      -0.256       3.665       1   0.88156
+
+ Cycle  39,  Fermi energy =  -8.660 eV, Occupancy val abs =  1.587
+
+ Cycle  39: Total energy =      -324260.2 eV, Delta energy =     16.939 >   3.600 eV
+             Delta ch (  1) = 0.125, Ch =  2.288, Ch_p =  2.164, Weight = 0.02500, Mod_p =  0
+
+      ipr   Z   Energy_Tot      Charge     Ch-Ch_i  pop_orb_val(L)   L    Radius
+        1  22     -22977.3       2.167       0.577       1.414       2   1.17387
+        2  22     -23015.8       2.044       0.509       1.587       2   1.18010
+        3   8      -2011.2       0.685      -0.267       3.580       1   0.88142
+        4   8      -2023.0       0.634      -0.308       3.748       1   0.88292
+        5   8      -2013.1       0.694      -0.257       3.664       1   0.88156
+
+ Cycle  40,  Fermi energy =  -8.630 eV, Occupancy val abs =  1.589
+
+ Cycle  40: Total energy =      -324261.7 eV, Delta energy =     15.206 >   3.600 eV
+             Delta ch (  1) = 0.118, Ch =  2.284, Ch_p =  2.167, Weight = 0.02500, Mod_p =  0
+
+      ipr   Z   Energy_Tot      Charge     Ch-Ch_i  pop_orb_val(L)   L    Radius
+        1  22     -22978.2       2.170       0.580       1.418       2   1.17387
+        2  22     -23016.1       2.046       0.511       1.589       2   1.18010
+        3   8      -2011.0       0.684      -0.268       3.579       1   0.88142
+        4   8      -2022.6       0.632      -0.309       3.746       1   0.88292
+        5   8      -2012.8       0.692      -0.258       3.662       1   0.88156
+
+ Cycle  41,  Fermi energy =  -8.600 eV, Occupancy val abs =  1.592
+
+ Cycle  41: Total energy =      -324262.7 eV, Delta energy =     13.626 >   3.600 eV
+             Delta ch (  1) = 0.111, Ch =  2.281, Ch_p =  2.170, Weight = 0.02500, Mod_p =  0
+
+      ipr   Z   Energy_Tot      Charge     Ch-Ch_i  pop_orb_val(L)   L    Radius
+        1  22     -22978.9       2.172       0.583       1.421       2   1.17387
+        2  22     -23016.5       2.048       0.513       1.592       2   1.18010
+        3   8      -2010.8       0.682      -0.269       3.578       1   0.88142
+        4   8      -2022.3       0.630      -0.311       3.744       1   0.88292
+        5   8      -2012.6       0.691      -0.259       3.661       1   0.88156
+
+ Cycle  42,  Fermi energy =  -8.581 eV, Occupancy val abs =  1.593
+
+ Cycle  42: Total energy =      -324269.4 eV, Delta energy =     26.257 >   3.600 eV
+             Delta ch (  1) = 0.100, Ch =  2.272, Ch_p =  2.172, Weight = 0.02500, Mod_p =  0
+
+      ipr   Z   Energy_Tot      Charge     Ch-Ch_i  pop_orb_val(L)   L    Radius
+        1  22     -22981.0       2.175       0.585       1.426       2   1.17387
+        2  22     -23016.5       2.050       0.515       1.593       2   1.18010
+        3   8      -2010.3       0.681      -0.271       3.574       1   0.88142
+        4   8      -2021.9       0.629      -0.312       3.741       1   0.88292
+        5   8      -2012.3       0.690      -0.260       3.659       1   0.88156
+
+ Cycle  43,  Fermi energy =  -8.554 eV, Occupancy val abs =  1.595
+
+ Cycle  43: Total energy =      -324269.2 eV, Delta energy =      9.594 >   3.600 eV
+             Delta ch (  1) = 0.095, Ch =  2.270, Ch_p =  2.175, Weight = 0.02500, Mod_p =  0
+
+      ipr   Z   Energy_Tot      Charge     Ch-Ch_i  pop_orb_val(L)   L    Radius
+        1  22     -22981.4       2.177       0.588       1.429       2   1.17387
+        2  22     -23016.7       2.052       0.517       1.595       2   1.18010
+        3   8      -2010.1       0.680      -0.272       3.574       1   0.88142
+        4   8      -2021.6       0.628      -0.314       3.739       1   0.88292
+        5   8      -2012.1       0.690      -0.261       3.658       1   0.88156
+
+ Cycle  44,  Fermi energy =  -8.527 eV, Occupancy val abs =  1.597
+
+ Cycle  44: Total energy =      -324268.7 eV, Delta energy =      8.575 >   3.600 eV
+             Delta ch (  1) = 0.090, Ch =  2.268, Ch_p =  2.177, Weight = 0.02500, Mod_p =  0
+
+      ipr   Z   Energy_Tot      Charge     Ch-Ch_i  pop_orb_val(L)   L    Radius
+        1  22     -22981.9       2.180       0.590       1.431       2   1.17387
+        2  22     -23016.9       2.054       0.519       1.597       2   1.18010
+        3   8      -2010.0       0.679      -0.273       3.573       1   0.88142
+        4   8      -2021.4       0.626      -0.315       3.738       1   0.88292
+        5   8      -2012.0       0.689      -0.262       3.658       1   0.88156
+
+ Cycle  45,  Fermi energy =  -8.501 eV, Occupancy val abs =  1.598
+
+ Cycle  45: Total energy =      -324268.0 eV, Delta energy =      7.630 >   3.600 eV
+             Delta ch (  1) = 0.086, Ch =  2.265, Ch_p =  2.180, Weight = 0.02500, Mod_p =  0
+
+      ipr   Z   Energy_Tot      Charge     Ch-Ch_i  pop_orb_val(L)   L    Radius
+        1  22     -22982.2       2.182       0.592       1.433       2   1.17387
+        2  22     -23017.1       2.056       0.521       1.598       2   1.18010
+        3   8      -2009.8       0.678      -0.274       3.572       1   0.88142
+        4   8      -2021.1       0.625      -0.316       3.737       1   0.88292
+        5   8      -2011.8       0.688      -0.263       3.657       1   0.88156
+
+ Cycle  46,  Fermi energy =  -8.476 eV, Occupancy val abs =  1.600
+
+ Cycle  46: Total energy =      -324267.0 eV, Delta energy =      6.767 >   3.600 eV
+             Delta ch (  1) = 0.082, Ch =  2.264, Ch_p =  2.182, Weight = 0.02500, Mod_p =  0
+
+      ipr   Z   Energy_Tot      Charge     Ch-Ch_i  pop_orb_val(L)   L    Radius
+        1  22     -22982.5       2.184       0.594       1.435       2   1.17387
+        2  22     -23017.2       2.058       0.523       1.600       2   1.18010
+        3   8      -2009.7       0.677      -0.275       3.572       1   0.88142
+        4   8      -2020.9       0.624      -0.317       3.736       1   0.88292
+        5   8      -2011.7       0.687      -0.264       3.656       1   0.88156
+
+ Cycle  47,  Fermi energy =  -8.466 eV, Occupancy val abs =  1.600
+
+ Cycle  47: Total energy =      -324274.4 eV, Delta energy =     27.384 >   3.600 eV
+             Delta ch (  1) = 0.071, Ch =  2.255, Ch_p =  2.184, Weight = 0.02500, Mod_p =  0
+
+      ipr   Z   Energy_Tot      Charge     Ch-Ch_i  pop_orb_val(L)   L    Radius
+        1  22     -22984.7       2.186       0.596       1.439       2   1.17387
+        2  22     -23017.0       2.059       0.524       1.600       2   1.18010
+        3   8      -2009.2       0.676      -0.275       3.568       1   0.88142
+        4   8      -2020.6       0.623      -0.318       3.733       1   0.88292
+        5   8      -2011.3       0.686      -0.264       3.654       1   0.88156
+
+ Cycle  48,  Fermi energy =  -8.437 eV, Occupancy val abs =  1.600
+
+ Cycle  48: Total energy =      -324271.6 eV, Delta energy =     12.816 >   3.600 eV
+             Delta ch (  2) = 0.071, Ch =  2.131, Ch_p =  2.059, Weight = 0.02500, Mod_p =  0
+
+      ipr   Z   Energy_Tot      Charge     Ch-Ch_i  pop_orb_val(L)   L    Radius
+        1  22     -22985.2       2.187       0.598       1.440       2   1.17387
+        2  22     -23015.2       2.061       0.526       1.600       2   1.18010
+        3   8      -2009.3       0.676      -0.276       3.569       1   0.88142
+        4   8      -2020.5       0.622      -0.320       3.733       1   0.88292
+        5   8      -2011.4       0.686      -0.265       3.655       1   0.88156
+
+ Cycle  49,  Fermi energy =  -8.427 eV, Occupancy val abs =  1.601
+
+ Cycle  49: Total energy =      -324276.8 eV, Delta energy =     19.268 >   3.600 eV
+             Delta ch (  2) = 0.066, Ch =  2.127, Ch_p =  2.061, Weight = 0.02500, Mod_p =  0
+
+      ipr   Z   Energy_Tot      Charge     Ch-Ch_i  pop_orb_val(L)   L    Radius
+        1  22     -22986.3       2.189       0.599       1.442       2   1.17387
+        2  22     -23016.1       2.063       0.528       1.601       2   1.18010
+        3   8      -2008.9       0.675      -0.277       3.566       1   0.88142
+        4   8      -2020.2       0.621      -0.321       3.731       1   0.88292
+        5   8      -2011.1       0.685      -0.266       3.653       1   0.88156
+
+ Cycle  50,  Fermi energy =  -8.406 eV, Occupancy val abs =  1.603
+
+ Cycle  50: Total energy =      -324274.8 eV, Delta energy =      3.621 >   3.600 eV
+             Delta ch (  2) = 0.063, Ch =  2.125, Ch_p =  2.063, Weight = 0.02500, Mod_p =  0
+
+      ipr   Z   Energy_Tot      Charge     Ch-Ch_i  pop_orb_val(L)   L    Radius
+        1  22     -22986.3       2.190       0.601       1.442       2   1.17387
+        2  22     -23016.3       2.064       0.529       1.603       2   1.18010
+        3   8      -2008.8       0.674      -0.278       3.566       1   0.88142
+        4   8      -2020.1       0.620      -0.321       3.730       1   0.88292
+        5   8      -2011.0       0.684      -0.266       3.653       1   0.88156
+
+ Cycle  51,  Fermi energy =  -8.385 eV, Occupancy val abs =  1.604
+
+ Cycle  51: Total energy =      -324272.8 eV, Delta energy =      3.323 <   3.600 eV,  Weight = 0.02500. Converged !
+
+      ipr   Z   Energy_Tot      Charge     Ch-Ch_i  pop_orb_val(L)   L    Radius
+        1  22     -22986.2       2.192       0.602       1.443       2   1.17387
+        2  22     -23016.5       2.066       0.531       1.604       2   1.18010
+        3   8      -2008.7       0.673      -0.278       3.566       1   0.88142
+        4   8      -2020.0       0.619      -0.322       3.730       1   0.88292
+        5   8      -2011.0       0.684      -0.267       3.653       1   0.88156
+
+  ia   Z  it  igr ipr iap     posx      posy      posz   igrpt PtGrName Comp  Axe  Mag
+   1  22   0    2   0   1   0.00000   0.00000   0.00000    4      2       F    T    F
+   2   8   2   16   4   2   1.24714   0.81104  -1.13757    1      1       F    F    F
+   3   8   2   17   5   5   0.97707  -1.67707   0.26140    1      1       F    F    F
+   4   8   2   21   4   7   1.02499   0.81104   1.62137    1      1       F    F    F
+   5  22   1    1   1   8   0.00155   2.47305   1.75101    1      1       F    F    F
+   6   8   2   19   5  11   1.29506  -1.67707  -2.49754    1      1       F    F    F
+   7  22   1   12   1  13   2.27058   2.47305  -1.00793    1      1       F    F    F
+   8  22   1   11   1  14   2.27367  -2.47305  -1.00793    1      1       F    F    F
+   9   8   2   24   3  17   1.32429   3.27849   0.49697    1      1       F    F    F
+  10  22   1    8   2  18   2.27213   0.00000   2.75894    1      1       F    F    F
+  11  22   1    8   2  21   2.27213   0.00000  -2.75894    1      1       F    F    F
+  12   8   2   34   4  23   3.29712  -0.81104  -1.13757    1      1       F    F    F
+  13   8   2   19   5  25   1.29506  -1.67707   3.02035    1      1       F    F    F
+  14   8   2   31   5  27   3.56719   1.67707   0.26140    1      1       F    F    F
+  15   8   2   27   4  28   3.51926  -0.81104   1.62137    1      1       F    F    F
+  16   8   2   13   3  31   0.94784   3.27849  -2.26197    1      1       F    F    F
+  17   8   2   21   4  33   1.02499   0.81104  -3.89652    1      1       F    F    F
+  18   8   2   29   5  35   3.24919   1.67707  -2.49754    1      1       F    F    F
+  19   8   2   23   3  36   1.32429  -4.16974  -0.94302    1      1       F    F    F
+  20  22   1    1   1  38   0.00155   2.47305  -3.76688    1      1       F    F    F
+  21  22   1    2   2  41   4.54426   0.00000   0.00000    1      1       F    F    F
+  22   8   2   25   3  42   3.21997  -3.27849   0.49697    1      1       F    F    F
+  23   8   2   16   4  45   1.24714   0.81104   4.38032    1      1       F    F    F
+  24   8   2   14   3  46   0.94784  -4.16974   1.81593    1      1       F    F    F
+  25   8   2   13   3  49   0.94784   3.27849   3.25592    1      1       F    F    F
+  26   8   2   29   5  51   3.24919   1.67707   3.02035    1      1       F    F    F
+
+     V0bdcF =   -16.984 eV,     Vhbdc =    -6.903 eV,     rsbdc =   1.936 a.u.
+
+ ipr    Z     Atom-Charge  Atom-Radius Ionic-Charge Ionic-Radius     Vmft
+   0   22*        2.067        1.166        3.554        0.860      -21.423
+   1   22         2.346        1.139        3.701        0.860      -21.423
+   2   22         2.034        1.187        3.625        0.860      -21.423
+   3    8         0.859        0.847       -1.564        1.400      -21.423
+   4    8         0.555        0.896       -1.611        1.400      -21.423
+   5    8         0.783        0.862       -1.550        1.400      -21.423
+Epsii used =  4854.589 eV
+ Number of Energies =  811
+    Energy    <xanes>    
+  -20.0000  4.1020432E-04
+  -19.0000  5.8649480E-04
+  -18.0000  2.6404448E-03
+  -17.0000  1.8557640E-02
+  -16.0000  4.6679953E-03
+  -15.0000  5.3134771E-04
+  -14.0000  3.2360615E-04
+  -13.0000  2.5762282E-04
+  -12.0000  2.2842729E-04
+  -11.0000  2.1547941E-04
+  -10.0000  2.1348965E-04
+  -9.95000  2.1366639E-04
+  -9.90000  2.1387103E-04
+  -9.85000  2.1410398E-04
+  -9.80000  2.1436565E-04
+  -9.75000  2.1465645E-04
+  -9.70000  2.1497690E-04
+  -9.65000  2.1532749E-04
+  -9.60000  2.1570877E-04
+  -9.55000  2.1612119E-04
+  -9.50000  2.1656554E-04
+  -9.45000  2.1704249E-04
+  -9.40000  2.1755278E-04
+  -9.35000  2.1809715E-04
+  -9.30000  2.1867637E-04
+  -9.25000  2.1929129E-04
+  -9.20000  2.1994287E-04
+  -9.15000  2.2063206E-04
+  -9.10000  2.2135986E-04
+  -9.05000  2.2212731E-04
+  -9.00000  2.2293542E-04
+  -8.95000  2.2378549E-04
+  -8.90000  2.2467885E-04
+  -8.85000  2.2561680E-04
+  -8.80000  2.2660071E-04
+  -8.75000  2.2763217E-04
+  -8.70000  2.2871277E-04
+  -8.65000  2.2984418E-04
+  -8.60000  2.3102816E-04
+  -8.55000  2.3226650E-04
+  -8.50000  2.3356126E-04
+  -8.45000  2.3491434E-04
+  -8.40000  2.3632817E-04
+  -8.35000  2.3780498E-04
+  -8.30000  2.3934738E-04
+  -8.25000  2.4095804E-04
+  -8.20000  2.4263972E-04
+  -8.15000  2.4439544E-04
+  -8.10000  2.4622827E-04
+  -8.05000  2.4814170E-04
+  -8.00000  2.5013930E-04
+  -7.95000  2.5222460E-04
+  -7.90000  2.5440185E-04
+  -7.85000  2.5667528E-04
+  -7.80000  2.5904978E-04
+  -7.75000  2.6153027E-04
+  -7.70000  2.6412189E-04
+  -7.65000  2.6683046E-04
+  -7.60000  2.6966198E-04
+  -7.55000  2.7262294E-04
+  -7.50000  2.7572036E-04
+  -7.45000  2.7896169E-04
+  -7.40000  2.8235472E-04
+  -7.35000  2.8590801E-04
+  -7.30000  2.8963117E-04
+  -7.25000  2.9353432E-04
+  -7.20000  2.9762833E-04
+  -7.15000  3.0192498E-04
+  -7.10000  3.0643691E-04
+  -7.05000  3.1117794E-04
+  -7.00000  3.1616274E-04
+  -6.95000  3.2140805E-04
+  -6.90000  3.2693105E-04
+  -6.85000  3.3275170E-04
+  -6.80000  3.3889140E-04
+  -6.75000  3.4537357E-04
+  -6.70000  3.5222331E-04
+  -6.65000  3.5946934E-04
+  -6.60000  3.6714243E-04
+  -6.55000  3.7527722E-04
+  -6.50000  3.8391203E-04
+  -6.45000  3.9308859E-04
+  -6.40000  4.0285384E-04
+  -6.35000  4.1326136E-04
+  -6.30000  4.2437024E-04
+  -6.25000  4.3624672E-04
+  -6.20000  4.4896536E-04
+  -6.15000  4.6261105E-04
+  -6.10000  4.7728027E-04
+  -6.05000  4.9308319E-04
+  -6.00000  5.1014596E-04
+  -5.95000  5.2861137E-04
+  -5.90000  5.4864890E-04
+  -5.85000  5.7045461E-04
+  -5.80000  5.9425691E-04
+  -5.75000  6.2032387E-04
+  -5.70000  6.4897674E-04
+  -5.65000  6.8059557E-04
+  -5.60000  7.1563991E-04
+  -5.55000  7.5467225E-04
+  -5.50000  7.9838474E-04
+  -5.45000  8.4763475E-04
+  -5.40000  9.0351255E-04
+  -5.35000  9.6741373E-04
+  -5.30000  1.0411594E-03
+  -5.25000  1.1271956E-03
+  -5.20000  1.2288683E-03
+  -5.15000  1.3509525E-03
+  -5.10000  1.5005699E-03
+  -5.05000  1.6892560E-03
+  -5.00000  1.9389217E-03
+  -4.95000  2.3164844E-03
+  -4.90000  4.2144404E-03
+  -4.85000  3.5560294E-03
+  -4.80000  4.4815498E-03
+  -4.75000  6.7764124E-03
+  -4.70000  1.4259964E-02
+  -4.65000  1.4551604E-01
+  -4.60000  2.7641828E-01
+  -4.55000  4.3721505E-02
+  -4.50000  3.4773307E-02
+  -4.45000  5.0321163E-01
+  -4.40000  4.5268824E-02
+  -4.35000  5.0935169E-02
+  -4.30000  4.7261597E-01
+  -4.25000  7.7754025E-02
+  -4.20000  5.7587037E-01
+  -4.15000  2.3739453E-01
+  -4.10000  9.6359832E-03
+  -4.05000  1.2193155E-01
+  -4.00000  3.2317447E-01
+  -3.95000  5.1770828E-01
+  -3.90000  1.2635913E-01
+  -3.85000  3.3828276E-01
+  -3.80000  1.6461443E-01
+  -3.75000  3.7685045E-02
+  -3.70000  7.2551714E-02
+  -3.65000  7.5046524E-02
+  -3.60000  1.0884980E-01
+  -3.55000  9.2837651E-02
+  -3.50000  5.2253611E-02
+  -3.45000  1.1352865E-01
+  -3.40000  4.9668032E-02
+  -3.35000  5.4569176E-02
+  -3.30000  8.6728198E-02
+  -3.25000  2.0595677E-01
+  -3.20000  1.0871569E-01
+  -3.15000  1.1087761E-01
+  -3.10000  1.3549263E-01
+  -3.05000  2.1316926E-01
+  -3.00000  1.2158508E-01
+  -2.95000  1.3773691E-01
+  -2.90000  1.2778392E-01
+  -2.85000  8.1351679E-02
+  -2.80000  6.4889867E-02
+  -2.75000  9.9024637E-02
+  -2.70000  1.1217526E-01
+  -2.65000  7.0310135E-02
+  -2.60000  6.6951488E-02
+  -2.55000  5.8741053E-02
+  -2.50000  5.9569733E-02
+  -2.45000  7.5578051E-02
+  -2.40000  1.2098155E-01
+  -2.35000  1.8411799E-01
+  -2.30000  3.0343127E-01
+  -2.25000  3.9000508E-01
+  -2.20000  3.1319077E-01
+  -2.15000  2.8922818E-01
+  -2.10000  2.2874353E-01
+  -2.05000  2.1381662E-01
+  -2.00000  2.3774695E-01
+  -1.95000  2.8425424E-01
+  -1.90000  3.0716152E-01
+  -1.85000  3.1747622E-01
+  -1.80000  2.5972191E-01
+  -1.75000  2.2522111E-01
+  -1.70000  2.7479943E-01
+  -1.65000  2.9758157E-01
+  -1.60000  1.9613832E-01
+  -1.55000  1.5217097E-01
+  -1.50000  1.6007868E-01
+  -1.45000  2.3120172E-01
+  -1.40000  2.9626612E-01
+  -1.35000  2.2822652E-01
+  -1.30000  1.7189315E-01
+  -1.25000  1.2218543E-01
+  -1.20000  8.5701136E-02
+  -1.15000  7.6440163E-02
+  -1.10000  7.4957590E-02
+  -1.05000  7.7257161E-02
+  -1.00000  8.4197361E-02
+  -0.95000  8.4370113E-02
+  -0.90000  7.5930303E-02
+  -0.85000  6.9591192E-02
+  -0.80000  5.8322747E-02
+  -0.75000  4.9818958E-02
+  -0.70000  4.5747976E-02
+  -0.65000  4.1293050E-02
+  -0.60000  3.5437914E-02
+  -0.55000  3.0784217E-02
+  -0.50000  2.7508977E-02
+  -0.45000  2.4555881E-02
+  -0.40000  2.1019373E-02
+  -0.35000  1.9141613E-02
+  -0.30000  2.1453269E-02
+  -0.25000  2.9907012E-02
+  -0.20000  1.5231462E-02
+  -0.15000  1.0470915E-02
+  -0.10000  9.0480620E-03
+  -0.05000  8.2527903E-03
+  -0.00000  7.6665728E-03
+   0.05000  7.1868689E-03
+   0.10000  6.7778453E-03
+   0.15000  6.4229036E-03
+   0.20000  6.1124899E-03
+   0.25000  5.8402820E-03
+   0.30000  5.6017254E-03
+   0.35000  5.3934258E-03
+   0.40000  5.2128667E-03
+   0.45000  5.0582773E-03
+   0.50000  4.9284846E-03
+   0.55000  4.8229831E-03
+   0.60000  4.7425107E-03
+   0.65000  4.6885620E-03
+   0.70000  4.6639658E-03
+   0.75000  4.6733951E-03
+   0.80000  4.7242443E-03
+   0.85000  4.8280490E-03
+   0.90000  5.0030247E-03
+   0.95000  5.2786472E-03
+   1.00000  5.7043387E-03
+   1.05000  6.3669017E-03
+   1.10000  7.4282400E-03
+   1.15000  9.0590135E-03
+   1.20000  1.2609593E-02
+   1.25000  1.9930179E-02
+   1.30000  3.6525795E-02
+   1.35000  6.4307633E-02
+   1.40000  5.8600262E-02
+   1.45000  6.1974093E-02
+   1.50000  3.9561529E-02
+   1.55000  2.0654735E-02
+   1.60000  1.4039276E-02
+   1.65000  1.0975995E-02
+   1.70000  9.3335933E-03
+   1.75000  8.4074331E-03
+   1.80000  7.9098902E-03
+   1.85000  7.7131602E-03
+   1.90000  7.7643296E-03
+   1.95000  8.0481447E-03
+   2.00000  8.5492000E-03
+   2.05000  9.1835305E-03
+   2.10000  9.8286115E-03
+   2.15000  1.0621835E-02
+   2.20000  1.1813507E-02
+   2.25000  1.3289121E-02
+   2.30000  1.4258446E-02
+   2.35000  1.4305854E-02
+   2.40000  1.4233028E-02
+   2.45000  1.4754718E-02
+   2.50000  1.6131692E-02
+   2.55000  1.8941930E-02
+   2.60000  2.4842929E-02
+   2.65000  3.6235431E-02
+   2.70000  5.0416829E-02
+   2.75000  5.0129908E-02
+   2.80000  5.4242978E-02
+   2.85000  5.1404463E-02
+   2.90000  3.3510227E-02
+   2.95000  2.4577368E-02
+   3.00000  2.1750937E-02
+   3.05000  2.2717476E-02
+   3.10000  2.6805890E-02
+   3.15000  3.1653878E-02
+   3.20000  3.6262638E-02
+   3.25000  3.9962670E-02
+   3.30000  4.1114010E-02
+   3.35000  4.2813010E-02
+   3.40000  4.7955601E-02
+   3.45000  5.4073045E-02
+   3.50000  5.4970146E-02
+   3.55000  5.3134157E-02
+   3.60000  5.0082598E-02
+   3.65000  4.7510725E-02
+   3.70000  4.6886050E-02
+   3.75000  4.7193826E-02
+   3.80000  4.6671424E-02
+   3.85000  4.5906305E-02
+   3.90000  4.5308736E-02
+   3.95000  4.5062243E-02
+   4.00000  4.5127436E-02
+   4.05000  4.5373739E-02
+   4.10000  4.5719435E-02
+   4.15000  4.6132239E-02
+   4.20000  4.6610706E-02
+   4.25000  4.7172438E-02
+   4.30000  4.7846544E-02
+   4.35000  4.8669672E-02
+   4.40000  4.9681506E-02
+   4.45000  5.0916770E-02
+   4.50000  5.2393055E-02
+   4.55000  5.4092935E-02
+   4.60000  5.5942493E-02
+   4.65000  5.7793114E-02
+   4.70000  5.9422341E-02
+   4.75000  6.0569010E-02
+   4.80000  6.1001858E-02
+   4.85000  6.0591164E-02
+   4.90000  5.9341022E-02
+   4.95000  5.7366324E-02
+   5.00000  5.4838664E-02
+   5.05000  5.1936460E-02
+   5.10000  4.8816881E-02
+   5.15000  4.5607801E-02
+   5.20000  4.1722845E-02
+   5.25000  3.8662780E-02
+   5.30000  3.5743879E-02
+   5.35000  3.2999596E-02
+   5.40000  3.0449742E-02
+   5.45000  2.8103366E-02
+   5.50000  2.5961625E-02
+   5.55000  2.4020152E-02
+   5.60000  2.2270946E-02
+   5.65000  2.0703622E-02
+   5.70000  1.9306068E-02
+   5.75000  1.8064990E-02
+   5.80000  1.6967311E-02
+   5.85000  1.6002310E-02
+   5.90000  1.5161402E-02
+   5.95000  1.4408344E-02
+   6.00000  1.3790272E-02
+   6.05000  1.3265399E-02
+   6.10000  1.2837106E-02
+   6.15000  1.2511652E-02
+   6.20000  1.2288090E-02
+   6.25000  1.2156649E-02
+   6.30000  1.2148646E-02
+   6.35000  1.2240750E-02
+   6.40000  1.2492647E-02
+   6.45000  1.2905473E-02
+   6.50000  1.3383868E-02
+   6.55000  1.3693499E-02
+   6.60000  1.3537265E-02
+   6.65000  1.2783782E-02
+   6.70000  1.1601039E-02
+   6.75000  1.0300264E-02
+   6.80000  9.1151269E-03
+   6.85000  8.1389152E-03
+   6.90000  7.3699458E-03
+   6.95000  6.7694728E-03
+   7.00000  6.2956621E-03
+   7.05000  5.9150841E-03
+   7.10000  5.6035953E-03
+   7.15000  5.3442842E-03
+   7.20000  5.1253350E-03
+   7.25000  4.9384096E-03
+   7.30000  4.7775374E-03
+   7.35000  4.6383758E-03
+   7.40000  4.5177226E-03
+   7.45000  4.4131968E-03
+   7.50000  4.3230009E-03
+   7.55000  4.2458028E-03
+   7.60000  4.1806156E-03
+   7.65000  4.1267204E-03
+   7.70000  4.0836265E-03
+   7.75000  4.0510359E-03
+   7.80000  4.0288425E-03
+   7.85000  4.0170835E-03
+   7.90000  4.0159543E-03
+   7.95000  4.0258167E-03
+   8.00000  4.0472206E-03
+   8.05000  4.0808799E-03
+   8.10000  4.1277340E-03
+   8.15000  4.1889642E-03
+   8.20000  4.2659981E-03
+   8.25000  4.3605275E-03
+   8.30000  4.4745232E-03
+   8.35000  4.6102162E-03
+   8.40000  4.7700062E-03
+   8.45000  4.9563832E-03
+   8.50000  5.1718269E-03
+   8.55000  5.4188247E-03
+   8.60000  5.7001522E-03
+   8.65000  6.0193805E-03
+   8.70000  6.3816696E-03
+   8.75000  6.7945254E-03
+   8.80000  7.2683489E-03
+   8.85000  7.8167570E-03
+   8.90000  8.4568182E-03
+   8.95000  9.2095293E-03
+   9.00000  1.0100535E-02
+   9.05000  1.1161026E-02
+   9.10000  1.2428124E-02
+   9.15000  1.3948329E-02
+   9.20000  1.5775385E-02
+   9.25000  1.7969244E-02
+   9.30000  2.0590086E-02
+   9.35000  2.3684286E-02
+   9.40000  2.7257751E-02
+   9.45000  3.1233909E-02
+   9.50000  3.5404605E-02
+   9.55000  3.9405647E-02
+   9.60000  4.2769038E-02
+   9.65000  4.5075054E-02
+   9.70000  4.6130236E-02
+   9.75000  4.6035661E-02
+   9.80000  4.5098295E-02
+   9.85000  4.3677768E-02
+   9.90000  4.2076606E-02
+   9.95000  4.0502359E-02
+   10.0000  3.9073964E-02
+   10.1000  3.6805424E-02
+   10.2000  3.5160389E-02
+   10.3000  3.3654622E-02
+   10.4000  3.1809141E-02
+   10.5000  2.9489007E-02
+   10.6000  2.6963864E-02
+   10.7000  2.4615505E-02
+   10.8000  2.2673438E-02
+   10.9000  2.1192097E-02
+   11.0000  2.0135473E-02
+   11.1000  1.9444689E-02
+   11.2000  1.9067390E-02
+   11.3000  1.8964573E-02
+   11.4000  1.9109325E-02
+   11.5000  1.9484301E-02
+   11.6000  2.0079733E-02
+   11.7000  2.0891933E-02
+   11.8000  2.1922263E-02
+   11.9000  2.3176447E-02
+   12.0000  2.5109763E-02
+   12.1000  2.6920902E-02
+   12.2000  2.9000689E-02
+   12.3000  3.1367882E-02
+   12.4000  3.4043068E-02
+   12.5000  3.7048966E-02
+   12.6000  4.0412567E-02
+   12.7000  4.4169894E-02
+   12.8000  4.8373905E-02
+   12.9000  5.3104471E-02
+   13.0000  5.8477467E-02
+   13.1000  6.4648713E-02
+   13.2000  7.1807143E-02
+   13.3000  8.0145085E-02
+   13.4000  8.9787105E-02
+   13.5000  1.0064520E-01
+   13.6000  1.1219645E-01
+   13.7000  1.2329574E-01
+   13.8000  1.3232096E-01
+   13.9000  1.3785928E-01
+   14.0000  1.3951823E-01
+   14.1000  1.3811866E-01
+   14.2000  1.3521824E-01
+   14.3000  1.3246429E-01
+   14.4000  1.3109122E-01
+   14.5000  1.3168679E-01
+   14.6000  1.3422782E-01
+   14.7000  1.3826879E-01
+   14.8000  1.4313157E-01
+   14.9000  1.4798188E-01
+   15.0000  1.5183443E-01
+   15.1000  1.5370464E-01
+   15.2000  1.5322934E-01
+   15.3000  1.5084125E-01
+   15.4000  1.4725437E-01
+   15.5000  1.4303579E-01
+   15.6000  1.3861384E-01
+   15.7000  1.3439901E-01
+   15.8000  1.3079657E-01
+   15.9000  1.2814807E-01
+   16.0000  1.2668598E-01
+   16.1000  1.2652965E-01
+   16.2000  1.2770966E-01
+   16.3000  1.3020048E-01
+   16.4000  1.3394832E-01
+   16.5000  1.3888928E-01
+   16.6000  1.4494876E-01
+   16.7000  1.5204288E-01
+   16.8000  1.6007853E-01
+   16.9000  1.6894058E-01
+   17.0000  1.7849036E-01
+   17.1000  1.8856460E-01
+   17.2000  1.9897121E-01
+   17.3000  2.0950720E-01
+   17.4000  2.1997111E-01
+   17.5000  2.3017769E-01
+   17.6000  2.3994297E-01
+   17.7000  2.4907397E-01
+   17.8000  2.5735276E-01
+   17.9000  2.6457830E-01
+   18.0000  2.7067501E-01
+   18.1000  2.7577356E-01
+   18.2000  2.8018183E-01
+   18.3000  2.8425837E-01
+   18.4000  2.8829635E-01
+   18.5000  2.9247010E-01
+   18.6000  2.9682498E-01
+   18.7000  3.0128765E-01
+   18.8000  3.0568543E-01
+   18.9000  3.0979423E-01
+   19.0000  3.1339460E-01
+   19.1000  3.1632666E-01
+   19.2000  3.1851736E-01
+   19.3000  3.1997254E-01
+   19.4000  3.2074829E-01
+   19.5000  3.2091989E-01
+   19.6000  3.2056132E-01
+   19.7000  3.1974302E-01
+   19.8000  3.1853200E-01
+   19.9000  3.1699309E-01
+   20.0000  3.1519054E-01
+   20.1000  3.1318771E-01
+   20.2000  3.1104497E-01
+   20.3000  3.0881829E-01
+   20.4000  3.0655981E-01
+   20.5000  3.0431369E-01
+   20.6000  3.0212117E-01
+   20.7000  3.0001940E-01
+   20.8000  2.9804162E-01
+   20.9000  2.9621711E-01
+   21.0000  2.9457094E-01
+   21.1000  2.9312392E-01
+   21.2000  2.9189192E-01
+   21.3000  2.9088583E-01
+   21.4000  2.9011217E-01
+   21.5000  2.8957241E-01
+   21.6000  2.8926173E-01
+   21.7000  2.8917237E-01
+   21.8000  2.8929322E-01
+   21.9000  2.8960695E-01
+   22.0000  2.9008744E-01
+   22.1000  2.9073322E-01
+   22.2000  2.9152528E-01
+   22.3000  2.9244500E-01
+   22.4000  2.9347521E-01
+   22.5000  2.9460143E-01
+   22.6000  2.9581349E-01
+   22.7000  2.9710707E-01
+   22.8000  2.9848120E-01
+   22.9000  2.9994269E-01
+   23.0000  3.0150449E-01
+   23.1000  3.0318472E-01
+   23.2000  3.0500535E-01
+   23.3000  3.0698982E-01
+   23.4000  3.0916023E-01
+   23.5000  3.1153539E-01
+   23.6000  3.1412774E-01
+   23.7000  3.1694110E-01
+   23.8000  3.1996882E-01
+   23.9000  3.2319260E-01
+   24.0000  3.2658278E-01
+   24.1000  3.3030755E-01
+   24.2000  3.3390220E-01
+   24.3000  3.3750678E-01
+   24.4000  3.4105531E-01
+   24.5000  3.4447965E-01
+   24.6000  3.4771241E-01
+   24.7000  3.5068957E-01
+   24.8000  3.5335203E-01
+   24.9000  3.5564621E-01
+   25.0000  3.5752370E-01
+   25.1000  3.5894137E-01
+   25.2000  3.5985996E-01
+   25.3000  3.6024362E-01
+   25.4000  3.6006075E-01
+   25.5000  3.5928557E-01
+   25.6000  3.5790147E-01
+   25.7000  3.5590074E-01
+   25.8000  3.5329139E-01
+   25.9000  3.5009643E-01
+   26.0000  3.4635526E-01
+   26.1000  3.4212149E-01
+   26.2000  3.3746320E-01
+   26.3000  3.3243894E-01
+   26.4000  3.2716159E-01
+   26.5000  3.2169353E-01
+   26.6000  3.1610877E-01
+   26.7000  3.1046941E-01
+   26.8000  3.0482638E-01
+   26.9000  2.9921705E-01
+   27.0000  2.9366550E-01
+   27.1000  2.8818554E-01
+   27.2000  2.8278003E-01
+   27.3000  2.7744832E-01
+   27.4000  2.7216276E-01
+   27.5000  2.6697713E-01
+   27.6000  2.6186829E-01
+   27.7000  2.5684715E-01
+   27.8000  2.5192925E-01
+   27.9000  2.4668093E-01
+   28.0000  2.4201867E-01
+   28.1000  2.3751516E-01
+   28.2000  2.3318358E-01
+   28.3000  2.2903244E-01
+   28.4000  2.2506539E-01
+   28.5000  2.2128189E-01
+   28.6000  2.1767830E-01
+   28.7000  2.1424864E-01
+   28.8000  2.1098676E-01
+   28.9000  2.0788733E-01
+   29.0000  2.0494687E-01
+   29.1000  2.0216448E-01
+   29.2000  1.9954289E-01
+   29.3000  1.9708708E-01
+   29.4000  1.9480480E-01
+   29.5000  1.9270606E-01
+   29.6000  1.9080199E-01
+   29.7000  1.8910431E-01
+   29.8000  1.8762474E-01
+   29.9000  1.8637431E-01
+   30.0000  1.8536561E-01
+   30.1000  1.8460337E-01
+   30.2000  1.8409424E-01
+   30.3000  1.8384339E-01
+   30.4000  1.8385441E-01
+   30.5000  1.8412936E-01
+   30.6000  1.8466852E-01
+   30.7000  1.8547024E-01
+   30.8000  1.8653139E-01
+   30.9000  1.8784697E-01
+   31.0000  1.8941005E-01
+   31.1000  1.9121142E-01
+   31.2000  1.9323963E-01
+   31.3000  1.9548115E-01
+   31.4000  1.9791830E-01
+   31.5000  2.0053115E-01
+   31.6000  2.0329667E-01
+   31.7000  2.0618886E-01
+   31.8000  2.0917943E-01
+   31.9000  2.1223679E-01
+   32.0000  2.1532765E-01
+   32.1000  2.1841697E-01
+   32.2000  2.2147026E-01
+   32.3000  2.2445281E-01
+   32.4000  2.2733156E-01
+   32.5000  2.3007552E-01
+   32.6000  2.3265703E-01
+   32.7000  2.3505233E-01
+   32.8000  2.3724231E-01
+   32.9000  2.3921302E-01
+   33.0000  2.4095580E-01
+   33.1000  2.4246723E-01
+   33.2000  2.4374887E-01
+   33.3000  2.4480683E-01
+   33.4000  2.4565122E-01
+   33.5000  2.4629592E-01
+   33.6000  2.4675627E-01
+   33.7000  2.4704986E-01
+   33.8000  2.4719565E-01
+   33.9000  2.4721306E-01
+   34.0000  2.4712177E-01
+   34.1000  2.4694118E-01
+   34.2000  2.4669024E-01
+   34.3000  2.4638721E-01
+   34.4000  2.4604961E-01
+   34.5000  2.4569417E-01
+   34.6000  2.4533679E-01
+   34.7000  2.4499261E-01
+   34.8000  2.4467599E-01
+   34.9000  2.4440056E-01
+   35.0000  2.4417926E-01
+   35.1000  2.4402433E-01
+   35.2000  2.4394762E-01
+   35.3000  2.4396097E-01
+   35.4000  2.4407262E-01
+   35.5000  2.4429303E-01
+   35.6000  2.4463056E-01
+   35.7000  2.4509253E-01
+   35.8000  2.4568529E-01
+   35.9000  2.4641409E-01
+   36.0000  2.4728256E-01
+   36.1000  2.4829098E-01
+   36.2000  2.4943834E-01
+   36.3000  2.5072066E-01
+   36.4000  2.5213048E-01
+   36.5000  2.5365692E-01
+   36.6000  2.5528535E-01
+   36.7000  2.5699882E-01
+   36.8000  2.5877775E-01
+   36.9000  2.6060055E-01
+   37.0000  2.6244569E-01
+   37.1000  2.6429335E-01
+   37.2000  2.6612747E-01
+   37.3000  2.6793579E-01
+   37.4000  2.6970916E-01
+   37.5000  2.7144372E-01
+   37.6000  2.7313375E-01
+   37.7000  2.7476821E-01
+   37.8000  2.7632532E-01
+   37.9000  2.7776919E-01
+   38.0000  2.7904792E-01
+   38.1000  2.8009686E-01
+   38.2000  2.8084592E-01
+   38.3000  2.8123096E-01
+   38.4000  2.8120637E-01
+   38.5000  2.8075545E-01
+   38.6000  2.7989656E-01
+   38.7000  2.7868052E-01
+   38.8000  2.7718452E-01
+   38.9000  2.7549553E-01
+   39.0000  2.7370256E-01
+   39.1000  2.7191153E-01
+   39.2000  2.7015269E-01
+   39.3000  2.6846342E-01
+   39.4000  2.6686152E-01
+   39.5000  2.6534638E-01
+   39.6000  2.6390180E-01
+   39.7000  2.6249911E-01
+   39.8000  2.6110317E-01
+   39.9000  2.5967173E-01
+   40.0000  2.5815964E-01
+   40.1000  2.5652443E-01
+   40.2000  2.5472788E-01
+   40.3000  2.5273786E-01
+   40.4000  2.5052965E-01
+   40.5000  2.4808695E-01
+   40.6000  2.4540154E-01
+   40.7000  2.4247497E-01
+   40.8000  2.3931599E-01
+   40.9000  2.3594019E-01
+   41.0000  2.3236824E-01
+   41.1000  2.2862920E-01
+   41.2000  2.2474864E-01
+   41.3000  2.2075410E-01
+   41.4000  2.1667384E-01
+   41.5000  2.1253414E-01
+   41.6000  2.0835835E-01
+   41.7000  2.0416775E-01
+   41.8000  1.9998064E-01
+   41.9000  1.9581250E-01
+   42.0000  1.9167752E-01
+   42.1000  1.8758876E-01
+   42.2000  1.8355770E-01
+   42.3000  1.7959697E-01
+   42.4000  1.7571954E-01
+   42.5000  1.7193882E-01
+   42.6000  1.6827057E-01
+   42.7000  1.6472526E-01
+   42.8000  1.6131257E-01
+   42.9000  1.5804101E-01
+   43.0000  1.5491606E-01
+   43.1000  1.5194090E-01
+   43.2000  1.4911611E-01
+   43.3000  1.4643954E-01
+   43.4000  1.4390739E-01
+   43.5000  1.4151454E-01
+   43.6000  1.3925489E-01
+   43.7000  1.3712287E-01
+   43.8000  1.3511291E-01
+   43.9000  1.3322007E-01
+   44.0000  1.3144000E-01
+   44.1000  1.2976904E-01
+   44.2000  1.2820374E-01
+   44.3000  1.2674124E-01
+   44.4000  1.2537891E-01
+   44.5000  1.2411165E-01
+   44.6000  1.2293524E-01
+   44.7000  1.2184506E-01
+   44.8000  1.2083608E-01
+   44.9000  1.1990301E-01
+   45.0000  1.1904075E-01
+   45.1000  1.1824419E-01
+   45.2000  1.1750919E-01
+   45.3000  1.1683212E-01
+   45.4000  1.1621011E-01
+   45.5000  1.1564128E-01
+   45.6000  1.1512476E-01
+   45.7000  1.1466036E-01
+   45.8000  1.1424906E-01
+   45.9000  1.1389273E-01
+   46.0000  1.1359402E-01
+   46.1000  1.1335616E-01
+   46.2000  1.1318289E-01
+   46.3000  1.1307842E-01
+   46.4000  1.1304732E-01
+   46.5000  1.1309363E-01
+   46.6000  1.1322173E-01
+   46.7000  1.1343583E-01
+   46.8000  1.1374002E-01
+   46.9000  1.1413795E-01
+   47.0000  1.1463306E-01
+   47.1000  1.1522833E-01
+   47.2000  1.1592607E-01
+   47.3000  1.1672791E-01
+   47.4000  1.1763494E-01
+   47.5000  1.1864736E-01
+   47.6000  1.1976484E-01
+   47.7000  1.2098463E-01
+   47.8000  1.2230454E-01
+   47.9000  1.2372089E-01
+   48.0000  1.2522799E-01
+   48.1000  1.2682003E-01
+   48.2000  1.2849011E-01
+   48.3000  1.3023029E-01
+   48.4000  1.3203100E-01
+   48.5000  1.3388172E-01
+   48.6000  1.3577162E-01
+   48.7000  1.3768905E-01
+   48.8000  1.3962282E-01
+   48.9000  1.4156016E-01
+   49.0000  1.4348858E-01
+   49.1000  1.4539535E-01
+   49.2000  1.4724551E-01
+   49.3000  1.4901185E-01
+   49.4000  1.5072319E-01
+   49.5000  1.5236880E-01
+   49.6000  1.5393929E-01
+   49.7000  1.5542522E-01
+   49.8000  1.5681861E-01
+   49.9000  1.5811262E-01
+   50.0000  1.5930164E-01
+
+ Arctangent model
+    Gamma_max  =  15.00,  Ecent =  30.00, Elarg =  30.00
+    Gamma_hole =   0.94, E_cut =  -0.876, Shift =   0.000 eV,  site  1
+      E_(eV)     Width_(eV) lambda_(A)
+     -20.000       0.940       0.000
+      -0.900       0.940       0.000
+      -0.850       0.940 1570595.539
+      -0.800       0.940  180251.890
+      -0.750       0.940   65496.914
+       3.350       1.121      72.306
+       8.000       1.751      19.207
+      12.700       2.883       9.135
+      17.400       4.480       5.563
+      22.000       6.221       4.059
+      26.700       7.783       3.373
+      31.400       8.968       3.065
+      36.000       9.819       2.929
+      40.700      10.471       2.870
+      45.400      10.977       2.853
+      50.000      11.375       2.859
+    Gamma_hole =   0.94, E_cut =  -0.165, Shift =   1.635 eV,  site  2
