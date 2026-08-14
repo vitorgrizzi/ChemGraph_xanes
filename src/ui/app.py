@@ -1035,10 +1035,20 @@ def render_literature_kg_panel():
             "Extraction model",
             value="deterministic",
             help=(
-                "Use deterministic for offline plumbing checks, or provide an "
-                "OpenAI model name for schema-constrained extraction."
+                "Use deterministic for domain-neutral offline checks, "
+                "co2_methanol_regex for the named pilot, or an OpenAI model "
+                "name for schema-constrained extraction."
             ),
             key="kg_extraction_model",
+        )
+        extraction_profile = st.selectbox(
+            "Extraction profile",
+            options=("general", "co2_methanol"),
+            help=(
+                "General is domain-neutral. co2_methanol enables the explicit "
+                "pilot vocabulary and its conservative reaction inference rule."
+            ),
+            key="kg_extraction_profile",
         )
         if st.button("Build KG", key="kg_build_button"):
             try:
@@ -1051,6 +1061,7 @@ def render_literature_kg_panel():
                     input_path=str(input_dir),
                     work_dir=work_dir,
                     extraction_model=extraction_model,
+                    extraction_profile=extraction_profile,
                 )
                 st.session_state["kg_last_result"] = result
                 st.success("KG updated.")

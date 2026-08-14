@@ -8,7 +8,7 @@ from pathlib import Path
 from statistics import median
 from typing import Any
 
-from chemgraph.kg.ontology import PERCENT_QUANTITIES
+from chemgraph.kg.ontology import is_percent_quantity
 from chemgraph.kg.query import _graph_context, _node_map, _temperature_deg_c
 from chemgraph.kg.schema import HypothesisCard, KGEdge, KGNode
 from chemgraph.kg.store import LiteratureKGStore
@@ -46,7 +46,7 @@ def _comparable_value(edge: KGEdge) -> float | None:
     value = float(value)
     quantity = str(edge.attributes.get("quantity") or "").lower()
     unit = str(edge.attributes.get("unit") or "").lower()
-    if quantity in PERCENT_QUANTITIES | {"conversion", "selectivity", "yield"}:
+    if is_percent_quantity(quantity):
         if unit == "dimensionless":
             return 100.0 * value
         if unit not in {"percent", "%", ""}:

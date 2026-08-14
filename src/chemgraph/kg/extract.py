@@ -9,6 +9,7 @@ from pathlib import Path
 from typing import Any, Iterable
 
 from chemgraph.kg.ontology import CATALYSIS_ELEMENTS
+from chemgraph.kg.profiles import ExtractionProfile, load_extraction_profile
 from chemgraph.kg.schema import (
     CatalystRecord,
     EvidenceSpan,
@@ -17,7 +18,13 @@ from chemgraph.kg.schema import (
     ReactionCondition,
 )
 
-EXTRACTOR_VERSION = "literature_kg_regex_v3"
+OFFLINE_EXTRACTION_MODELS = {
+    "deterministic",
+    "regex",
+    "offline",
+    "none",
+    "co2_methanol_regex",
+}
 
 
 EXTRACTION_PROMPT = """You are extracting structured catalysis data from scientific text.
@@ -43,12 +50,15 @@ Evidence:
 
 Schema:
 {schema}
+
+Optional normalization profile:
+{profile}
 """
 
 
 def load_extraction_llm(model: str):
     """Load an extraction model, or return ``None`` for the offline fallback."""
-    if model.lower() in {"deterministic", "regex", "offline", "none"}:
+    if model.lower().replace("-", "_") in OFFLINE_EXTRACTION_MODELS:
         return None
     from chemgraph.models.openai import load_openai_model
 
@@ -85,26 +95,120 @@ def _extract_json_object(text: str) -> dict:
     raise ValueError("No valid JSON object found in extraction response.")
 
 
-def _canonical_quantity(raw: str) -> str:
-    text = raw.lower()
-    text = text.replace("co₂", "co2")
-    if "methanol" in text and "select" in text:
-        return "methanol_selectivity"
-    if "co2" in text and "conversion" in text:
-        return "co2_conversion"
-    if "co " in text and "select" in text:
-        return "co_selectivity"
-    if "methane" in text and "select" in text:
-        return "methane_selectivity"
-    if "space-time" in text or "sty" in text:
-        return "space_time_yield"
-    if "time-on-stream" in text or "time on stream" in text:
-        return "time_on_stream"
-    if "conversion" in text:
-        return "conversion"
-    if "select" in text:
-        return "selectivity"
-    return text.strip().replace(" ", "_")
+_SUBSCRIPT_TRANSLATION = str.maketrans("₀₁₂₃₄₅₆₇₈₉", "0123456789")
+_METRIC_BASES = (
+    "faradaic efficiency",
+    "space-time yield",
+    "time-on-stream",
+    "time on stream",
+    "turnover frequency",
+    "current density",
+    "overpotential",
+    "productivity",
+    "conversion",
+    "selectivity",
+    "activity",
+    "yield",
+    "sty",
+    "tof",
+)
+_METRIC_BASE_PATTERN = "|".join(
+    re.escape(item) for item in sorted(_METRIC_BASES, key=len, reverse=True)
+)
+_SUBJECT_TOKEN_PATTERN = r"[A-Za-z][A-Za-z0-9₀-₉+.-]*"
+_GENERIC_QUANTITY_PATTERN = (
+    rf"(?:(?<![A-Za-z0-9/])(?:{_SUBJECT_TOKEN_PATTERN}\s+){{0,3}}"
+    rf"(?:{_METRIC_BASE_PATTERN})s?)"
+)
+
+
+def _normalized_phrase(value: str) -> str:
+    text = value.translate(_SUBSCRIPT_TRANSLATION).lower()
+    text = text.replace("₂", "2").replace("₃", "3")
+    return re.sub(r"[^a-z0-9]+", " ", text).strip()
+
+
+def _slug(value: str) -> str:
+    return re.sub(r"_+", "_", re.sub(r"[^a-z0-9]+", "_", value)).strip("_")
+
+
+def _quantity_pattern(profile: ExtractionProfile) -> str:
+    aliases = {
+        alias.strip()
+        for values in profile.quantity_aliases.values()
+        for alias in values
+        if alias.strip()
+    }
+    if not aliases:
+        return _GENERIC_QUANTITY_PATTERN
+    alias_pattern = "|".join(
+        re.escape(alias) for alias in sorted(aliases, key=len, reverse=True)
+    )
+    return rf"(?:{alias_pattern}|{_GENERIC_QUANTITY_PATTERN})"
+
+
+def _canonical_quantity(
+    raw: str,
+    profile: ExtractionProfile | None = None,
+) -> str:
+    """Normalize an arbitrary ``subject + metric`` phrase without a product list."""
+    selected = profile or load_extraction_profile()
+    normalized = _normalized_phrase(raw)
+    for canonical, aliases in selected.quantity_aliases.items():
+        if normalized in {_normalized_phrase(alias) for alias in aliases}:
+            return canonical
+
+    product_first = re.fullmatch(
+        rf"(?P<base>selectivity|yield)\s+(?:towards?|to|for|of)\s+"
+        rf"(?P<subject>.+)",
+        normalized,
+    )
+    if product_first:
+        subject = re.split(
+            r"\b(?:was|is|were|are|reached|remained|maintained|increased|decreased)\b",
+            product_first.group("subject"),
+            maxsplit=1,
+        )[0].strip()
+        return f"{_slug(subject)}_{product_first.group('base')}"
+
+    base_match = re.search(rf"(?P<base>{_METRIC_BASE_PATTERN})s?$", normalized)
+    if not base_match:
+        return _slug(normalized)
+    base = base_match.group("base")
+    base = {
+        "sty": "space time yield",
+        "tof": "turnover frequency",
+        "time-on-stream": "time on stream",
+    }.get(base, base)
+    subject = normalized[: base_match.start()].strip()
+    if subject:
+        subject_tokens = subject.split()
+        leading_context = {
+            "a",
+            "an",
+            "and",
+            "the",
+            "while",
+            "its",
+            "catalyst",
+            "sample",
+            "reached",
+            "achieved",
+            "gave",
+            "delivered",
+            "showed",
+            "reported",
+            "observed",
+        }
+        while subject_tokens and subject_tokens[0] in leading_context:
+            subject_tokens.pop(0)
+        if len(subject_tokens) > 3:
+            subject_tokens = subject_tokens[-3:]
+        subject = " ".join(subject_tokens)
+        if not subject:
+            return _slug(base)
+        return f"{_slug(subject)}_{_slug(base)}"
+    return _slug(base)
 
 
 def _find_catalyst_name(text: str) -> str | None:
@@ -166,24 +270,112 @@ def _classify_catalyst_components(
     return list(dict.fromkeys(active_metals)), list(dict.fromkeys(promoters)), support
 
 
-def _detect_reaction(text: str) -> str | None:
-    lower = text.lower().replace("co₂", "co2").replace("h₂", "h2")
-    if "co2" in lower and "hydrogenation" in lower:
-        if "methanol" in lower:
-            return "CO2 hydrogenation to methanol"
-        return "CO2 hydrogenation"
-    if "methanol synthesis" in lower:
-        return "CO2 hydrogenation to methanol"
-    if "co2 conversion" in lower and re.search(
-        r"methanol\s+(?:selectivity|yield)|selectivity\s+(?:towards?|to|for)\s+methanol",
-        lower,
-    ):
-        return "CO2 hydrogenation to methanol"
+_REACTION_PROCESS_PATTERN = (
+    r"(?:steam\s+reforming|dry\s+reforming|hydrogenation|dehydrogenation|"
+    r"oxidation|reduction|reforming|synthesis|decomposition|"
+    r"(?:oxygen|hydrogen)\s+evolution(?:\s+reaction)?)"
+)
+
+
+def _clean_reaction_phrase(value: str) -> str:
+    phrase = value.translate(_SUBSCRIPT_TRANSLATION).strip(" ,;:.")
+    phrase = re.split(
+        r"\s+(?:at|under|over|using|with)\s+(?=(?:-?\d|the\b|a\b|an\b))",
+        phrase,
+        maxsplit=1,
+        flags=re.I,
+    )[0]
+    phrase = re.sub(r"^(?:the\s+)?(?:catalytic\s+)?", "", phrase, flags=re.I)
+    return re.sub(r"\s+", " ", phrase).strip()
+
+
+def _explicit_general_reaction(text: str) -> str | None:
+    """Return only an explicitly named reaction; do not infer from metrics."""
+    normalized = text.translate(_SUBSCRIPT_TRANSLATION)
+    marked = re.compile(
+        rf"\b(?:during|for|via)\s+(?P<reaction>[^.!?;]{{0,100}}?"
+        rf"\b{_REACTION_PROCESS_PATTERN}\b"
+        rf"(?:\s+(?:to|into)\s+[A-Za-z0-9₀-₉+.-]+(?:\s+[A-Za-z0-9₀-₉+.-]+){{0,2}})?)",
+        flags=re.I,
+    )
+    match = marked.search(normalized)
+    if match:
+        return _clean_reaction_phrase(match.group("reaction"))
+
+    standalone = re.compile(
+        rf"(?<![A-Za-z0-9/])(?P<reaction>"
+        rf"(?:[A-Za-z0-9][A-Za-z0-9₀-₉+./-]*\s+){{1,3}}"
+        rf"{_REACTION_PROCESS_PATTERN}"
+        rf"(?:\s+(?:to|into)\s+[A-Za-z0-9₀-₉+.-]+(?:\s+[A-Za-z0-9₀-₉+.-]+){{0,2}})?)",
+        flags=re.I,
+    )
+    stopwords = {"during", "for", "via", "tested", "used", "the"}
+    for candidate in standalone.finditer(normalized):
+        phrase = _clean_reaction_phrase(candidate.group("reaction"))
+        tokens = phrase.split()
+        while tokens and tokens[0].lower() in stopwords:
+            tokens.pop(0)
+        if tokens:
+            return " ".join(tokens)
     return None
 
 
-def _extract_conditions(text: str, evidence_id: str) -> list[ReactionCondition]:
-    normalized = text.replace("CO₂", "CO2").replace("H₂", "H2")
+def _detect_reaction(
+    text: str,
+    profile: ExtractionProfile | None = None,
+    quantities: Iterable[str] = (),
+) -> str | None:
+    selected = profile or load_extraction_profile()
+    normalized_text = _normalized_phrase(text)
+
+    # Profile aliases are canonicalization rules, not global chemistry facts.
+    for canonical, aliases in selected.reaction_aliases.items():
+        for alias in aliases:
+            normalized_alias = _normalized_phrase(alias)
+            if re.search(rf"\b{re.escape(normalized_alias)}\b", normalized_text):
+                return canonical
+
+    explicit = _explicit_general_reaction(text)
+    if explicit:
+        return explicit
+
+    quantity_set = set(quantities)
+    for rule in selected.reaction_inference:
+        if not set(rule.all_quantities).issubset(quantity_set):
+            continue
+        if rule.any_quantities and not quantity_set.intersection(rule.any_quantities):
+            continue
+        if any(_normalized_phrase(term) not in normalized_text for term in rule.all_terms):
+            continue
+        return rule.reaction
+    return None
+
+
+def _extract_profile_ratios(
+    text: str,
+    profile: ExtractionProfile,
+) -> dict[str, float]:
+    values: dict[str, float] = {}
+    for field, aliases in profile.condition_ratio_aliases.items():
+        for alias in aliases:
+            match = re.search(
+                rf"{re.escape(alias)}\s*(?:(?:=|:)|ratio\s*(?:=|:)?)?\s*"
+                r"(\d+(?:\.\d+)?)",
+                text,
+                flags=re.I,
+            )
+            if match:
+                values[field] = float(match.group(1))
+                break
+    return values
+
+
+def _extract_conditions(
+    text: str,
+    evidence_id: str,
+    profile: ExtractionProfile,
+) -> list[ReactionCondition]:
+    normalized = text.translate(_SUBSCRIPT_TRANSLATION)
     temperature_matches = list(re.finditer(
         r"(-?\d+(?:\.\d+)?)\s*(?:(?:°|º)\s*|deg(?:ree)?s?\s*)?(C|K)\b",
         normalized,
@@ -194,14 +386,7 @@ def _extract_conditions(text: str, evidence_id: str) -> list[ReactionCondition]:
         normalized,
         flags=re.I,
     )
-    ratios = [
-        float(match.group(1))
-        for match in re.finditer(
-            r"H2\s*/\s*CO2\s*(?:(?:=|:)|ratio\s*(?:=|:)?)?\s*(\d+(?:\.\d+)?)",
-            normalized,
-            flags=re.I,
-        )
-    ]
+    ratios = _extract_profile_ratios(normalized, profile)
     if not temperature_matches and pressure_match is None and not ratios:
         return []
     pressure_unit = pressure_match.group(2) if pressure_match else None
@@ -226,7 +411,12 @@ def _extract_conditions(text: str, evidence_id: str) -> list[ReactionCondition]:
             temperature_unit=temperature_unit,
             pressure=float(pressure_match.group(1)) if pressure_match else None,
             pressure_unit=pressure_unit,
-            h2_co2_ratio=ratios[0] if ratios else None,
+            h2_co2_ratio=ratios.get("h2_co2_ratio"),
+            attributes={
+                key: value
+                for key, value in ratios.items()
+                if key != "h2_co2_ratio"
+            },
             evidence_span_id=evidence_id,
         ))
     return list({condition.condition_id: condition for condition in conditions}.values())
@@ -238,6 +428,7 @@ def _condition_from_temperature(
     temperature: str,
     temperature_unit: str,
     temperature_position: int,
+    profile: ExtractionProfile,
 ) -> ReactionCondition:
     """Build a condition around one explicitly paired temperature mention."""
     pressure_matches = list(
@@ -256,6 +447,10 @@ def _condition_from_temperature(
             "kpa": "kPa",
             "pa": "Pa",
         }[pressure_unit.lower()]
+    ratios = _extract_profile_ratios(
+        text.translate(_SUBSCRIPT_TRANSLATION),
+        profile,
+    )
     return ReactionCondition(
         temperature=float(temperature),
         temperature_unit=(
@@ -263,6 +458,10 @@ def _condition_from_temperature(
         ),
         pressure=float(pressure_match.group(1)) if pressure_match else None,
         pressure_unit=pressure_unit,
+        h2_co2_ratio=ratios.get("h2_co2_ratio"),
+        attributes={
+            key: value for key, value in ratios.items() if key != "h2_co2_ratio"
+        },
         evidence_span_id=evidence_id,
     )
 
@@ -270,6 +469,7 @@ def _condition_from_temperature(
 def _extract_explicit_condition_metric_pairs(
     text: str,
     evidence_id: str,
+    profile: ExtractionProfile,
 ) -> tuple[list[ReactionCondition], list[Measurement]]:
     """Extract metric values explicitly paired with nearby temperatures."""
     if re.search(
@@ -288,6 +488,7 @@ def _extract_explicit_condition_metric_pairs(
     )
     conditions: dict[str, ReactionCondition] = {}
     metrics: dict[tuple[str, float, str], Measurement] = {}
+    quantity_pattern = _quantity_pattern(profile)
 
     def add_metric(
         raw_quantity: str,
@@ -309,8 +510,9 @@ def _extract_explicit_condition_metric_pairs(
             temperature,
             temperature_unit,
             temperature_position,
+            profile,
         )
-        quantity = _canonical_quantity(raw_quantity)
+        quantity = _canonical_quantity(raw_quantity, profile)
         value = float(raw_value)
         conditions[condition.condition_id] = condition
         metrics[(quantity, value, condition.condition_id)] = Measurement(
@@ -321,12 +523,11 @@ def _extract_explicit_condition_metric_pairs(
             condition_id=condition.condition_id,
             evidence_span_id=evidence_id,
             confidence=0.7,
-            attributes={"comparator": "="},
+            attributes={"comparator": "=", "raw_quantity": raw_quantity},
         )
 
     series_pattern = re.compile(
-        r"(?P<quantity>(?:(?:CO2|CO|methanol|methane|higher alcohol|carbon)\s+)?"
-        r"(?:conversion|selectivity|yield)s?)\s+"
+        rf"(?P<quantity>{quantity_pattern})\s+"
         r"(?:increased|decreased|rose|declined)\s+from\s+"
         r"(?P<value1>\d+(?:\.\d+)?)\s*(?:%|percent)\s+at\s+"
         r"(?P<temperature1>-?\d+(?:\.\d+)?)\s*"
@@ -349,8 +550,7 @@ def _extract_explicit_condition_metric_pairs(
             )
 
     direct_pattern = re.compile(
-        r"(?P<quantity>(?:(?:CO2|CO|methanol|methane|higher alcohol|carbon)\s+)?"
-        r"(?:conversion|selectivity|yield)s?)"
+        rf"(?P<quantity>{quantity_pattern})"
         r"(?:(?![.!?]).){0,50}?"
         r"(?P<value>\d+(?:\.\d+)?)\s*(?:%|percent)\s+at\s+"
         r"(?P<temperature>-?\d+(?:\.\d+)?)\s*"
@@ -369,12 +569,17 @@ def _extract_explicit_condition_metric_pairs(
 
     value_first_pattern = re.compile(
         r"(?P<value>\d+(?:\.\d+)?)\s*(?:%|percent)\s*"
-        r"(?P<quantity>(?:(?:CO2|CO|methanol|methane|higher alcohol|carbon)\s+)?"
-        r"(?:conversion|selectivity|yield)s?)\b",
+        rf"(?P<quantity>{quantity_pattern})\b",
         flags=re.I,
     )
     temperature_matches = list(temperature_pattern.finditer(text))
     for match in value_first_pattern.finditer(text):
+        if _normalized_phrase(match.group("quantity")).split()[0] in {
+            "and",
+            "while",
+            "but",
+        }:
+            continue
         nearby_temperatures = [
             candidate
             for candidate in temperature_matches
@@ -408,23 +613,34 @@ def _extract_measurements(
     text: str,
     evidence_id: str,
     condition_id: str | None,
+    profile: ExtractionProfile,
 ) -> list[Measurement]:
     metrics: list[Measurement] = []
+    quantity_pattern = _quantity_pattern(profile)
     metric_pattern = re.compile(
-        r"((?:CO2|CO|methanol|methane|higher alcohol|carbon)?\s*"
-        r"(?:conversion|selectivity|yield|space-time yield|STY|time-on-stream|time on stream))"
+        rf"({quantity_pattern})"
         r"(?:\s*(?:of|was|is|reached))?\s*"
         r"(?:(=|:|above|over|>|below|under|<|~|approximately|about|around)\s*)?"
         r"(\d+(?:\.\d+)?)"
         r"(?:\s*(?:-|–|to)\s*(\d+(?:\.\d+)?))?\s*"
         r"(?:\s*(?:±|\+/-)\s*(\d+(?:\.\d+)?))?\s*"
-        r"(%|percent|h|bar|g(?:MeOH)?\s*gcat-1\s*h-1|mmol\s*g-1\s*h-1)?",
+        r"(%|percent|h|bar|mV|V|mA\s*cm-2|A\s*g-1|s-1|"
+        r"g(?:MeOH)?\s*gcat-1\s*h-1|mmol\s*g-1\s*h-1)?",
         flags=re.IGNORECASE,
     )
     for match in metric_pattern.finditer(text):
         raw_quantity, comparator, raw_value, range_max, uncertainty, raw_unit = match.groups()
-        unit = raw_unit or ("percent" if "select" in raw_quantity.lower() else None)
-        attributes: dict[str, Any] = {"comparator": comparator or "="}
+        quantity = _canonical_quantity(raw_quantity, profile)
+        percent_like = quantity.endswith(
+            ("_conversion", "_selectivity", "_yield", "_faradaic_efficiency")
+        ) or quantity in {"conversion", "selectivity", "yield", "faradaic_efficiency"}
+        unit = raw_unit or ("percent" if percent_like else None)
+        if unit == "%":
+            unit = "percent"
+        attributes: dict[str, Any] = {
+            "comparator": comparator or "=",
+            "raw_quantity": raw_quantity,
+        }
         if range_max is not None:
             attributes.update(
                 {
@@ -435,7 +651,7 @@ def _extract_measurements(
             )
         metrics.append(
             Measurement(
-                quantity=_canonical_quantity(raw_quantity),
+                quantity=quantity,
                 value=float(raw_value),
                 unit=unit,
                 raw_value=match.group(0),
@@ -448,7 +664,7 @@ def _extract_measurements(
         )
     product_first_pattern = re.compile(
         r"(selectivity\s+(?:towards?|to|for|of)\s+"
-        r"(?:methanol|methane|CO2|CO|higher alcohol|carbon))"
+        rf"{_SUBJECT_TOKEN_PATTERN}(?:\s+{_SUBJECT_TOKEN_PATTERN}){{0,2}})"
         r"(?P<preamble>(?:(?![.!?]).){0,100}?)"
         r"(?P<value>\d+(?:\.\d+)?)\s*(?P<unit>%|percent\b)",
         flags=re.IGNORECASE,
@@ -463,14 +679,17 @@ def _extract_measurements(
         comparator = comparator_match.group(1).lower() if comparator_match else "="
         metrics.append(
             Measurement(
-                quantity=_canonical_quantity(match.group(1)),
+                quantity=_canonical_quantity(match.group(1), profile),
                 value=float(match.group("value")),
-                unit=match.group("unit"),
+                unit="percent" if match.group("unit") == "%" else match.group("unit"),
                 raw_value=match.group(0),
                 condition_id=condition_id,
                 evidence_span_id=evidence_id,
                 confidence=0.65,
-                attributes={"comparator": comparator},
+                attributes={
+                    "comparator": comparator,
+                    "raw_quantity": match.group(1),
+                },
             )
         )
     return metrics
@@ -487,6 +706,7 @@ def _extract_characterization_methods(text: str) -> list[str]:
 def _extract_condition_metric_pairs(
     text: str,
     evidence_id: str,
+    profile: ExtractionProfile,
 ) -> tuple[list[ReactionCondition], list[Measurement]]:
     """Associate metrics with conditions from the same sentence when possible."""
     segments = [
@@ -501,19 +721,24 @@ def _extract_condition_metric_pairs(
         explicit_conditions, explicit_metrics = _extract_explicit_condition_metric_pairs(
             segment,
             evidence_id,
+            profile,
         )
         if explicit_metrics:
             conditions.extend(explicit_conditions)
             metrics.extend(explicit_metrics)
-            continue
-        segment_conditions = _extract_conditions(segment, evidence_id)
+        segment_conditions = _extract_conditions(segment, evidence_id, profile)
         conditions.extend(segment_conditions)
         condition_id = (
             segment_conditions[0].condition_id
             if len(segment_conditions) == 1
             else None
         )
-        for metric in _extract_measurements(segment, evidence_id, condition_id):
+        for metric in _extract_measurements(
+            segment,
+            evidence_id,
+            condition_id,
+            profile,
+        ):
             if condition_id:
                 metrics.append(metric)
             else:
@@ -524,21 +749,32 @@ def _extract_condition_metric_pairs(
     # entire chunk contains no reaction condition.
     if not unique_conditions:
         metrics.extend(pending_metrics)
-    return unique_conditions, metrics
+    unique_metrics = {
+        (metric.quantity, metric.value, metric.unit, metric.condition_id): metric
+        for metric in metrics
+    }
+    return unique_conditions, list(unique_metrics.values())
 
 
-def regex_extract_record(chunk: PaperChunk) -> CatalystRecord | None:
-    """Offline extraction fallback for tests and first-pass demos."""
+def regex_extract_record(
+    chunk: PaperChunk,
+    profile: str | ExtractionProfile | None = None,
+    *,
+    profiles_config: str | Path | None = None,
+) -> CatalystRecord | None:
+    """Run conservative domain-neutral regex extraction plus an optional profile."""
+    selected_profile = load_extraction_profile(profile, profiles_config)
     text = chunk.text
     catalyst_name = _find_catalyst_name(text)
     explicit_metrics = _extract_explicit_condition_metric_pairs(
         text,
         "placeholder",
+        selected_profile,
     )[1]
     metrics_or_reaction = (
-        _extract_measurements(text, "placeholder", None)
+        _extract_measurements(text, "placeholder", None, selected_profile)
         or explicit_metrics
-        or _detect_reaction(text)
+        or _detect_reaction(text, selected_profile)
     )
     if not catalyst_name and not metrics_or_reaction:
         return None
@@ -553,14 +789,23 @@ def regex_extract_record(chunk: PaperChunk) -> CatalystRecord | None:
         end_char=chunk.metadata.get("end_char"),
         source_path=chunk.source_path,
         doi=chunk.doi,
-        extraction_model=EXTRACTOR_VERSION,
+        extraction_model=selected_profile.extractor_version,
     )
-    conditions, metrics = _extract_condition_metric_pairs(text, evidence.evidence_id)
+    conditions, metrics = _extract_condition_metric_pairs(
+        text,
+        evidence.evidence_id,
+        selected_profile,
+    )
+    reaction = _detect_reaction(
+        text,
+        selected_profile,
+        (metric.quantity for metric in metrics),
+    )
     active_metals, promoters, support = _classify_catalyst_components(catalyst_name)
     field_evidence_ids: dict[str, list[str]] = {
         "catalyst_name": [evidence.evidence_id],
     }
-    if _detect_reaction(text):
+    if reaction:
         field_evidence_ids["reaction"] = [evidence.evidence_id]
     if active_metals:
         field_evidence_ids["active_metals"] = [evidence.evidence_id]
@@ -575,7 +820,7 @@ def regex_extract_record(chunk: PaperChunk) -> CatalystRecord | None:
     return CatalystRecord(
         paper_id=chunk.paper_id,
         catalyst_name=catalyst_name or f"unknown_catalyst_{chunk.chunk_id}",
-        reaction=_detect_reaction(text),
+        reaction=reaction,
         active_metals=active_metals,
         promoters=promoters,
         support=support,
@@ -586,16 +831,41 @@ def regex_extract_record(chunk: PaperChunk) -> CatalystRecord | None:
         evidence_spans=[evidence],
         field_evidence_ids=field_evidence_ids,
         confidence=0.55 if catalyst_name else 0.35,
-        extractor_version=EXTRACTOR_VERSION,
+        extractor_version=selected_profile.extractor_version,
+        attributes={"extraction_profile": selected_profile.name},
     )
 
 
-def llm_extract_record(chunk: PaperChunk, llm, retries: int = 1) -> CatalystRecord:
+def llm_extract_record(
+    chunk: PaperChunk,
+    llm,
+    retries: int = 1,
+    profile: str | ExtractionProfile | None = None,
+    *,
+    profiles_config: str | Path | None = None,
+) -> CatalystRecord:
     """Extract a CatalystRecord by invoking a LangChain-style chat model."""
+    selected_profile = load_extraction_profile(profile, profiles_config)
     schema = CatalystRecord.model_json_schema()
     prompt = EXTRACTION_PROMPT.format(
         chunk_text=chunk.text,
         schema=json.dumps(schema, indent=2),
+        profile=(
+            json.dumps(
+                {
+                    "name": selected_profile.name,
+                    "quantity_aliases": selected_profile.quantity_aliases,
+                    "reaction_aliases": selected_profile.reaction_aliases,
+                    "note": (
+                        "Normalization vocabulary only. Do not infer a reaction "
+                        "that is not explicit in the evidence."
+                    ),
+                },
+                indent=2,
+            )
+            if selected_profile.name != "general"
+            else "None. Extract domain-neutral terms as written in the evidence."
+        ),
     )
     last_error: Exception | None = None
     for _ in range(retries + 1):
@@ -625,6 +895,10 @@ def llm_extract_record(chunk: PaperChunk, llm, retries: int = 1) -> CatalystReco
             data["paper_id"] = chunk.paper_id
             data["evidence_spans"] = [evidence.model_dump()]
             data["extractor_version"] = f"literature_kg_llm:{model_name}"
+            data["attributes"] = {
+                **data.get("attributes", {}),
+                "extraction_profile": selected_profile.name,
+            }
             condition_id_map: dict[str, str] = {}
             conditions = []
             for item in data.get("reaction_conditions", []):
@@ -749,14 +1023,28 @@ def extract_records_from_chunks(
     *,
     llm=None,
     retries: int = 1,
+    profile: str | ExtractionProfile | None = None,
+    profiles_config: str | Path | None = None,
 ) -> list[CatalystRecord]:
-    """Extract records from chunks using an LLM or deterministic fallback."""
+    """Extract records with schema-constrained LLM or profiled regex parsing."""
+    selected_profile = load_extraction_profile(profile, profiles_config)
     records: list[CatalystRecord] = []
     for chunk in chunks:
-        record = llm_extract_record(chunk, llm, retries=retries) if llm else regex_extract_record(chunk)
+        record = (
+            llm_extract_record(
+                chunk,
+                llm,
+                retries=retries,
+                profile=selected_profile,
+            )
+            if llm
+            else regex_extract_record(chunk, selected_profile)
+        )
         if record is not None:
             records.append(record)
-    return _propagate_unambiguous_paper_catalyst_context(records)
+    if selected_profile.propagate_unique_catalyst:
+        return _propagate_unambiguous_paper_catalyst_context(records)
+    return records
 
 
 def write_records_jsonl(records: Iterable[CatalystRecord], out: str | Path) -> Path:

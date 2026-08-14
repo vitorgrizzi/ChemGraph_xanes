@@ -42,7 +42,7 @@ python scripts/kg_ingest.py \
 python scripts/kg_extract.py \
   --chunks data/kg_demo/chunks.jsonl \
   --out data/kg_demo/extractions.jsonl \
-  --model deterministic
+  --model co2_methanol_regex
 
 python scripts/kg_verify.py \
   --records data/kg_demo/extractions.jsonl \
@@ -67,17 +67,44 @@ a condition/evidence ID does not resolve, or a physical constraint fails. The
 `--allow-unverified` option exists only for debugging and is recorded in the
 manifest.
 
-The deterministic extractor is a conservative offline fallback for tests and
-plumbing checks. Use `--model MODEL_NAME` for schema-constrained LLM extraction;
-the application, not the model, creates provenance IDs and source metadata.
-The deterministic path preserves explicit value-temperature pairs in repeated
-series and value-first phrases. For metric-only chunks, it carries catalyst
-context from another chunk only when the same paper names exactly one catalyst,
-and attaches that source chunk as evidence. It does not guess when multiple
-catalysts are present. Estimated, predicted, calculated, and equilibrium values
-are excluded from observed-performance edges. Query results collapse identical
-same-paper facts introduced by overlapping chunks while retaining every
-supporting evidence span and edge ID.
+`--model deterministic` is a conservative, domain-neutral regex parser for
+tests and plumbing checks. It recognizes generic subject-metric phrases,
+numbers, units, comparators, temperatures, pressures, and explicitly named
+reaction classes. It does not infer a reaction from a combination of metrics.
+
+`--model co2_methanol_regex` selects the explicitly named CO2-to-methanol pilot
+profile. That profile supplies aliases, permits the narrow inference from a
+co-occurring CO2-conversion and methanol-selectivity/yield pair, recognizes the
+H2/CO2 ratio field, and allows unique-catalyst context propagation across chunks
+from one paper. It still does not propagate context when multiple catalysts are
+named. The equivalent expanded form is:
+
+```bash
+python scripts/kg_extract.py \
+  --chunks data/kg_demo/chunks.jsonl \
+  --out data/kg_demo/extractions.jsonl \
+  --model deterministic \
+  --profile co2_methanol
+```
+
+For unrestricted papers, use `--model MODEL_NAME --profile general`. The model
+is constrained by the `CatalystRecord` schema, while the application creates
+provenance IDs and source metadata; the verifier remains a separate required
+stage. This uses a normal model API credential for the selected provider, not a
+separate agent API.
+
+Profiles are loaded from the packaged
+`chemgraph/kg/data/extraction_profiles.yaml` file by default. A project-specific
+YAML file can be supplied with `--profiles-config PATH`; each profile can define
+quantity aliases, reaction aliases, explicitly permitted reaction-inference
+rules, ratio aliases, and whether unique-catalyst context propagation is
+enabled.
+
+Both deterministic modes preserve explicit value-temperature pairs in repeated
+series and value-first phrases. Estimated, predicted, calculated, and
+equilibrium values are excluded from observed-performance edges. Query results
+collapse identical same-paper facts introduced by overlapping chunks while
+retaining every supporting evidence span and edge ID.
 
 ## Stored artifacts
 
@@ -171,6 +198,9 @@ For scientific validation, build a manually labeled pilot and measure:
 Adversarial examples should include multiple catalysts and conditions in one
 passage, inequalities/ranges, Unicode units, conflicting papers, review papers
 quoting primary work, negative results, and duplicate filenames.
+The domain-neutral regression set also covers CO oxidation, ammonia synthesis,
+methane steam reforming, oxygen evolution, and hydrogen evolution so that the
+fallback cannot silently regress into a single-reaction extractor.
 
 ## Temporal backtesting
 

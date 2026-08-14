@@ -14,6 +14,7 @@ from chemgraph.kg.extract import (
 )
 from chemgraph.kg.hypotheses import suggest_hypotheses
 from chemgraph.kg.ingest import ingest_path, read_chunks_jsonl
+from chemgraph.kg.profiles import profile_name_for_model
 from chemgraph.kg.query import export_training_table, get_evidence, hybrid_query
 from chemgraph.kg.store import build_kg
 from chemgraph.kg.verify import verify_records
@@ -56,23 +57,33 @@ def kg_ingest_papers(
 
 @mcp.tool(
     name="kg_extract_records",
-    description="Extract CatalystRecord JSONL with a selected model or deterministic fallback.",
+    description="Extract CatalystRecord JSONL with a model and explicit vocabulary profile.",
 )
 def kg_extract_records(
     chunks_path: str,
     out_path: str,
     model: str = "deterministic",
+    profile: str = "general",
+    profiles_config: str | None = None,
     retries: int = 1,
 ) -> dict:
     chunks = read_chunks_jsonl(chunks_path)
+    profile = profile_name_for_model(model, profile)
     llm = load_extraction_llm(model)
-    records = extract_records_from_chunks(chunks, llm=llm, retries=retries)
+    records = extract_records_from_chunks(
+        chunks,
+        llm=llm,
+        retries=retries,
+        profile=profile,
+        profiles_config=profiles_config,
+    )
     write_records_jsonl(records, out_path)
     return {
         "ok": True,
         "out_path": out_path,
         "n_records": len(records),
         "model": model,
+        "profile": profile,
     }
 
 

@@ -60,17 +60,27 @@ RELATION_TYPES = {
     "suggests_validation",
 }
 
-PERCENT_QUANTITIES = {
-    "co2_conversion",
-    "co_conversion",
-    "methanol_selectivity",
-    "higher_alcohol_selectivity",
-    "methane_selectivity",
-    "co_selectivity",
-    "rwgs_selectivity",
-    "methanol_yield",
-    "carbon_balance",
-}
+# Backward-compatible extension point for exact names that do not follow one
+# of the generic suffixes below. Domain profiles should not mutate this set.
+PERCENT_QUANTITIES: set[str] = set()
+
+PERCENT_QUANTITY_SUFFIXES = (
+    "_conversion",
+    "_selectivity",
+    "_yield",
+    "_faradaic_efficiency",
+)
+
+
+def is_percent_quantity(quantity: str) -> bool:
+    """Recognize percent-like metric families without enumerating products."""
+    normalized = quantity.strip().lower()
+    return normalized in PERCENT_QUANTITIES | {
+        "conversion",
+        "selectivity",
+        "yield",
+        "faradaic_efficiency",
+    } or normalized.endswith(PERCENT_QUANTITY_SUFFIXES)
 
 CATALYSIS_ELEMENTS = {
     "Ag",

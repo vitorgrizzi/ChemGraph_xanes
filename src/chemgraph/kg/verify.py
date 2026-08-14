@@ -8,7 +8,7 @@ from typing import Any, Iterable
 
 from pydantic import BaseModel, Field
 
-from chemgraph.kg.ontology import PERCENT_QUANTITIES
+from chemgraph.kg.ontology import is_percent_quantity
 from chemgraph.kg.schema import CatalystRecord, Measurement, ReactionCondition
 
 
@@ -108,7 +108,8 @@ def _metric_condition_are_co_located(
     ]
     if metric.value is None or not condition_values:
         return True
-    quantity_token = metric.quantity.lower().replace("_", " ").split()[-1]
+    raw_quantity = str(metric.attributes.get("raw_quantity") or metric.quantity)
+    quantity_token = raw_quantity.lower().replace("_", " ").split()[-1]
     segments = re.split(r"(?<=[.!?])\s+|\n+", evidence_text)
     return any(
         _number_is_supported(metric.value, segment)
@@ -141,7 +142,8 @@ def _metric_issues(
             issues.append(
                 _issue(record, field, "Measurement uncertainty is not present in its evidence text.")
             )
-        quantity_token = metric.quantity.lower().replace("_", " ").split()[-1]
+        raw_quantity = str(metric.attributes.get("raw_quantity") or metric.quantity)
+        quantity_token = raw_quantity.lower().replace("_", " ").split()[-1]
         if quantity_token and quantity_token not in evidence_text.lower():
             issues.append(_issue(record, field, "Measurement quantity is not stated in its evidence text."))
         comparator = str(metric.attributes.get("comparator") or "=").lower()
@@ -187,10 +189,17 @@ def _metric_issues(
 
     quantity = metric.quantity.lower()
     unit = (metric.unit or "").lower()
-    if metric.value is not None and quantity in PERCENT_QUANTITIES | {"conversion", "selectivity"}:
-        if unit in {"percent", "%", ""} and not 0.0 <= metric.value <= 100.0:
+    if metric.value is not None:
+        if (
+            unit in {"percent", "%"}
+            or (unit == "" and is_percent_quantity(quantity))
+        ) and not 0.0 <= metric.value <= 100.0:
             issues.append(_issue(record, field, "Percent-like metric must be between 0 and 100."))
-        if unit == "dimensionless" and not 0.0 <= metric.value <= 1.0:
+        if (
+            unit == "dimensionless"
+            and is_percent_quantity(quantity)
+            and not 0.0 <= metric.value <= 1.0
+        ):
             issues.append(_issue(record, field, "Dimensionless selectivity/conversion must be between 0 and 1."))
     return issues
 

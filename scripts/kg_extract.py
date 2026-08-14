@@ -11,6 +11,7 @@ from chemgraph.kg.extract import (
     write_records_jsonl,
 )
 from chemgraph.kg.ingest import read_chunks_jsonl
+from chemgraph.kg.profiles import profile_name_for_model
 
 
 def main() -> None:
@@ -20,14 +21,33 @@ def main() -> None:
     parser.add_argument(
         "--model",
         default="deterministic",
-        help="LLM model name, or deterministic/regex/offline for local extraction.",
+        help=(
+            "LLM model name, deterministic for generic regex extraction, or "
+            "co2_methanol_regex for the explicit pilot profile."
+        ),
+    )
+    parser.add_argument(
+        "--profile",
+        default="general",
+        help="Extraction vocabulary profile (default: general).",
+    )
+    parser.add_argument(
+        "--profiles-config",
+        help="Optional YAML file defining extraction profiles.",
     )
     parser.add_argument("--retries", type=int, default=1)
     args = parser.parse_args()
 
+    profile = profile_name_for_model(args.model, args.profile)
     llm = load_extraction_llm(args.model)
     chunks = read_chunks_jsonl(args.chunks)
-    records = extract_records_from_chunks(chunks, llm=llm, retries=args.retries)
+    records = extract_records_from_chunks(
+        chunks,
+        llm=llm,
+        retries=args.retries,
+        profile=profile,
+        profiles_config=args.profiles_config,
+    )
     write_records_jsonl(records, args.out)
     print(
         json.dumps(
@@ -36,6 +56,7 @@ def main() -> None:
                 "chunks": args.chunks,
                 "out": args.out,
                 "model": args.model,
+                "profile": profile,
                 "n_records": len(records),
             },
             indent=2,

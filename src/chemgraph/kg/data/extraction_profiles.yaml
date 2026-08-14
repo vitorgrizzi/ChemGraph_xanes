@@ -1,0 +1,49 @@
+profiles:
+  co2_methanol:
+    description: >-
+      Deterministic pilot vocabulary for CO2 hydrogenation and methanol
+      synthesis literature. This is not a general chemistry extractor.
+    extractor_version: co2_methanol_regex_v1
+    quantity_aliases:
+      co2_conversion:
+        - CO2 conversion
+        - carbon dioxide conversion
+        - XCO2
+      methanol_selectivity:
+        - methanol selectivity
+        - CH3OH selectivity
+        - selectivity to methanol
+        - selectivity towards methanol
+        - selectivity for methanol
+      methanol_yield:
+        - methanol yield
+        - CH3OH yield
+      co_selectivity:
+        - CO selectivity
+        - carbon monoxide selectivity
+      methane_selectivity:
+        - methane selectivity
+        - CH4 selectivity
+      higher_alcohol_selectivity:
+        - higher alcohol selectivity
+      carbon_balance:
+        - carbon balance
+    reaction_aliases:
+      CO2 hydrogenation to methanol:
+        - CO2 hydrogenation to methanol
+        - carbon dioxide hydrogenation to methanol
+        - methanol synthesis
+      CO2 hydrogenation:
+        - CO2 hydrogenation
+        - carbon dioxide hydrogenation
+    reaction_inference:
+      - reaction: CO2 hydrogenation to methanol
+        all_quantities:
+          - co2_conversion
+        any_quantities:
+          - methanol_selectivity
+          - methanol_yield
+    condition_ratio_aliases:
+      h2_co2_ratio:
+        - H2/CO2
+    propagate_unique_catalyst: true

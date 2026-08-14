@@ -1,4 +1,4 @@
-"""Deterministic literature KG pipeline used by scripts and agent tools."""
+"""Profile-aware literature KG pipeline used by scripts and agent tools."""
 
 from __future__ import annotations
 
@@ -16,6 +16,8 @@ class LiteratureKGWorkflowConfig(BaseModel):
     query: str | None = None
     goal: str | None = None
     extraction_model: str = "deterministic"
+    extraction_profile: str = "general"
+    extraction_profiles_config: str | None = None
     extraction_retries: int = Field(default=1, ge=0, le=5)
 
 
@@ -26,6 +28,8 @@ def run_literature_kg_workflow(
     query: str | None = None,
     goal: str | None = None,
     extraction_model: str = "deterministic",
+    extraction_profile: str = "general",
+    extraction_profiles_config: str | None = None,
     extraction_retries: int = 1,
 ) -> dict[str, Any]:
     """Run ingest -> extract -> verify -> normalize/build -> query/insight."""
@@ -36,5 +40,7 @@ def run_literature_kg_workflow(
         query=query,
         goal=goal,
         extraction_model=extraction_model,
+        extraction_profile=extraction_profile,
+        extraction_profiles_config=extraction_profiles_config,
         extraction_retries=extraction_retries,
     )

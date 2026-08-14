@@ -187,7 +187,10 @@ def test_multivalue_passage_restores_graph_results_with_paper_context(tmp_path):
     unlinked = regex_extract_record(metric_chunk)
     assert unlinked.catalyst_name.startswith("unknown_catalyst_")
 
-    records = extract_records_from_chunks([context_chunk, metric_chunk])
+    records = extract_records_from_chunks(
+        [context_chunk, metric_chunk],
+        profile="co2_methanol",
+    )
     metric_record = next(record for record in records if record.performance_metrics)
     assert metric_record.catalyst_name == "Cu/ZnO/Al2O3"
     assert metric_record.attributes["catalyst_context_propagated"]
@@ -232,7 +235,7 @@ def test_paper_context_is_not_propagated_when_multiple_catalysts_are_named():
         ),
     ]
 
-    records = extract_records_from_chunks(chunks)
+    records = extract_records_from_chunks(chunks, profile="co2_methanol")
     metric_record = next(record for record in records if record.performance_metrics)
 
     assert metric_record.catalyst_name.startswith("unknown_catalyst_")
@@ -287,18 +290,19 @@ def test_graph_query_deduplicates_overlapping_chunk_facts(tmp_path):
     assert len(graph_result["supporting_edge_ids"]) == 2
 
 
-def test_regex_extractor_preserves_mpa_and_infers_explicit_co2_to_methanol_context():
-    record = regex_extract_record(
-        PaperChunk(
-            paper_id="paper1",
-            chunk_id="chunk1",
-            text=(
-                "The Cu-Zn/Al catalyst delivered CO2 conversion of 9.9% and "
-                "methanol selectivity of 82.7% under 3 MPa and 250 °C."
-            ),
-        )
+def test_co2_profile_preserves_mpa_and_scopes_reaction_inference():
+    chunk = PaperChunk(
+        paper_id="paper1",
+        chunk_id="chunk1",
+        text=(
+            "The Cu-Zn/Al catalyst delivered CO2 conversion of 9.9% and "
+            "methanol selectivity of 82.7% under 3 MPa and 250 °C."
+        ),
     )
+    general_record = regex_extract_record(chunk)
+    record = regex_extract_record(chunk, profile="co2_methanol")
 
+    assert general_record.reaction is None
     assert record.reaction == "CO2 hydrogenation to methanol"
     assert record.reaction_conditions[0].pressure == 3
     assert record.reaction_conditions[0].pressure_unit == "MPa"

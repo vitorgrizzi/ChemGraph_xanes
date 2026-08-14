@@ -10,18 +10,9 @@ from chemgraph.kg.schema import CatalystRecord, Measurement
 
 
 DEFAULT_SYNONYMS = {
-    "molecules": {
-        "carbon dioxide": "CO2",
-        "co2": "CO2",
-        "hydrogen": "H2",
-        "h2": "H2",
-        "methanol": "CH3OH",
-    },
-    "reactions": {
-        "co2 hydrogenation": "CO2 hydrogenation",
-        "carbon dioxide hydrogenation": "CO2 hydrogenation",
-        "methanol synthesis": "CO2 hydrogenation to methanol",
-    },
+    # Domain vocabularies belong in an explicit synonyms/profile file.
+    "molecules": {},
+    "reactions": {},
     "units": {
         "%": "percent",
         "pct": "percent",

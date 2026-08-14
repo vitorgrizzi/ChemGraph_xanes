@@ -16,6 +16,7 @@ from chemgraph.kg.extract import (
 )
 from chemgraph.kg.hypotheses import score_hypothesis, suggest_hypotheses
 from chemgraph.kg.ingest import ingest_path, read_chunks_jsonl
+from chemgraph.kg.profiles import profile_name_for_model
 from chemgraph.kg.query import (
     evidence_search,
     export_training_table,
@@ -43,11 +44,24 @@ class ExtractionAgent:
         records_out: str,
         llm=None,
         retries: int = 1,
+        profile: str = "general",
+        profiles_config: str | None = None,
     ) -> dict[str, Any]:
         chunks = read_chunks_jsonl(chunks_path)
-        records = extract_records_from_chunks(chunks, llm=llm, retries=retries)
+        records = extract_records_from_chunks(
+            chunks,
+            llm=llm,
+            retries=retries,
+            profile=profile,
+            profiles_config=profiles_config,
+        )
         write_records_jsonl(records, records_out)
-        return {"ok": True, "records_path": records_out, "n_records": len(records)}
+        return {
+            "ok": True,
+            "records_path": records_out,
+            "n_records": len(records),
+            "profile": profile,
+        }
 
 
 class VerifierAgent:
@@ -175,6 +189,8 @@ class OrchestratorAgent:
         goal: str | None = None,
         extraction_model: str = "deterministic",
         extraction_retries: int = 1,
+        extraction_profile: str = "general",
+        extraction_profiles_config: str | None = None,
     ) -> dict[str, Any]:
         work = Path(work_dir)
         chunks_path = work / "chunks.jsonl"
@@ -183,12 +199,18 @@ class OrchestratorAgent:
         kg_dir = work / "graph"
 
         ingestion = IngestionAgent().run(input_path, str(chunks_path))
+        extraction_profile = profile_name_for_model(
+            extraction_model,
+            extraction_profile,
+        )
         extraction_llm = load_extraction_llm(extraction_model)
         extraction = ExtractionAgent().run(
             str(chunks_path),
             str(records_path),
             llm=extraction_llm,
             retries=extraction_retries,
+            profile=extraction_profile,
+            profiles_config=extraction_profiles_config,
         )
         extraction["model"] = extraction_model
         verification = VerifierAgent().run(str(records_path), str(verified_path))
@@ -222,6 +244,14 @@ class KGExtractInput(BaseModel):
     chunks_path: str = Field(description="Path to chunk JSONL produced by kg_ingest_papers.")
     out_path: str = Field(description="JSONL path for extracted CatalystRecord objects.")
     model: str = Field(default="deterministic")
+    profile: str = Field(
+        default="general",
+        description="Domain vocabulary profile; use co2_methanol only for that pilot.",
+    )
+    profiles_config: str | None = Field(
+        default=None,
+        description="Optional YAML file defining extraction profiles.",
+    )
     retries: int = Field(default=1, ge=0, le=5)
 
 
@@ -293,18 +323,28 @@ def kg_extract_records(
     chunks_path: str,
     out_path: str,
     model: str = "deterministic",
+    profile: str = "general",
+    profiles_config: str | None = None,
     retries: int = 1,
 ) -> dict:
-    """Extract CatalystRecord JSONL with a selected model or offline fallback."""
+    """Extract records with a selected model and explicit vocabulary profile."""
     chunks = read_chunks_jsonl(chunks_path)
+    profile = profile_name_for_model(model, profile)
     llm = load_extraction_llm(model)
-    records = extract_records_from_chunks(chunks, llm=llm, retries=retries)
+    records = extract_records_from_chunks(
+        chunks,
+        llm=llm,
+        retries=retries,
+        profile=profile,
+        profiles_config=profiles_config,
+    )
     write_records_jsonl(records, out_path)
     return {
         "ok": True,
         "out_path": out_path,
         "n_records": len(records),
         "model": model,
+        "profile": profile,
     }
 
 

@@ -97,6 +97,7 @@ where = ["src/"]
 
 [tool.setuptools.package-data]
 "chemgraph.eval" = ["data/*.json"]
+"chemgraph.kg" = ["data/*.yaml"]
 
 [tool.ruff]
 line-length = 88  # Match Black's default (adjust as needed)
